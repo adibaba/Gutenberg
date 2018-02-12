@@ -1,10 +1,11 @@
 package de.adrianwilke.gutenberg;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
 
 import de.adrianwilke.gutenberg.entities.Author;
 import de.adrianwilke.gutenberg.entities.DcType;
@@ -19,27 +20,26 @@ import de.adrianwilke.gutenberg.entities.Node;
  * http://www.gutenberg.org/wiki/Gutenberg:Feeds (e.g.
  * http://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.bz2).
  * 
- * Configure directory for extracted RDF/XML files
- * {@link Runner#DIRECTORY_RDF_FILES} and directory to store Jena TDB
- * {@link Runner#DIRECTORY_TDB}.
+ * Set directory for extracted RDF/XML files {@link Examples#DIRECTORY_RDF} and
+ * directory to store Jena TDB {@link Examples#DIRECTORY_TDB}. You can also use
+ * command line arguments, see {@link Examples#mainConfigure(String[])}.
  * 
  * To execute example code, set EXEC-constants to 1 (e.g. to import RDF/XML
- * files use {@link Runner#EXEC_IMPORT_RDF_FILES}).
+ * files use {@link Examples#EXEC_IMPORT_RDF_FILES}).
  * 
  * @author Adrian Wilke
  */
-public class Runner {
+public class Examples {
 
 	public static final int ALICE_FILE_ID = 19778;
 	public static final String ALICE_URI = "http://www.gutenberg.org/ebooks/" + ALICE_FILE_ID;
 
-	// TODO: Please set directories here
-	public static final String DIRECTORY_RDF_FILES = "/tmp/rdf-files-gutenberg/epub";
-	public static final String DIRECTORY_TDB = "/tmp/rdf-files-gutenberg/tdb";
+	public static String DIRECTORY_RDF = "/tmp/gutenberg/epub";
+	public static String DIRECTORY_TDB = "/tmp/gutenberg/tdb";
 
-	public static int EXEC_IMPORT_RDF_FILES = 1;
+	public static int EXEC_IMPORT_RDF_FILES = 0;
 	public static int EXEC_IMPORTER_PRINT_RDF_FILE = 0;
-	public static int EXEC_PRINT_AUTHOR_INFORMATION = 0;
+	public static int EXEC_PRINT_AUTHOR_INFORMATION = 1;
 	public static int EXEC_PRINT_DC_TYPE_INFORMATION = 0;
 	public static int EXEC_PRINT_EBOOK_INFORMATION = 0;
 	public static int EXEC_PRINT_ITEMS_IN_LANGUAGE = 0;
@@ -49,65 +49,83 @@ public class Runner {
 
 	public static void main(String[] args) throws Exception {
 
+		// Configure
+		mainConfigure(args);
+
 		// Initialize TDB
 		Gutenberg.getInstance(DIRECTORY_TDB);
 
-		Runner runner = new Runner();
-
+		// Execute
 		if (0 != EXEC_IMPORT_RDF_FILES) {
 			String[] arguments = new String[2];
-			arguments[0] = DIRECTORY_RDF_FILES;
+			arguments[0] = DIRECTORY_RDF;
 			arguments[1] = DIRECTORY_TDB;
 
-			// if ("To import".equals(null)) {
-			Importer.main(args);
-			// } else {
-			// throw new Exception("Be sure to import.");
-			// }
+			if ("To import".equals(null)) {
+				Importer.main(args);
+			} else {
+				throw new Exception("Be sure to import.");
+			}
 		}
-
 		if (0 != EXEC_IMPORTER_PRINT_RDF_FILE) {
-			runner.printImporterRdfFile(DIRECTORY_RDF_FILES, ALICE_FILE_ID);
+			new Examples().printImporterRdfFile(DIRECTORY_RDF, ALICE_FILE_ID);
 		}
-
 		if (0 != EXEC_PRINT_AUTHOR_INFORMATION) {
-			runner.printAuthorInformation(new Ebook(ALICE_URI));
+			new Examples().printAuthorInformation(new Ebook(ALICE_URI));
 		}
-
 		if (0 != EXEC_PRINT_DC_TYPE_INFORMATION) {
-			runner.printDcTypeInformation();
+			new Examples().printDcTypeInformation();
 		}
-
 		if (0 != EXEC_PRINT_EBOOK_INFORMATION) {
-			runner.printEbookInformation();
+			new Examples().printEbookInformation();
 		}
-
 		if (0 != EXEC_PRINT_ITEMS_IN_LANGUAGE) {
-			runner.printItemsInLanguage(new Language(Language.LANG_DE));
+			new Examples().printItemsInLanguage(new Language(Language.LANG_DE));
 		}
-
 		if (0 != EXEC_PRINT_LANGUAGE_INFORMATION) {
-			runner.printLanguageInformation();
+			new Examples().printLanguageInformation();
 		}
-
 		if (0 != EXEC_PRINT_NODE_CONTEXT) {
-			runner.printNodeContext(new Node(ALICE_URI));
+			new Examples().printNodeContext(new Node(ALICE_URI));
+		}
+		if (0 != EXEC_PRINT_SIMILAR_EBOOKS) {
+			new Examples().printSimilarEbooks(new Ebook(ALICE_URI));
+		}
+	}
+
+	public static void mainConfigure(String[] args) throws Exception {
+
+		// Set directories
+		if (args.length == 2) {
+			DIRECTORY_RDF = args[0];
+			DIRECTORY_TDB = args[1];
+		} else if (args.length == 1) {
+			DIRECTORY_RDF = args[0] + File.separator + "epub";
+			DIRECTORY_TDB = args[0] + File.separator + "tdb";
 		}
 
-		if (0 != EXEC_PRINT_SIMILAR_EBOOKS) {
-			runner.printSimilarEbooks(new Ebook(ALICE_URI));
+		// Print info
+		System.out.println("DIRECTORY_RDF: " + DIRECTORY_RDF);
+		System.out.println("DIRECTORY_TDB: " + DIRECTORY_TDB);
+
+		// TODO: Check TDB directory for non-import methods
+		if (0 == EXEC_IMPORT_RDF_FILES && 0 == EXEC_IMPORTER_PRINT_RDF_FILE) {
+			File directoryTdb = new File(DIRECTORY_TDB);
+			if (!directoryTdb.isDirectory()
+					|| !directoryTdb.canRead()
+					|| !(Arrays.asList(directoryTdb.list())).contains("GOSP.dat")) {
+				System.err.println("Error: Can not read Jena TDB directory: " + DIRECTORY_RDF);
+				System.exit(1);
+			}
 		}
 	}
 
 	public void printAuthorInformation(Ebook ebook) {
-		Author author = ebook.getCreator();
-		System.out.println("String: " + author);
-		System.out.println("Name: " + author.getName());
-		System.out.println("Alias: " + author.getAlias());
-		System.out.println("Birthdate: " + author.getBirthdate());
-		System.out.println("Deathdate: " + author.getDeathdate());
-		System.out.println("Webpage: " + author.getWebpage());
-		System.out.println("URI: " + author.getUri());
+		Author firstAuthor = ebook.getCreators().get(0);
+		System.out.println("Authos: " + ebook.getCreators());
+		System.out.println("String A1: " + firstAuthor);
+		System.out.println("Name A1: " + firstAuthor.getName());
+		System.out.println("URI A1: " + firstAuthor.getUri());
 		System.out.println();
 	}
 
@@ -130,8 +148,8 @@ public class Runner {
 		System.out.println();
 
 		System.out.println(DcType.MOVING_IMAGE);
-		for (Resource resource : new DcType(DcType.MOVING_IMAGE).getResourcesByDcType()) {
-			System.out.println(resource);
+		for (RDFNode node : new DcType(DcType.MOVING_IMAGE).getResourcesByDcType()) {
+			System.out.println(node);
 		}
 		System.out.println();
 	}
@@ -172,7 +190,7 @@ public class Runner {
 
 	public void printImporterRdfFile(String gutenbergDirectory, int fileId) {
 		Importer importer = new Importer();
-		String filePath = importer.getRdfFile(DIRECTORY_RDF_FILES, Integer.toString(ALICE_FILE_ID));
+		String filePath = importer.getRdfFile(DIRECTORY_RDF, Integer.toString(ALICE_FILE_ID));
 		Model model = importer.getModel(filePath);
 		importer.printTurtle(model);
 	}
@@ -206,20 +224,57 @@ public class Runner {
 
 		int numberOfResources = 0;
 
-		Language langDe = new Language(Language.LANG_DE);
-		int size = langDe.getResourcesByLanguage().size();
-		System.out.println(langDe + " " + size);
+		Language lang = new Language(Language.LANG_DE);
+		int size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
 		numberOfResources += size;
 
-		Language langEn = new Language(Language.LANG_EN);
-		size = langEn.getResourcesByLanguage().size();
-		System.out.println(langEn + " " + size);
+		lang = new Language(Language.LANG_EN);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
 		numberOfResources += size;
+
+		lang = new Language(Language.LANG_ES);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
+		lang = new Language(Language.LANG_FI);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
+		lang = new Language(Language.LANG_FR);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
+		lang = new Language(Language.LANG_IT);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
+		lang = new Language(Language.LANG_NL);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
+		lang = new Language(Language.LANG_PT);
+		size = lang.getResourcesByLanguage().size();
+		System.out.println(lang + " " + size);
+		numberOfResources += size;
+
 		System.out.println();
-
 		for (String typedLiteralString : Language.getLanguages()) {
 			Language language = Language.create(typedLiteralString);
-			if (!language.toString().equals("de") && !language.toString().equals("en")) {
+			if (!language.toString().equals("de")
+					&& !language.toString().equals("en")
+					&& !language.toString().equals("es")
+					&& !language.toString().equals("fi")
+					&& !language.toString().equals("fr")
+					&& !language.toString().equals("it")
+					&& !language.toString().equals("nl")
+					&& !language.toString().equals("pt")) {
 				size = language.getResourcesByLanguage().size();
 				System.out.println(language + " " + size);
 				numberOfResources += size;
@@ -231,15 +286,17 @@ public class Runner {
 	}
 
 	public void printNodeContext(Node node) {
+		node.printContextExample();
 		node.printContext();
-		node.printExactContext();
 	}
 
 	public void printSimilarEbooks(Ebook ebook) {
-		System.out.println("Title: " + ebook.getTitle());
-		System.out.println("Alternative: " + ebook.getAlternative());
+		// TODO: Multiple creators
+		System.out.println("Title: " + ebook.getTitles());
+		System.out.println("Alternative: " + ebook.getAlternatives());
 		System.out.println();
-		ebook.getCreator().printTextEbooks();
+		// TODO: Multiple creators
+		ebook.getCreators().get(0).printTextEbooks();
 		System.out.println();
 	}
 }

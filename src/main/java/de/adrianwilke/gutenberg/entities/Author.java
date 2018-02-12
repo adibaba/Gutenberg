@@ -3,16 +3,11 @@ package de.adrianwilke.gutenberg.entities;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.jena.arq.querybuilder.SelectBuilder;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
 
-import de.adrianwilke.gutenberg.Gutenberg;
-import de.adrianwilke.gutenberg.Uris;
+import de.adrianwilke.gutenberg.rdf.SelectBldr;
+import de.adrianwilke.gutenberg.rdf.Uris;
 
 /**
  * Gutenberg authors/agents.
@@ -24,28 +19,18 @@ import de.adrianwilke.gutenberg.Uris;
  */
 public class Author extends Node {
 
+	private String name;
+	private List<String> textEbookUris;
+
 	public Author(String uri) {
 		super(uri);
 	}
 
 	public String getName() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_NAME), "?value", "value");
-	}
-
-	public String getAlias() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_ALIAS), "?value", "value");
-	}
-
-	public String getBirthdate() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_BIRTHDATE), "?value", "value");
-	}
-
-	public String getDeathdate() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_DEATHDATE), "?value", "value");
-	}
-
-	public String getWebpage() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_WEBPAGE), "?value", "value");
+		if (name == null) {
+			name = getValue(getEnclosedUri(), Uris.enclose(Uris.PGTERMS_NAME), "?value", "value");
+		}
+		return name;
 	}
 
 	@Override
@@ -53,30 +38,33 @@ public class Author extends Node {
 		return getName() + "  " + getUri();
 	}
 
-	public List<RDFNode> getTextEbookNodes() {
-		List<RDFNode> rdfNodes = new LinkedList<RDFNode>();
-		SelectBuilder sb = new SelectBuilder();
+	private List<RDFNode> getTextEbookNodes() {
+		SelectBldr sb = new SelectBldr();
 		Triple creatorTriple = sb.makeTriplePath("?ebook", Uris.enclose(Uris.DCTERMS_CREATOR), getEnclosedUri())
 				.asTriple();
 		sb.setDistinct(true).addWhere(creatorTriple).addVar("ebook");
 		for (Triple triple : new DcType(DcType.TEXT).getQueryTriples("ebook")) {
 			sb.addWhere(triple);
 		}
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			rdfNodes.add(results.nextSolution().get("ebook"));
-		}
-		return rdfNodes;
+		return sb.execute("ebook");
 	}
 
 	public List<Ebook> getTextEbooks() {
-		List<Ebook> textEbools = new LinkedList<Ebook>();
+		List<Ebook> textEbooks = new LinkedList<Ebook>();
 		for (RDFNode rdfNode : getTextEbookNodes()) {
-			textEbools.add(new Ebook(rdfNode.toString()));
+			textEbooks.add(new Ebook(rdfNode.toString()));
 		}
-		return textEbools;
+		return textEbooks;
+	}
+
+	public List<String> getTextEbookUris() {
+		if (textEbookUris == null) {
+			textEbookUris = new LinkedList<String>();
+			for (RDFNode rdfNode : getTextEbookNodes()) {
+				textEbookUris.add(rdfNode.toString());
+			}
+		}
+		return textEbookUris;
 	}
 
 	public void printTextEbooks() {

@@ -1,21 +1,14 @@
 package de.adrianwilke.gutenberg.entities;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.jena.arq.querybuilder.Order;
-import org.apache.jena.arq.querybuilder.SelectBuilder;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
 
-import de.adrianwilke.gutenberg.Gutenberg;
-import de.adrianwilke.gutenberg.Uris;
+import de.adrianwilke.gutenberg.rdf.SelectBldr;
+import de.adrianwilke.gutenberg.rdf.Uris;
 
 /**
  * Gutenberg eBook.
@@ -27,42 +20,25 @@ import de.adrianwilke.gutenberg.Uris;
 public class Ebook extends Node {
 
 	public static List<RDFNode> getEbooks() {
-		List<RDFNode> rdfNodes = new LinkedList<RDFNode>();
-		SelectBuilder sb = new SelectBuilder().setDistinct(true).addVar("ebook")
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("ebook")
 				.addWhere("?ebook", Uris.enclose(Uris.RDF_TYPE), Uris.enclose(Uris.PGTERMS_EBOOK))
 				.addOrderBy("ebook", Order.ASCENDING);
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			rdfNodes.add(results.nextSolution().get("ebook"));
-		}
-		Collections.sort(rdfNodes, getIdComparator());
-		return rdfNodes;
+		return sb.execute("ebook");
 	}
 
 	public static List<RDFNode> getEbooks(Language language) {
-		List<RDFNode> rdfNodes = new LinkedList<RDFNode>();
-		SelectBuilder sb = new SelectBuilder().setDistinct(true).addVar("item");
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
 		for (Triple triple : getQueryTriples("item")) {
 			sb.addWhere(triple);
 		}
 		for (Triple triple : language.getQueryTriples("item")) {
 			sb.addWhere(triple);
 		}
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			rdfNodes.add(results.nextSolution().get("item"));
-		}
-		Collections.sort(rdfNodes, getIdComparator());
-		return rdfNodes;
+		return sb.execute("item");
 	}
 
 	public static List<RDFNode> getEbooks(Language language, DcType dcType) {
-		List<RDFNode> rdfNodes = new LinkedList<RDFNode>();
-		SelectBuilder sb = new SelectBuilder().setDistinct(true).addVar("item");
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
 		for (Triple triple : getQueryTriples("item")) {
 			sb.addWhere(triple);
 		}
@@ -72,49 +48,74 @@ public class Ebook extends Node {
 		for (Triple triple : dcType.getQueryTriples("item")) {
 			sb.addWhere(triple);
 		}
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			QuerySolution x = results.nextSolution();
-			rdfNodes.add(x.get("item"));
-		}
-		Collections.sort(rdfNodes, getIdComparator());
-		return rdfNodes;
+		return sb.execute("item");
 	}
 
 	public static List<Triple> getQueryTriples(String subjectVariableName) {
 		List<Triple> triples = new LinkedList<Triple>();
-		SelectBuilder sb = new SelectBuilder();
+		SelectBldr sb = new SelectBldr();
 		triples.add(sb.makeTriplePath("?" + subjectVariableName, Uris.enclose(Uris.RDF_TYPE),
 				Uris.enclose(Uris.PGTERMS_EBOOK)).asTriple());
 		return triples;
 	}
 
+	List<String> alternatives;
+
+	List<Author> creators;
+
+	List<String> creatorUris;
+
+	List<String> titles;
+
 	public Ebook(String uri) {
 		super(uri);
 	}
 
-	public String getTitle() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?value", "value");
+	public List<String> getAllTitles() {
+		List<String> allTitles = new LinkedList<String>();
+		allTitles.addAll(getTitles());
+		allTitles.addAll(getAlternatives());
+		return allTitles;
 	}
 
-	public String getAlternative() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_ALTERNATIVE), "?value", "value");
+	public List<String> getAlternatives() {
+		if (alternatives == null) {
+			alternatives = new SelectBldr().setDistinct(true).addVar("item")
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_ALTERNATIVE), "?item")
+					.executeGetString("item");
+		}
+		return alternatives;
 	}
 
-	public String getCreatorUri() {
-		return getValue(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_CREATOR), "?value", "value");
+	public List<Author> getCreators() {
+		if (creators == null) {
+			creators = new LinkedList<Author>();
+			for (String cratorUri : getCreatorUris()) {
+				creators.add(new Author(cratorUri));
+			}
+		}
+		return creators;
 	}
 
-	public Author getCreator() {
-		return new Author(getCreatorUri());
+	public List<String> getCreatorUris() {
+		if (creatorUris == null) {
+			creatorUris = new SelectBldr().setDistinct(true).addVar("item")
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_CREATOR), "?item").executeGetString("item");
+		}
+		return creatorUris;
+	}
+
+	public List<String> getTitles() {
+		if (titles == null) {
+			titles = new SelectBldr().setDistinct(true).addVar("item")
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?item").executeGetString("item");
+		}
+		return titles;
 	}
 
 	@Override
 	public String toString() {
-		String title = getValue(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?value", "value");
-		title = getTitle().replace("\n", " - ").replace("\r", "");
-		return title + "  " + getUri() + " (" + getCreator() + ")";
+		String title = getAllTitles().get(0).replace("\n", " - ").replace("\r", "");
+		return title + "  " + getUri() + " (" + getCreators().get(0) + ")";
 	}
 }

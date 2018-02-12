@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg;
+package de.adrianwilke.gutenberg.rdf;
 
 import java.util.HashMap;
 import java.util.Map;

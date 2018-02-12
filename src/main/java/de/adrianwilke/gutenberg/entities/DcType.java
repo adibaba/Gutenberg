@@ -1,22 +1,15 @@
 package de.adrianwilke.gutenberg.entities;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.jena.arq.querybuilder.SelectBuilder;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.RDFNode;
 
-import de.adrianwilke.gutenberg.Gutenberg;
-import de.adrianwilke.gutenberg.Uris;
+import de.adrianwilke.gutenberg.rdf.SelectBldr;
+import de.adrianwilke.gutenberg.rdf.Uris;
 
 /**
  * DCMI Metadata Terms.
@@ -43,36 +36,26 @@ public class DcType extends Literal {
 
 	public static List<String> getDcTypes() {
 		List<String> dcTypes = new LinkedList<String>();
-		SelectBuilder sb = new SelectBuilder().setDistinct(true).addVar("typeValue")
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("typeValue")
 				.addWhere("?s", Uris.enclose(Uris.DCTERMS_TYPE), "?dctype")
 				.addWhere("?dctype", Uris.enclose(Uris.RDF_VALUE), "?typeValue");
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			dcTypes.add(results.nextSolution().getLiteral("typeValue").toString());
+		for (RDFNode rdfNode : sb.execute("typeValue")) {
+			dcTypes.add(rdfNode.toString());
 		}
 		return dcTypes;
 	}
 
-	public Set<Resource> getResourcesByDcType() {
-		SelectBuilder sb = new SelectBuilder().setDistinct(true).addVar("item");
+	public List<RDFNode> getResourcesByDcType() {
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
 		for (Triple triple : getQueryTriples("item")) {
 			sb.addWhere(triple);
 		}
-		Query query = sb.build();
-		QueryExecution qexec = QueryExecutionFactory.create(query, Gutenberg.getInstance().getModel());
-		Set<Resource> resources = new HashSet<Resource>();
-		ResultSet results = qexec.execSelect();
-		while (results.hasNext()) {
-			resources.add(results.nextSolution().getResource("item"));
-		}
-		return resources;
+		return sb.execute("item");
 	}
 
 	public List<Triple> getQueryTriples(String subjectVariableName) {
 		List<Triple> triples = new LinkedList<Triple>();
-		SelectBuilder sb = new SelectBuilder();
+		SelectBldr sb = new SelectBldr();
 		triples.add(
 				sb.makeTriplePath("?" + subjectVariableName, Uris.enclose(Uris.DCTERMS_TYPE), "?dctype").asTriple());
 		triples.add(sb.makeTriplePath("?dctype", Uris.enclose(Uris.RDF_VALUE), getRdfLiteral()).asTriple());

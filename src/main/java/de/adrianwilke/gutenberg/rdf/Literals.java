@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg;
+package de.adrianwilke.gutenberg.rdf;
 
 import org.apache.jena.datatypes.RDFDatatype;
 

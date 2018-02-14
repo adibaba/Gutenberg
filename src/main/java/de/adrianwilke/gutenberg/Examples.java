@@ -122,10 +122,14 @@ public class Examples {
 
 	public void printAuthorInformation(Ebook ebook) {
 		Author firstAuthor = ebook.getCreators().get(0);
-		System.out.println("Authos: " + ebook.getCreators());
-		System.out.println("String A1: " + firstAuthor);
-		System.out.println("Name A1: " + firstAuthor.getName());
-		System.out.println("URI A1: " + firstAuthor.getUri());
+		System.out.println("Authors: " + ebook.getCreators());
+		System.out.println("Author 1, to string: " + firstAuthor);
+		System.out.println("Author 1, Name: " + firstAuthor.getName());
+		System.out.println("Author 1, URI: " + firstAuthor.getUri());
+		System.out.println("Author 1, text books: ");
+		for (Ebook textBook : firstAuthor.getTextEbooks()) {
+			System.out.println(textBook);
+		}
 		System.out.println();
 	}
 
@@ -162,26 +166,26 @@ public class Examples {
 		DcType dcTypeText = new DcType(DcType.TEXT);
 		DcType dcTypeSound = new DcType(DcType.SOUND);
 
-		System.out.println("Total number of Ebooks: " + Ebook.getEbooks().size());
-		System.out.println("Number of Ebooks in language " + language + ": " + Ebook.getEbooks(language).size());
+		System.out.println("Total number of Ebooks: " + Ebook.getEbookRdfNodes().size());
+		System.out.println("Number of Ebooks in language " + language + ": " + Ebook.getEbookRdfNodes(language).size());
 
 		System.out.println("Number of Ebooks in language "
 				+ language
 				+ " and type "
 				+ dcTypeText
 				+ ": "
-				+ Ebook.getEbooks(language, dcTypeText).size());
+				+ Ebook.getEbookRdfNodes(language, dcTypeText).size());
 
 		System.out.println("Number of Ebooks in language "
 				+ language
 				+ " and type "
 				+ dcTypeSound
 				+ ": "
-				+ Ebook.getEbooks(language, dcTypeSound).size());
+				+ Ebook.getEbookRdfNodes(language, dcTypeSound).size());
 		System.out.println();
 
 		System.out.println("Ebooks in language " + language + " and type " + dcTypeSound + ": ");
-		for (RDFNode rdfNode : Ebook.getEbooks(language, dcTypeSound)) {
+		for (RDFNode rdfNode : Ebook.getEbookRdfNodes(language, dcTypeSound)) {
 			System.out.println(rdfNode);
 		}
 
@@ -207,7 +211,7 @@ public class Examples {
 
 		System.out.println("Ebooks of type text with language " + lang);
 		DcType dcTypeText = new DcType(DcType.TEXT);
-		List<RDFNode> ebooks = Ebook.getEbooks(lang, dcTypeText);
+		List<RDFNode> ebooks = Ebook.getEbookRdfNodes(lang, dcTypeText);
 		for (int j = 0; j < 5; j++) {
 			System.out.println(new Ebook(ebooks.get(j).toString()));
 		}

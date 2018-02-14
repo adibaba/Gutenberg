@@ -19,14 +19,20 @@ import de.adrianwilke.gutenberg.rdf.Uris;
  */
 public class Ebook extends Node {
 
-	public static List<RDFNode> getEbooks() {
+	/**
+	 * @deprecated Do not work on nodes, nonsense.
+	 */
+	public static List<RDFNode> getEbookRdfNodes() {
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("ebook")
 				.addWhere("?ebook", Uris.enclose(Uris.RDF_TYPE), Uris.enclose(Uris.PGTERMS_EBOOK))
 				.addOrderBy("ebook", Order.ASCENDING);
 		return sb.execute("ebook");
 	}
 
-	public static List<RDFNode> getEbooks(Language language) {
+	/**
+	 * @deprecated Do not work on nodes, nonsense.
+	 */
+	public static List<RDFNode> getEbookRdfNodes(Language language) {
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
 		for (Triple triple : getQueryTriples("item")) {
 			sb.addWhere(triple);
@@ -37,7 +43,10 @@ public class Ebook extends Node {
 		return sb.execute("item");
 	}
 
-	public static List<RDFNode> getEbooks(Language language, DcType dcType) {
+	/**
+	 * @deprecated Do not work on nodes, nonsense.
+	 */
+	public static List<RDFNode> getEbookRdfNodes(Language language, DcType dcType) {
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
 		for (Triple triple : getQueryTriples("item")) {
 			sb.addWhere(triple);
@@ -51,6 +60,39 @@ public class Ebook extends Node {
 		return sb.execute("item");
 	}
 
+	public static List<String> getEbookUris() {
+		return getEbookUris(null, null);
+	}
+
+	public static List<String> getEbookUris(DcType dcType) {
+		return getEbookUris(dcType, null);
+	}
+
+	public static List<String> getEbookUris(DcType dcType, Language language) {
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("item");
+		for (Triple triple : getQueryTriples("item")) {
+			sb.addWhere(triple);
+		}
+		if (language != null) {
+			for (Triple triple : language.getQueryTriples("item")) {
+				sb.addWhere(triple);
+			}
+		}
+		if (dcType != null) {
+			for (Triple triple : dcType.getQueryTriples("item")) {
+				sb.addWhere(triple);
+			}
+		}
+		return sb.executeGetStrings("item");
+	}
+
+	public static List<String> getEbookUris(Language language) {
+		return getEbookUris(null, language);
+	}
+
+	/**
+	 * Given variable will be an Gutenberg ebook.
+	 */
 	public static List<Triple> getQueryTriples(String subjectVariableName) {
 		List<Triple> triples = new LinkedList<Triple>();
 		SelectBldr sb = new SelectBldr();
@@ -64,6 +106,8 @@ public class Ebook extends Node {
 	List<Author> creators;
 
 	List<String> creatorUris;
+
+	List<Language> languages;
 
 	List<String> titles;
 
@@ -82,7 +126,7 @@ public class Ebook extends Node {
 		if (alternatives == null) {
 			alternatives = new SelectBldr().setDistinct(true).addVar("item")
 					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_ALTERNATIVE), "?item")
-					.executeGetString("item");
+					.executeGetStrings("item");
 		}
 		return alternatives;
 	}
@@ -100,22 +144,30 @@ public class Ebook extends Node {
 	public List<String> getCreatorUris() {
 		if (creatorUris == null) {
 			creatorUris = new SelectBldr().setDistinct(true).addVar("item")
-					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_CREATOR), "?item").executeGetString("item");
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_CREATOR), "?item").executeGetStrings("item");
 		}
 		return creatorUris;
+	}
+
+	public List<Language> getLanguages() {
+		if (languages == null) {
+			languages = Language.getLanguages(getUri());
+		}
+		return languages;
 	}
 
 	public List<String> getTitles() {
 		if (titles == null) {
 			titles = new SelectBldr().setDistinct(true).addVar("item")
-					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?item").executeGetString("item");
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?item").executeGetStrings("item");
 		}
 		return titles;
 	}
 
 	@Override
 	public String toString() {
-		String title = getAllTitles().get(0).replace("\n", " - ").replace("\r", "");
+		// https://www.leveluplunch.com/java/examples/remove-newline-carriage-return-from-string/
+		String title = getAllTitles().get(0).replaceAll("\n", " - ").replaceAll("\r", "");
 		return title + "  " + getUri() + " (" + getCreators().get(0) + ")";
 	}
 }

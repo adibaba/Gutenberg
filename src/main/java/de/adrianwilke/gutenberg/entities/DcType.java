@@ -53,6 +53,9 @@ public class DcType extends Literal {
 		return sb.execute("item");
 	}
 
+	/**
+	 * Given variable will be from this DC type.
+	 */
 	public List<Triple> getQueryTriples(String subjectVariableName) {
 		List<Triple> triples = new LinkedList<Triple>();
 		SelectBldr sb = new SelectBldr();

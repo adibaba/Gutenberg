@@ -3,12 +3,16 @@ package de.adrianwilke.gutenberg;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.apache.jena.rdf.model.RDFNode;
-
+import de.adrianwilke.gutenberg.comparators.ExactComparator;
+import de.adrianwilke.gutenberg.comparators.LastPointComparator;
+import de.adrianwilke.gutenberg.comparators.ShortenerComparator;
+import de.adrianwilke.gutenberg.comparators.TitleComparator;
 import de.adrianwilke.gutenberg.entities.Author;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
@@ -37,18 +41,15 @@ public class BilingualBooks {
 		Gutenberg.getInstance(tdbDirectory);
 		System.out.println("TDB directory: " + tdbDirectory);
 
-		// TODO
-		// new BilingualBooks().tmp();
 		new BilingualBooks().compareBilingualBoks();
 	}
 
 	private Map<String, Author> authorCache = new HashMap<String, Author>();
 	private Map<String, Ebook> textBookCache = new HashMap<String, Ebook>();
 
-	// TODO Get textbooks in special language, e.g. en
-	private List<Ebook> getTextBooks(String authorUri) {
-		List<Ebook> textBooks = new LinkedList<Ebook>();
+	private List<Ebook> getAllTextBooksOfAuthor(String authorUri) {
 
+		// Use cache
 		Author author;
 		if (authorCache.containsKey(authorUri)) {
 			author = authorCache.get(authorUri);
@@ -57,8 +58,10 @@ public class BilingualBooks {
 			authorCache.put(authorUri, author);
 		}
 
+		List<Ebook> textBooks = new LinkedList<Ebook>();
 		for (String textBookUri : author.getTextEbookUris()) {
 
+			// Use cache
 			Ebook textBook;
 			if (textBookCache.containsKey(textBookUri)) {
 				textBook = textBookCache.get(textBookUri);
@@ -76,6 +79,7 @@ public class BilingualBooks {
 	private List<Author> getAuthors(String textBookUri) {
 		List<Author> authors = new LinkedList<Author>();
 
+		// Use cache
 		Ebook textBook;
 		if (textBookCache.containsKey(textBookUri)) {
 			textBook = textBookCache.get(textBookUri);
@@ -86,6 +90,7 @@ public class BilingualBooks {
 
 		for (String authorUri : textBook.getCreatorUris()) {
 
+			// Use cache
 			Author author;
 			if (authorCache.containsKey(authorUri)) {
 				author = authorCache.get(authorUri);
@@ -100,53 +105,89 @@ public class BilingualBooks {
 		return authors;
 	}
 
-	// TODO
 	void compareBilingualBoks() {
+		TitleComparator.addTitleComparator(new LastPointComparator());
+		TitleComparator.addTitleComparator(new ShortenerComparator());
+		TitleComparator.addTitleComparator(new ExactComparator());
+
+		String onlyUseUri = "";
+		// onlyUseUri = "http://www.gutenberg.org/ebooks/19778"; // Alice
+		// TODO Faust
 
 		// Get all german text-books
-		List<RDFNode> germanEbooks = Ebook.getEbooks(new Language(Language.LANG_DE), new DcType(DcType.TEXT));
-		System.out.println(germanEbooks.size());
-		germanEbooks = germanEbooks.subList(0, 10);
+		List<String> originEbookUris = Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE));
 
-		// TODO: Subset to test
-		germanEbooks = germanEbooks.subList(0, 1);
+		if (!onlyUseUri.isEmpty()) {
+			originEbookUris = originEbookUris.subList(0, 1);
+		}
 
-		for (RDFNode germanEbook : germanEbooks) {
+		// Check all german ebooks
+		for (String originEbookUri : originEbookUris) {
 
-			// Get all translation candidates
-			List<Ebook> authorTextbooks = new LinkedList<Ebook>();
-			List<Author> authors = getAuthors(germanEbook.toString());
-			for (Author author : authors) {
-				authorTextbooks.addAll(getTextBooks(author.getUri()));
+			if (!onlyUseUri.isEmpty()) {
+				originEbookUri = onlyUseUri;
 			}
 
-			// TODO: Check, if names are similar
-			// Compare $germanEbook-allTitles with $authorTextbooks-allTitles
-			System.out.println(authorTextbooks);
+			Ebook originEbook = new Ebook(originEbookUri);
+
+			// Get all translation candidates
+			// (ebook -> all authors -> all ebooks)
+			Set<Ebook> allEbooksOfAllOriginAuthors = new HashSet<Ebook>();
+			for (Author author : getAuthors(originEbookUri)) {
+				allEbooksOfAllOriginAuthors.addAll(getAllTextBooksOfAuthor(author.getUri()));
+			}
+
+			// Compare all titles of translation candidates to all titles of origin
+			for (Ebook candidateEbook : allEbooksOfAllOriginAuthors) {
+
+				if (originEbookUri.equals(candidateEbook.getUri())) {
+					continue;
+				}
+
+				Set<String> candidateLanguages = new HashSet<String>();
+				for (Language candidateLanguage : candidateEbook.getLanguages()) {
+					candidateLanguages.add(candidateLanguage.getRdfLiteral().toString());
+
+				}
+				Set<String> originLanguages = new HashSet<String>();
+				for (Language originLanguage : originEbook.getLanguages()) {
+					originLanguages.add(originLanguage.getRdfLiteral().toString());
+
+				}
+				candidateLanguages.removeAll(originLanguages);
+				if (candidateLanguages.isEmpty()) {
+					continue;
+				}
+
+				// Use cache
+				if (textBookCache.containsKey(candidateEbook.getUri())) {
+					candidateEbook = textBookCache.get(candidateEbook.getUri());
+				} else {
+					textBookCache.put(candidateEbook.getUri(), candidateEbook);
+				}
+
+				for (String originTitle : originEbook.getAllTitles()) {
+					for (String title : candidateEbook.getAllTitles()) {
+						Set<String> matchingComparatorIds = TitleComparator.compareAll(title, originTitle);
+						for (String matchingComparatorId : matchingComparatorIds) {
+							System.out.println("FINAL MATCH: "
+									+ originTitle
+									+ "  +  "
+									+ candidateEbook.getLanguages()
+									+ " "
+									+ title
+									+ "  ("
+									+ matchingComparatorId
+									+ ")  "
+									+ originEbookUri
+									+ "  "
+									+ candidateEbook.getUri());
+						}
+					}
+				}
+			}
 		}
 
 	}
 
-	// TODO
-	void tmp() {
-		// Ebook book = new Ebook("http://www.gutenberg.org/ebooks/19778"); // ALICE
-		Ebook book = new Ebook("http://www.gutenberg.org/ebooks/19551"); // Multiple creators
-
-		// book.printContext();
-
-		// List<RDFNode> nodes = new SelectBldr().setDistinct(true)
-		// .addWhere(book.getEnclosedUri(), Uris.enclose(Uris.DCTERMS_LANGUAGE), "?l")
-		// .addWhere("?l", Uris.enclose(Uris.RDF_VALUE),
-		// "?typedlanguage").addVar("typedlanguage")
-		// .execute("typedlanguage");
-		// for (RDFNode rdfNode : nodes) {
-		// System.out.println(rdfNode);
-		// }
-
-		System.out.println(book.getCreators());
-
-		System.out.println(book.getAllTitles());
-
-		System.out.println(book.getCreators().get(0).getTextEbookUris());
-	}
 }

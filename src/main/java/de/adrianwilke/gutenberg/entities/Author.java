@@ -1,11 +1,13 @@
 package de.adrianwilke.gutenberg.entities;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.RDFNode;
 
+import de.adrianwilke.gutenberg.comparators.Comparators;
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
 
@@ -40,9 +42,13 @@ public class Author extends Node {
 
 	private List<RDFNode> getTextEbookNodes() {
 		SelectBldr sb = new SelectBldr();
+
+		// Ebooks of this autor
 		Triple creatorTriple = sb.makeTriplePath("?ebook", Uris.enclose(Uris.DCTERMS_CREATOR), getEnclosedUri())
 				.asTriple();
 		sb.setDistinct(true).addWhere(creatorTriple).addVar("ebook");
+
+		// Only type text
 		for (Triple triple : new DcType(DcType.TEXT).getQueryTriples("ebook")) {
 			sb.addWhere(triple);
 		}
@@ -54,6 +60,7 @@ public class Author extends Node {
 		for (RDFNode rdfNode : getTextEbookNodes()) {
 			textEbooks.add(new Ebook(rdfNode.toString()));
 		}
+		Collections.sort(textEbooks, new Comparators<Ebook>().getToStringDefault());
 		return textEbooks;
 	}
 

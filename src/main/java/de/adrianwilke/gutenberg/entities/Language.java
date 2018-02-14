@@ -23,7 +23,9 @@ public class Language extends Literal {
 
 	private static final RDFDatatype DATATYPE_RFC4646 = TypeMapper.getInstance()
 			.getSafeTypeByName(Uris.DCTERMS_RFC4646);
+
 	private static final Model DEFAULT_MODEL = ModelFactory.createDefaultModel();
+
 	public static final org.apache.jena.rdf.model.Literal LANG_DE = createTypedLiteral("de");
 	public static final org.apache.jena.rdf.model.Literal LANG_EN = createTypedLiteral("en");
 	public static final org.apache.jena.rdf.model.Literal LANG_ES = createTypedLiteral("es");
@@ -52,6 +54,21 @@ public class Language extends Literal {
 		return languages;
 	}
 
+	public static List<Language> getLanguages(String uri) {
+		List<Language> languages = new LinkedList<Language>();
+		for (String typedLiteral : getLanguageTypedLiterals(uri)) {
+			languages.add(Language.create(typedLiteral));
+		}
+		return languages;
+	}
+
+	public static List<String> getLanguageTypedLiterals(String uri) {
+		return new SelectBldr().setDistinct(true).addVar("typedLiteral")
+				.addWhere(Uris.enclose(uri), Uris.enclose(Uris.DCTERMS_LANGUAGE), "?language")
+				.addWhere("?language", Uris.enclose(Uris.RDF_VALUE), "?typedLiteral").executeGetStrings("typedLiteral");
+
+	}
+
 	public Language(org.apache.jena.rdf.model.Literal rdfLiteral) {
 		super(rdfLiteral);
 	}
@@ -60,6 +77,9 @@ public class Language extends Literal {
 		this(DEFAULT_MODEL.createTypedLiteral(lexicalForm, DATATYPE_RFC4646));
 	}
 
+	/**
+	 * Given variable will be in this language.
+	 */
 	public List<Triple> getQueryTriples(String subjectVariableName) {
 		List<Triple> triples = new LinkedList<Triple>();
 		SelectBldr sb = new SelectBldr();
@@ -75,5 +95,16 @@ public class Language extends Literal {
 			sb.addWhere(triple);
 		}
 		return sb.execute("item");
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.getClass().equals(Language.class)) {
+			if (((Language) obj).getRdfLiteral().toString().equals(getRdfLiteral().toString())) {
+				return true;
+			}
+		}
+		return super.equals(obj);
+
 	}
 }

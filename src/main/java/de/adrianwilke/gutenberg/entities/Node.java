@@ -1,6 +1,5 @@
 package de.adrianwilke.gutenberg.entities;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -10,6 +9,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.RDFNode;
 
+import de.adrianwilke.gutenberg.comparators.Comparators;
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 
 /**
@@ -19,33 +19,15 @@ import de.adrianwilke.gutenberg.rdf.SelectBldr;
  */
 public class Node {
 
-	// TODO: Not used yet
-	protected static Comparator<RDFNode> getIdComparator() {
-		return new Comparator<RDFNode>() {
-			public int compare(RDFNode o1, RDFNode o2) {
-				Integer id1 = Integer.valueOf(o1.toString().substring(1 + o1.toString().lastIndexOf("/")));
-				Integer id2 = Integer.valueOf(o2.toString().substring(1 + o2.toString().lastIndexOf("/")));
-				return id1 - id2;
-			}
-		};
-	}
-
 	private String uri;
 
 	public Node(String uri) {
 		this.uri = uri;
 	}
 
-	private Comparator<RDFNode> getComparator() {
-		return (new Comparator<RDFNode>() {
-			public int compare(RDFNode rdfNode1, RDFNode rdfNode2) {
-				return rdfNode1.toString().compareTo(rdfNode2.toString());
-			}
-		});
-	}
-
 	public SortedMap<RDFNode, RDFNode> getContextAsObject() {
-		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(getComparator());
+		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
+				new Comparators<RDFNode>().getToStringDefault());
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("s").addVar("p").addWhere("?s", "?p",
 				getEnclosedUri());
 		for (QuerySolution querySolution : sb.execute()) {
@@ -55,7 +37,8 @@ public class Node {
 	}
 
 	public SortedMap<RDFNode, RDFNode> getContextAsPredicate() {
-		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(getComparator());
+		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
+				new Comparators<RDFNode>().getToStringDefault());
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("st").addVar("ot")
 				.addWhere("?s", getEnclosedUri(), "?o")
 				.addWhere("?s", "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", "?st")
@@ -67,7 +50,8 @@ public class Node {
 	}
 
 	public SortedMap<RDFNode, RDFNode> getContextAsSubject() {
-		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(getComparator());
+		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
+				new Comparators<RDFNode>().getToStringDefault());
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("p").addVar("o").addWhere(getEnclosedUri(), "?p",
 				"?o");
 		for (QuerySolution querySolution : sb.execute()) {

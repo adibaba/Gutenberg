@@ -62,7 +62,7 @@ public class SelectBldr extends SelectBuilder {
 		return nodes;
 	}
 
-	public List<String> executeGetString(String returnVariable) {
+	public List<String> executeGetStrings(String returnVariable) {
 		List<String> values = new LinkedList<String>();
 		ResultSet results = QueryExecutionFactory.create(build(), Gutenberg.getInstance().getModel()).execSelect();
 		while (results.hasNext()) {

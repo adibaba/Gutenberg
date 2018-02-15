@@ -23,10 +23,13 @@ public class BilingualBooks {
 	public static void main(String[] args) {
 
 		String tdbDirectory = null;
-		if (args.length == 1) {
+		String downloadDirectory = null;
+
+		if (args.length == 2) {
 			tdbDirectory = args[0];
+			downloadDirectory = args[1];
 		} else {
-			System.err.println("Please set Jena TDB directory");
+			System.err.println("Please set Jena TDB directory and a download directoy");
 			System.exit(1);
 		}
 
@@ -39,7 +42,9 @@ public class BilingualBooks {
 		}
 
 		Gutenberg.getInstance(tdbDirectory);
-		System.out.println("TDB directory: " + tdbDirectory);
+		System.out.println("TDB directory:      " + tdbDirectory);
+		Gutenberg.getInstance().setDownloadDirectory(downloadDirectory);
+		System.out.println("Download directory: " + Gutenberg.getInstance().getDownloadDirectory());
 
 		new BilingualBooks().compareBilingualBoks();
 	}
@@ -169,18 +174,19 @@ public class BilingualBooks {
 				for (String originTitle : originEbook.getAllTitles()) {
 					for (String title : candidateEbook.getAllTitles()) {
 						Set<String> matchingComparatorIds = TitleComparator.compareAll(title, originTitle);
+
 						for (String matchingComparatorId : matchingComparatorIds) {
 							System.out.println("FINAL MATCH: "
 									+ originTitle
-									+ "  +  "
+									+ " + "
 									+ candidateEbook.getLanguages()
 									+ " "
 									+ title
-									+ "  ("
+									+ " ("
 									+ matchingComparatorId
-									+ ")  "
+									+ ") "
 									+ originEbookUri
-									+ "  "
+									+ " "
 									+ candidateEbook.getUri());
 						}
 					}

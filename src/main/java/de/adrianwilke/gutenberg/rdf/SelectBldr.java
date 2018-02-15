@@ -3,6 +3,7 @@ package de.adrianwilke.gutenberg.rdf;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.jena.arq.querybuilder.AbstractQueryBuilder;
 import org.apache.jena.arq.querybuilder.Order;
 import org.apache.jena.arq.querybuilder.SelectBuilder;
 import org.apache.jena.graph.Triple;
@@ -10,6 +11,8 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.lang.sparql_11.ParseException;
 
 import de.adrianwilke.gutenberg.Gutenberg;
 
@@ -19,6 +22,24 @@ import de.adrianwilke.gutenberg.Gutenberg;
  * @author Adrian Wilke
  */
 public class SelectBldr extends SelectBuilder {
+
+	@Override
+	public SelectBldr addFilter(Expr expr) {
+		super.addFilter(expr);
+		return this;
+	}
+
+	@Override
+	public SelectBldr addFilter(String s) throws ParseException {
+		super.addFilter(s);
+		return this;
+	}
+
+	@Override
+	public SelectBldr addMinus(AbstractQueryBuilder<?> t) {
+		super.addMinus(t);
+		return this;
+	}
 
 	@Override
 	public SelectBldr addOrderBy(Object orderBy, Order order) {

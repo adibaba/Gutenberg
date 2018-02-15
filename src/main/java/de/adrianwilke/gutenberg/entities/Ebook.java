@@ -102,13 +102,10 @@ public class Ebook extends Node {
 	}
 
 	List<String> alternatives;
-
 	List<Author> creators;
-
 	List<String> creatorUris;
-
+	List<String> formats;
 	List<Language> languages;
-
 	List<String> titles;
 
 	public Ebook(String uri) {
@@ -147,6 +144,15 @@ public class Ebook extends Node {
 					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_CREATOR), "?item").executeGetStrings("item");
 		}
 		return creatorUris;
+	}
+
+	public List<String> getFormats() {
+		if (formats == null) {
+			formats = new SelectBldr().setDistinct(true).addVar("item")
+					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_HAS_FORMAT), "?item")
+					.executeGetStrings("item");
+		}
+		return formats;
 	}
 
 	public List<Language> getLanguages() {

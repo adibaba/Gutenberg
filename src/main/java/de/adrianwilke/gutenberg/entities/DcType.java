@@ -12,9 +12,17 @@ import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
 
 /**
- * DCMI Metadata Terms.
+ * DCMI Metadata Terms dcterms:type.
  * 
  * http://purl.org/dc/terms/type
+ * 
+ * Description: "Recommended best practice is to use a controlled vocabulary
+ * such as the DCMI Type Vocabulary [DCMITYPE]. To describe the file format,
+ * physical medium, or dimensions of the resource, use the Format element."
+ * 
+ * Comment: "The nature or genre of the resource."
+ * 
+ * http://dublincore.org/2012/06/14/dcterms#type
  * 
  * @author Adrian Wilke
  */

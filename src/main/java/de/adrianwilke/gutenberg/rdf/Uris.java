@@ -14,27 +14,29 @@ import org.apache.jena.vocabulary.DCTerms;
 public abstract class Uris {
 
 	public static final String DCTERMS = DCTerms.getURI();
-	public static final String DCTERMS_LANGUAGE = DCTerms.language.getURI();
-	public static final String DCTERMS_CREATOR = DCTerms.creator.getURI();
-	public static final String DCTERMS_TITLE = DCTerms.title.getURI();
-	public static final String DCTERMS_TYPE = DCTerms.type.getURI();
 	public static final String DCTERMS_ALTERNATIVE = DCTerms.alternative.getURI();
+	public static final String DCTERMS_CREATOR = DCTerms.creator.getURI();
+	public static final String DCTERMS_HAS_FORMAT = DCTerms.hasFormat.getURI();
+	public static final String DCTERMS_LANGUAGE = DCTerms.language.getURI();
 	public static final String DCTERMS_RFC4646 = DCTERMS + "RFC4646";
 
-	public static final String PGTERMS_EBOOK = "http://www.gutenberg.org/2009/pgterms/ebook";
+	public static final String DCTERMS_TITLE = DCTerms.title.getURI();
+	public static final String DCTERMS_TYPE = DCTerms.type.getURI();
+
 	public static final String PGTERMS_ALIAS = "http://www.gutenberg.org/2009/pgterms/alias";
 	public static final String PGTERMS_BIRTHDATE = "http://www.gutenberg.org/2009/pgterms/birthdate";
 	public static final String PGTERMS_DEATHDATE = "http://www.gutenberg.org/2009/pgterms/deathdate";
+	public static final String PGTERMS_EBOOK = "http://www.gutenberg.org/2009/pgterms/ebook";
 	public static final String PGTERMS_NAME = "http://www.gutenberg.org/2009/pgterms/name";
 	public static final String PGTERMS_WEBPAGE = "http://www.gutenberg.org/2009/pgterms/webpage";
 
+	public static final Map<String, String> PREFIX = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_CC = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_DCAM = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_DCTERMS = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_MARCREL = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_RDF = new HashMap<String, String>();
 	public static final Map<String, String> PREFIX_RDFS = new HashMap<String, String>();
-	public static final Map<String, String> PREFIX = new HashMap<String, String>();
 
 	public static final String RDF = org.apache.jena.vocabulary.RDF.getURI();
 	public static final String RDF_TYPE = org.apache.jena.vocabulary.RDF.type.getURI();

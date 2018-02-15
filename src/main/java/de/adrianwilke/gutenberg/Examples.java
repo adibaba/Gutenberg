@@ -39,9 +39,10 @@ public class Examples {
 
 	public static int EXEC_IMPORT_RDF_FILES = 0;
 	public static int EXEC_IMPORTER_PRINT_RDF_FILE = 0;
-	public static int EXEC_PRINT_AUTHOR_INFORMATION = 1;
+	public static int EXEC_PRINT_AUTHOR_INFORMATION = 0;
 	public static int EXEC_PRINT_DC_TYPE_INFORMATION = 0;
-	public static int EXEC_PRINT_EBOOK_INFORMATION = 0;
+	public static int EXEC_PRINT_EBOOK_INFORMATION = 1;
+	public static int EXEC_PRINT_EBOOKS_INFORMATION = 0;
 	public static int EXEC_PRINT_ITEMS_IN_LANGUAGE = 0;
 	public static int EXEC_PRINT_LANGUAGE_INFORMATION = 0;
 	public static int EXEC_PRINT_NODE_CONTEXT = 0;
@@ -77,7 +78,10 @@ public class Examples {
 			new Examples().printDcTypeInformation();
 		}
 		if (0 != EXEC_PRINT_EBOOK_INFORMATION) {
-			new Examples().printEbookInformation();
+			new Examples().printEbookInformation(new Ebook(ALICE_URI));
+		}
+		if (0 != EXEC_PRINT_EBOOKS_INFORMATION) {
+			new Examples().printEbooksInformation();
 		}
 		if (0 != EXEC_PRINT_ITEMS_IN_LANGUAGE) {
 			new Examples().printItemsInLanguage(new Language(Language.LANG_DE));
@@ -158,7 +162,18 @@ public class Examples {
 		System.out.println();
 	}
 
-	public void printEbookInformation() {
+	public void printEbookInformation(Ebook ebook) {
+		System.out.println(ebook);
+		System.out.println(ebook.getTitles());
+		System.out.println(ebook.getAlternatives());
+		System.out.println(ebook.getAllTitles());
+		System.out.println(ebook.getCreators());
+		System.out.println(ebook.getFormats());
+		System.out.println(ebook.getLanguages());
+		
+	}
+	
+	public void printEbooksInformation() {
 		System.out.println();
 
 		// Sizes of collections

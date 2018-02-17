@@ -54,6 +54,8 @@ public class DcFormat {
 	public static String TYPE_CASE_INSENSITIVE_PNG = "png"; // 2K
 	public static String TYPE_CASE_INSENSITIVE_PDF = "pdf"; // 1K
 
+	public static String TYPE_H_ZIP = "-h.zip"; // HTML ZIP
+
 	public static TreeMap<String, Integer> getDcFormats(boolean caseSensitive) {
 
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("format").addWhere("?s",

@@ -37,15 +37,17 @@ public class BilingualBooks {
 		mainConfigure(args);
 		BilingualBooks bb = new BilingualBooks();
 
-		List<String> germanTextBooks = Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE));
-		Language en = new Language(Language.LANG_EN);
-		DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_CASE_INSENSITIVE_TXT);
-		DcFormat allFiles = new DcFormat(DcFormat.PREFIX_FILES, null);
+		List<String> germanTextBooksUris = Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE));
+		Language languageEn = new Language(Language.LANG_EN);
+		DcFormat formatTxt = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_CASE_INSENSITIVE_TXT);
+		DcFormat formatTxtUtf8 = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_CASE_INSENSITIVE_TXT_UTF_8);
+		DcFormat formatAllFiles = new DcFormat(DcFormat.PREFIX_FILES, null);
+		DcFormat formatHtmlZip = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_H_ZIP);
 
 		// Generate matches from TDB
 		if (EXECUTE == false) {
 			long time = System.currentTimeMillis();
-			bb.getBilingual(germanTextBooks);
+			bb.getBilingual(germanTextBooksUris, languageEn);
 			System.out.println((System.currentTimeMillis() - time) / 1000f);
 		}
 
@@ -55,7 +57,7 @@ public class BilingualBooks {
 		}
 
 		// Read serialized matches from file
-		if (EXECUTE == true) {
+		if (EXECUTE == false) {
 			BilingualMatch.readAllSerialized(FILE_MATCHES_DE);
 		}
 
@@ -65,16 +67,19 @@ public class BilingualBooks {
 		}
 
 		// Download matches
-		if (EXECUTE == true) {
-			bb.downloadMultimatch(textFileFormat);
+		if (EXECUTE == false) {
+			bb.downloadMultimatch(formatTxt, "bilingual-de-en");
+			bb.downloadMultimatch(formatTxtUtf8, "bilingual-de-en");
+			bb.downloadMultimatch(formatTxtUtf8, "bilingual-de-en");
+			bb.downloadMultimatch(formatHtmlZip, "bilingual-de-en");
 		}
 
 		// Print and download native bilingual books
 		if (EXECUTE == false) {
-			Set<Ebook> nativeBilingualBooks = bb.getNativeBilingualBooks(germanTextBooks, en);
+			Set<Ebook> nativeBilingualBooks = bb.getNativeBilingualBooks(germanTextBooksUris, languageEn);
 			for (Ebook ebook : nativeBilingualBooks) {
 				System.out.println(ebook);
-				bb.downloadEbook(ebook, allFiles, "native-bilingual-de-en");
+				bb.downloadEbook(ebook, formatAllFiles, "native-bilingual-de-en");
 			}
 		}
 
@@ -119,7 +124,7 @@ public class BilingualBooks {
 	@SuppressWarnings("unchecked")
 	private Cache<Ebook> ebookCache = (Cache<Ebook>) Cache.getCache(Ebook.class);
 
-	private void downloadMultimatch(DcFormat downloadFormat) {
+	private void downloadMultimatch(DcFormat downloadFormat, String downloadPathPrefix) {
 		if (downloadFormat.getPrefix() != null) {
 
 			// Get IDs of all e-books in matches
@@ -131,7 +136,7 @@ public class BilingualBooks {
 			System.out.println("IDs to check for download: " + ids.size());
 
 			for (int id : ids) {
-				downloadEbook(new Ebook(id), downloadFormat, "");
+				downloadEbook(new Ebook(id), downloadFormat, downloadPathPrefix);
 			}
 		} else {
 			System.err.println("Please specify prefix for download.");
@@ -192,7 +197,8 @@ public class BilingualBooks {
 	/**
 	 * Results are added to {@link BilingualMatch}
 	 */
-	public void getBilingual(List<String> ebookUris) throws FileNotFoundException, IOException {
+	public void getBilingual(List<String> ebookUris, Language secondLanguage)
+			throws FileNotFoundException, IOException {
 
 		// Check all input ebooks
 		for (String originEbookUri : ebookUris) {
@@ -211,6 +217,11 @@ public class BilingualBooks {
 
 				// Do not return origin ebook
 				if (originEbookUri.equals(candidateEbook.getUri())) {
+					continue;
+				}
+
+				// Check second language
+				if (!candidateEbook.getLanguages().contains(secondLanguage)) {
 					continue;
 				}
 

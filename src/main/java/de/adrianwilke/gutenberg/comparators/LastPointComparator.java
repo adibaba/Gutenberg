@@ -23,6 +23,7 @@ public class LastPointComparator extends TitleComparator {
 		}
 
 		if (title1.equals(title2)) {
+			setMatchingString(title1);
 			return true;
 		} else {
 			return false;

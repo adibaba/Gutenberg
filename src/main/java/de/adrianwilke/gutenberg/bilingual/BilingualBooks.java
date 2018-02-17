@@ -1,8 +1,9 @@
-package de.adrianwilke.gutenberg;
+package de.adrianwilke.gutenberg.bilingual;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,20 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.adrianwilke.gutenberg.Gutenberg;
 import de.adrianwilke.gutenberg.comparators.ExactComparator;
 import de.adrianwilke.gutenberg.comparators.LastPointComparator;
 import de.adrianwilke.gutenberg.comparators.ShortenerComparator;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
-import de.adrianwilke.gutenberg.download.Downloader;
 import de.adrianwilke.gutenberg.entities.Author;
-import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 
 public class BilingualBooks {
 
-	public static void main(String[] args) throws MalformedURLException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 
 		String tdbDirectory = null;
 		String downloadDirectory = null;
@@ -50,7 +50,12 @@ public class BilingualBooks {
 		Gutenberg.getInstance().setDownloadDirectory(downloadDirectory);
 		System.out.println("Download directory: " + Gutenberg.getInstance().getDownloadDirectory());
 
-		new BilingualBooks().compareBilingualBoks();
+
+		String bilingualMatchesFile="/home/adi/Downloads/rdf-files-gutenberg/serialized/bilingual-matches.dat";
+		BilingualMatch.readAll((new File(bilingualMatchesFile)));
+		System.out.println(BilingualMatch.toStringAll());
+		
+//		new BilingualBooks().compareBilingualBoks();
 	}
 
 	private Map<String, Author> authorCache = new HashMap<String, Author>();
@@ -114,7 +119,7 @@ public class BilingualBooks {
 		return authors;
 	}
 
-	void compareBilingualBoks() throws MalformedURLException {
+	void compareBilingualBoks() throws FileNotFoundException, IOException {
 		TitleComparator.addTitleComparator(new LastPointComparator());
 		TitleComparator.addTitleComparator(new ShortenerComparator());
 		TitleComparator.addTitleComparator(new ExactComparator());
@@ -177,31 +182,24 @@ public class BilingualBooks {
 					textBookCache.put(candidateEbook.getUri(), candidateEbook);
 				}
 
+				
 				for (String originTitle : originEbook.getAllTitles()) {
 					for (String title : candidateEbook.getAllTitles()) {
-						Set<String> matchingComparatorIds = TitleComparator.compareAll(title, originTitle);
+						Map<String, String> matches = TitleComparator.compareAll(title, originTitle);
 
-						for (String matchingComparatorId : matchingComparatorIds) {
-							System.out.println("FINAL MATCH: "
-									+ originTitle
-									+ " + "
-									+ candidateEbook.getLanguages()
-									+ " "
-									+ title
-									+ " ("
-									+ matchingComparatorId
-									+ ") "
-									+ originEbookUri
-									+ " "
-									+ candidateEbook.getUri());
+						if (!matches.isEmpty()) {
+
+							BilingualMatch.add(new BilingualMatch(originEbook.getId(), candidateEbook.getId(),
+									originTitle, title, matches));
 						}
 
 						// Download
-						if (!matchingComparatorIds.isEmpty()) {
-							Downloader downloader = new Downloader(Gutenberg.getInstance().getDownloadDirectory());
-							DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES,
-									DcFormat.TYPE_CASE_INSENSITIVE_TXT);
-
+						if (!matches.isEmpty()) {
+							// Downloader downloader = new
+							// Downloader(Gutenberg.getInstance().getDownloadDirectory());
+							// DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES,
+							// DcFormat.TYPE_CASE_INSENSITIVE_TXT);
+							//
 							// for (String textFileUrl : originEbook.getFormatUrls(textFileFormat)) {
 							// downloader.download(textFileUrl,
 							// originEbook.getFilesystemId() + "." + textFileFormat.getSuffix());
@@ -221,10 +219,15 @@ public class BilingualBooks {
 				// System.out.println(candidateEbook.getFilesystemId() + "." + new
 				// DcFormat(DcFormat.PREFIX_FILES,
 				// DcFormat.TYPE_CASE_INSENSITIVE_TXT).getSuffix());
+
+//				System.out.println(BilingualMatch.toStringAllMultilines());
+				
 			}
 
 		}
 
+		String bilingualMatchesFile="/home/adi/Downloads/rdf-files-gutenberg/serialized/bilingual-matches.dat";
+		BilingualMatch.writeAll(new File(bilingualMatchesFile));
 	}
 
 }

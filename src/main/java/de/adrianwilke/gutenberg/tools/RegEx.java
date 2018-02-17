@@ -38,6 +38,12 @@ public class RegEx {
 			+ "\\u3000" // IDEOGRAPHIC SPACE
 	;
 
+	public static String getAscii(String string) {
+		// https://stackoverflow.com/a/3322174/1543389
+		string = Normalizer.normalize(string, Normalizer.Form.NFD);
+		return string.replaceAll("[^\\p{ASCII}]", "");
+	}
+
 	public static String removeAllExeptAlphaNumberUnderscore(String string) {
 		return string.replaceAll("[^a-zA-Z0-9_]", "");
 	}
@@ -47,20 +53,24 @@ public class RegEx {
 		return string.replaceAll("\n", " ").replaceAll("\r", "");
 	}
 
-	public static String replaceSpacesByUnderscore(String string) {
-		return string.replaceAll("[" + whitespaceChars + "]", "_");
+	public static String replaceLinebreaksBySpaceMinusSpace(String string) {
+		// https://www.leveluplunch.com/java/examples/remove-newline-carriage-return-from-string/
+		return string.replaceAll("\n", " - ").replaceAll("\r", "");
 	}
 
-	public static String getAscii(String string) {
-		// https://stackoverflow.com/a/3322174/1543389
-		string = Normalizer.normalize(string, Normalizer.Form.NFD);
-		return string.replaceAll("[^\\p{ASCII}]", "");
+	public static String replaceSpacesByUnderscore(String string) {
+		return string.replaceAll("[" + whitespaceChars + "]", "_");
 	}
 
 	private String string;
 
 	public RegEx(String string) {
 		this.string = string;
+	}
+
+	public RegEx getAscii() {
+		string = getAscii(string);
+		return this;
 	}
 
 	public RegEx removeAllExeptAlphaNumberUnderscore() {
@@ -73,13 +83,13 @@ public class RegEx {
 		return this;
 	}
 
-	public RegEx replaceSpacesByUnderscore() {
-		string = replaceSpacesByUnderscore(string);
+	public RegEx replaceLinebreaksBySpaceMinusSpace() {
+		string = replaceLinebreaksBySpaceMinusSpace(string);
 		return this;
 	}
 
-	public RegEx getAscii() {
-		string = getAscii(string);
+	public RegEx replaceSpacesByUnderscore() {
+		string = replaceSpacesByUnderscore(string);
 		return this;
 	}
 

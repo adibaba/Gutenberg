@@ -3,7 +3,6 @@ package de.adrianwilke.gutenberg.bilingual;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,12 +49,14 @@ public class BilingualBooks {
 		Gutenberg.getInstance().setDownloadDirectory(downloadDirectory);
 		System.out.println("Download directory: " + Gutenberg.getInstance().getDownloadDirectory());
 
-
-		String bilingualMatchesFile="/home/adi/Downloads/rdf-files-gutenberg/serialized/bilingual-matches.dat";
-		BilingualMatch.readAll((new File(bilingualMatchesFile)));
+		String bilingualMatchesDirectory = "/home/adi/Downloads/rdf-files-gutenberg/serialized";
+		String bilingualMatchesFile = "bilingual-matches.dat";
+		BilingualMatch.readAll(bilingualMatchesDirectory, bilingualMatchesFile);
 		System.out.println(BilingualMatch.toStringAll());
-		
-//		new BilingualBooks().compareBilingualBoks();
+		System.out.println(BilingualMatch.getAll().size());
+		System.out.println();
+
+//		new BilingualBooks().compareBilingualBooks();
 	}
 
 	private Map<String, Author> authorCache = new HashMap<String, Author>();
@@ -119,7 +120,7 @@ public class BilingualBooks {
 		return authors;
 	}
 
-	void compareBilingualBoks() throws FileNotFoundException, IOException {
+	void compareBilingualBooks() throws FileNotFoundException, IOException {
 		TitleComparator.addTitleComparator(new LastPointComparator());
 		TitleComparator.addTitleComparator(new ShortenerComparator());
 		TitleComparator.addTitleComparator(new ExactComparator());
@@ -182,7 +183,6 @@ public class BilingualBooks {
 					textBookCache.put(candidateEbook.getUri(), candidateEbook);
 				}
 
-				
 				for (String originTitle : originEbook.getAllTitles()) {
 					for (String title : candidateEbook.getAllTitles()) {
 						Map<String, String> matches = TitleComparator.compareAll(title, originTitle);
@@ -219,15 +219,15 @@ public class BilingualBooks {
 				// System.out.println(candidateEbook.getFilesystemId() + "." + new
 				// DcFormat(DcFormat.PREFIX_FILES,
 				// DcFormat.TYPE_CASE_INSENSITIVE_TXT).getSuffix());
-
-//				System.out.println(BilingualMatch.toStringAllMultilines());
-				
 			}
 
 		}
 
-		String bilingualMatchesFile="/home/adi/Downloads/rdf-files-gutenberg/serialized/bilingual-matches.dat";
-		BilingualMatch.writeAll(new File(bilingualMatchesFile));
+		String bilingualMatchesDirectory = "/home/adi/Downloads/rdf-files-gutenberg/serialized";
+		String bilingualMatchesFile = "bilingual-matches.dat";
+		BilingualMatch.writeAll(bilingualMatchesDirectory, bilingualMatchesFile);
+		System.out.println(BilingualMatch.toStringAll());
+		System.out.println(BilingualMatch.getAll().size());
 	}
 
 }

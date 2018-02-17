@@ -1,12 +1,7 @@
 package de.adrianwilke.gutenberg.bilingual;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +11,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import de.adrianwilke.gutenberg.data.FileSerializer;
+import de.adrianwilke.gutenberg.exceptions.FileNotFoundRuntimeException;
+import de.adrianwilke.gutenberg.exceptions.FileSerializerRuntimeException;
 import de.adrianwilke.gutenberg.tools.RegEx;
 
 /**
@@ -39,22 +37,14 @@ public class BilingualMatch implements Serializable {
 		return bilingualMatches;
 	}
 
+	/**
+	 * @throws FileNotFoundRuntimeException
+	 * @throws FileSerializerRuntimeException
+	 */
 	@SuppressWarnings("unchecked")
-	public static void readAll(File file) throws FileNotFoundException, IOException, ClassNotFoundException {
-		FileInputStream fileInputStream = null;
-		ObjectInputStream objectInputStream = null;
-		try {
-			fileInputStream = new FileInputStream(file);
-			objectInputStream = new ObjectInputStream(fileInputStream);
-			bilingualMatches = (Set<BilingualMatch>) objectInputStream.readObject();
-		} finally {
-			if (fileInputStream != null) {
-				fileInputStream.close();
-			}
-			if (objectInputStream != null) {
-				objectInputStream.close();
-			}
-		}
+	public static void readAll(String baseSerializationDirectory, String filePath)
+			throws FileNotFoundException, IOException {
+		bilingualMatches = (Set<BilingualMatch>) new FileSerializer(baseSerializationDirectory).read(filePath);
 	}
 
 	public static String toStringAll() {
@@ -83,21 +73,13 @@ public class BilingualMatch implements Serializable {
 		return sb.toString();
 	}
 
-	public static void writeAll(File file) throws FileNotFoundException, IOException {
-		ObjectOutputStream objectOutputStream = null;
-		FileOutputStream fileOutputStream = null;
-		try {
-			fileOutputStream = new FileOutputStream(file);
-			objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(bilingualMatches);
-		} finally {
-			if (fileOutputStream != null) {
-				fileOutputStream.close();
-			}
-			if (objectOutputStream != null) {
-				objectOutputStream.close();
-			}
-		}
+	/**
+	 * @throws FileNotFoundRuntimeException
+	 * @throws FileSerializerRuntimeException
+	 */
+	public static void writeAll(String baseSerializationDirectory, String filePath)
+			throws FileNotFoundException, IOException {
+		new FileSerializer(baseSerializationDirectory).write(filePath, bilingualMatches);
 	}
 
 	private int candidateId;

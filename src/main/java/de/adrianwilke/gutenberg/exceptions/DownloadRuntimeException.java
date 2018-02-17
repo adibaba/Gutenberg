@@ -1,10 +1,9 @@
 package de.adrianwilke.gutenberg.exceptions;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import de.adrianwilke.gutenberg.download.Downloader;
+import de.adrianwilke.gutenberg.data.Downloader;
 
 /**
  * Container for exceptions thrown on download.
@@ -13,19 +12,15 @@ import de.adrianwilke.gutenberg.download.Downloader;
  * 
  * @author Adrian Wilke
  */
-public class DownloadException extends RuntimeException {
+public class DownloadRuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public DownloadException(FileNotFoundException e) {
+	public DownloadRuntimeException(MalformedURLException e) {
 		super(e);
 	}
 
-	public DownloadException(MalformedURLException e) {
-		super(e);
-	}
-
-	public DownloadException(IOException e) {
+	public DownloadRuntimeException(IOException e) {
 		super(e);
 	}
 }

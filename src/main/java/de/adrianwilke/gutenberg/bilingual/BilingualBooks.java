@@ -11,9 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import de.adrianwilke.gutenberg.Gutenberg;
-import de.adrianwilke.gutenberg.comparators.ExactComparator;
-import de.adrianwilke.gutenberg.comparators.LastPointComparator;
-import de.adrianwilke.gutenberg.comparators.ShortenerComparator;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
 import de.adrianwilke.gutenberg.entities.Author;
 import de.adrianwilke.gutenberg.entities.Cache;
@@ -21,21 +18,7 @@ import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 
-// with cache
-
-//6.467 secs
-//0.10778333 mins
-
-// without cache
-//18.155 secs
-//0.30258334 mins
 public class BilingualBooks {
-
-	@SuppressWarnings("unchecked")
-	private Cache<Ebook> ebookCache = (Cache<Ebook>) Cache.getCache(Ebook.class);
-	
-	@SuppressWarnings("unchecked")
-	private Cache<Author> authorCache = (Cache<Author>) Cache.getCache(Author.class);
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 
@@ -72,87 +55,40 @@ public class BilingualBooks {
 		// System.out.println();
 
 		long time = System.currentTimeMillis();
-		new BilingualBooks().compareBilingualBooks();
-		time = System.currentTimeMillis() - time;
-		System.out.println((time / 1000f) + " secs");
-		System.out.println((time / (1000f * 60)) + " mins");
+		new BilingualBooks().getBilingual(Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE)));
+		System.out.println((System.currentTimeMillis() - time) / 1000f);
 	}
 
+	@SuppressWarnings("unchecked")
+	private Cache<Author> authorCache = (Cache<Author>) Cache.getCache(Author.class);
 
-	private List<Ebook> getAllTextBooksOfAuthor(String authorUri) {
+	@SuppressWarnings("unchecked")
+	private Cache<Ebook> ebookCache = (Cache<Ebook>) Cache.getCache(Ebook.class);
 
-		// Use cache
-		Author author = authorCache.get(authorUri);
+	void getBilingual(List<String> ebookUris) throws FileNotFoundException, IOException {
 
-		List<Ebook> textBooks = new LinkedList<Ebook>();
-		for (String textBookUri : author.getTextEbookUris()) {
-
-			// Use cache
-			Ebook textBook =ebookCache.get(textBookUri);
-			textBooks.add(textBook);
-		}
-
-		return textBooks;
-	}
-
-	private List<Author> getAuthors(String textBookUri) {
-		List<Author> authors = new LinkedList<Author>();
-
-		// Use cache
-		Ebook textBook = ebookCache.get(textBookUri);
-
-		for (String authorUri : textBook.getCreatorUris()) {
-
-			// Use cache
-			Author author = authorCache.get(authorUri);
-
-			authors.add(author);
-		}
-
-		return authors;
-	}
-
-	void compareBilingualBooks() throws FileNotFoundException, IOException {
-		TitleComparator.addTitleComparator(new LastPointComparator());
-		TitleComparator.addTitleComparator(new ShortenerComparator());
-		TitleComparator.addTitleComparator(new ExactComparator());
-
-		String onlyUseUri = "";
-		// onlyUseUri = "http://www.gutenberg.org/ebooks/19778"; // Alice
-		// onlyUseUri = "http://www.gutenberg.org/ebooks/31963"; // Bilingual
-
-		// TODO Faust
-
-		// Get all german text-books
-		List<String> originEbookUris = Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE));
-
-		if (!onlyUseUri.isEmpty()) {
-			originEbookUris = originEbookUris.subList(0, 1);
-		}
-
-		// Check all german ebooks
-		for (String originEbookUri : originEbookUris) {
-
-			if (!onlyUseUri.isEmpty()) {
-				originEbookUri = onlyUseUri;
-			}
-
+		// Check all input ebooks
+		for (String originEbookUri : ebookUris) {
 			Ebook originEbook = new Ebook(originEbookUri);
 
 			// Get all translation candidates
-			// (ebook -> all authors -> all ebooks)
-			Set<Ebook> allEbooksOfAllOriginAuthors = new HashSet<Ebook>();
+			// (origin ebook -> all authors -> all ebooks)
+			// Authos and ebooks are added to caches.
+			Set<Ebook> allEbookCandidates = new HashSet<Ebook>();
 			for (Author author : getAuthors(originEbookUri)) {
-				allEbooksOfAllOriginAuthors.addAll(getAllTextBooksOfAuthor(author.getUri()));
+				allEbookCandidates.addAll(getAllTextBooksOfAuthor(author.getUri()));
 			}
 
 			// Compare all titles of translation candidates to all titles of origin
-			for (Ebook candidateEbook : allEbooksOfAllOriginAuthors) {
+			for (Ebook candidateEbook : allEbookCandidates) {
 
+				// Do not return origin ebook
 				if (originEbookUri.equals(candidateEbook.getUri())) {
 					continue;
 				}
 
+				// Check languages: There must be at least one language in candidate, which is
+				// not in origin
 				Set<String> candidateLanguages = new HashSet<String>();
 				for (Language candidateLanguage : candidateEbook.getLanguages()) {
 					candidateLanguages.add(candidateLanguage.getRdfLiteral().toString());
@@ -168,15 +104,10 @@ public class BilingualBooks {
 					continue;
 				}
 
-				// Use cache
-				if (ebookCache.containsKey(candidateEbook.getUri())) {
-					candidateEbook = ebookCache.get(candidateEbook.getUri());
-				} else {
-					ebookCache.put(candidateEbook);
-				}
-
+				// Compare all titles of origin with all titles of candidates
 				for (String originTitle : originEbook.getAllTitles()) {
 					for (String title : candidateEbook.getAllTitles()) {
+						
 						Map<String, String> matches = TitleComparator.compareAll(title, originTitle);
 
 						if (!matches.isEmpty()) {
@@ -186,7 +117,7 @@ public class BilingualBooks {
 						}
 
 						// Download
-						if (!matches.isEmpty()) {
+//						if (!matches.isEmpty()) {
 							// Downloader downloader = new
 							// Downloader(Gutenberg.getInstance().getDownloadDirectory());
 							// DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES,
@@ -204,7 +135,7 @@ public class BilingualBooks {
 							// // System.out.println(textFileUrl);
 							// }
 
-						}
+//						}
 
 					}
 				}
@@ -222,6 +153,32 @@ public class BilingualBooks {
 
 		System.out.println(BilingualMatch.toStringAll());
 		System.out.println(BilingualMatch.getAll().size());
+	}
+
+	/**
+	 * For each given author, all textbooks are returned.
+	 * 
+	 * Caches for authors and e-books are utilized, if data was already requested.
+	 */
+	private List<Ebook> getAllTextBooksOfAuthor(String authorUri) {
+		List<Ebook> textBooks = new LinkedList<Ebook>();
+		for (String textBookUri : authorCache.get(authorUri).getTextEbookUris()) {
+			textBooks.add(ebookCache.get(textBookUri));
+		}
+		return textBooks;
+	}
+
+	/**
+	 * For each given textbook, all authors are returned.
+	 * 
+	 * Caches for authors and e-books are utilized, if data was already requested.
+	 */
+	private List<Author> getAuthors(String textBookUri) {
+		List<Author> authors = new LinkedList<Author>();
+		for (String authorUri : ebookCache.get(textBookUri).getCreatorUris()) {
+			authors.add(authorCache.get(authorUri));
+		}
+		return authors;
 	}
 
 }

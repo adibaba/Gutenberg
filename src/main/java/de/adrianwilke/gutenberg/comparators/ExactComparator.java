@@ -1,5 +1,10 @@
 package de.adrianwilke.gutenberg.comparators;
 
+/**
+ * Checks exact matches of titles.
+ * 
+ * @author Adrian Wilke
+ */
 public class ExactComparator extends TitleComparator {
 
 	@Override

@@ -6,6 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Sub-classes compare titles.
+ * 
+ * @author Adrian Wilke
+ */
 public abstract class TitleComparator {
 
 	private static List<TitleComparator> titleComparators = new LinkedList<TitleComparator>();

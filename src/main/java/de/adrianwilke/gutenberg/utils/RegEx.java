@@ -1,9 +1,9 @@
-package de.adrianwilke.gutenberg.tools;
+package de.adrianwilke.gutenberg.utils;
 
 import java.text.Normalizer;
 
 /**
- * RegEx helper.
+ * RegEx utils.
  * 
  * @author Adrian Wilke
  */

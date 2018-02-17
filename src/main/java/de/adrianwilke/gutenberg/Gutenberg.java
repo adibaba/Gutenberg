@@ -8,14 +8,14 @@ import de.adrianwilke.gutenberg.exceptions.SingletonException;
 /**
  * Singleton holding TDB model.
  * 
- * Can also hold directory for downloads.
+ * Can also hold configuration directories.
  * 
  * @author Adrian Wilke
  */
 public class Gutenberg {
 
 	private static Gutenberg instance;
-	
+
 	public static synchronized Gutenberg getInstance() throws SingletonException {
 		if (Gutenberg.instance == null) {
 			throw new SingletonException("Call initialization constructor first.");
@@ -32,11 +32,13 @@ public class Gutenberg {
 		return Gutenberg.instance;
 	}
 
-	private final String tdbDirectory;
-
 	private String downloadDirectory;
 
 	private final Model model;
+
+	private String serializationDirectory;
+
+	private final String tdbDirectory;
 
 	private Gutenberg(String tdbDirectory) {
 		this.tdbDirectory = tdbDirectory;
@@ -55,7 +57,15 @@ public class Gutenberg {
 		return model;
 	}
 
+	public String getSerializationDirectory() {
+		return serializationDirectory;
+	}
+
 	public void setDownloadDirectory(String downloadDirectory) {
 		this.downloadDirectory = downloadDirectory;
+	}
+
+	public void setSerializationDirectory(String serializationDirectory) {
+		this.serializationDirectory = serializationDirectory;
 	}
 }

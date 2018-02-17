@@ -3,8 +3,8 @@ package de.adrianwilke.gutenberg.exceptions;
 import java.io.FileNotFoundException;
 
 /**
- * Signals that an attempt to open the file denoted by a specified pathname has
- * failed.
+ * "Signals that an attempt to open the file denoted by a specified pathname has
+ * failed."
  * 
  * @author Adrian Wilke
  */

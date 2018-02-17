@@ -1,7 +1,5 @@
 package de.adrianwilke.gutenberg.bilingual;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,10 +9,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import de.adrianwilke.gutenberg.Gutenberg;
 import de.adrianwilke.gutenberg.data.FileSerializer;
 import de.adrianwilke.gutenberg.exceptions.FileNotFoundRuntimeException;
 import de.adrianwilke.gutenberg.exceptions.FileSerializerRuntimeException;
-import de.adrianwilke.gutenberg.tools.RegEx;
+import de.adrianwilke.gutenberg.utils.RegEx;
 
 /**
  * Meta information of Bilingual match.
@@ -41,9 +40,16 @@ public class BilingualMatch implements Serializable {
 	 * @throws FileNotFoundRuntimeException
 	 * @throws FileSerializerRuntimeException
 	 */
+	public static void readAllSerialized(String filePath) {
+		readAllSerialized(Gutenberg.getInstance().getSerializationDirectory(), filePath);
+	}
+
+	/**
+	 * @throws FileNotFoundRuntimeException
+	 * @throws FileSerializerRuntimeException
+	 */
 	@SuppressWarnings("unchecked")
-	public static void readAll(String baseSerializationDirectory, String filePath)
-			throws FileNotFoundException, IOException {
+	public static void readAllSerialized(String baseSerializationDirectory, String filePath) {
 		bilingualMatches = (Set<BilingualMatch>) new FileSerializer(baseSerializationDirectory).read(filePath);
 	}
 
@@ -77,14 +83,23 @@ public class BilingualMatch implements Serializable {
 	 * @throws FileNotFoundRuntimeException
 	 * @throws FileSerializerRuntimeException
 	 */
-	public static void writeAll(String baseSerializationDirectory, String filePath)
-			throws FileNotFoundException, IOException {
+	public static void writeAllSerialized(String filePath) {
+		writeAllSerialized(Gutenberg.getInstance().getSerializationDirectory(), filePath);
+	}
+
+	/**
+	 * @throws FileNotFoundRuntimeException
+	 * @throws FileSerializerRuntimeException
+	 */
+	public static void writeAllSerialized(String baseSerializationDirectory, String filePath) {
 		new FileSerializer(baseSerializationDirectory).write(filePath, bilingualMatches);
 	}
 
 	private int candidateId;
 	private String candidateMatchingTitle;
+
 	private Map<String, String> matchingComparatorsAndTitles = new HashMap<String, String>();
+
 	private int originId;
 
 	private String originMatchingTitle;
@@ -99,6 +114,23 @@ public class BilingualMatch implements Serializable {
 		this.originMatchingTitle = RegEx.replaceLinebreaksBySpaceMinusSpace(originMatchingTitle);
 		this.candidateMatchingTitle = RegEx.replaceLinebreaksBySpaceMinusSpace(candidateMatchingTitle);
 		this.matchingComparatorsAndTitles = matchingComparatorsAndTitles;
+	}
+
+	public int getCandidateId() {
+		return candidateId;
+	}
+	public String getCandidateMatchingTitle() {
+		return candidateMatchingTitle;
+	}
+	public Map<String, String> getMatchingComparatorsAndTitles() {
+		return matchingComparatorsAndTitles;
+	}
+	public int getOriginId() {
+		return originId;
+	}
+
+	public String getOriginMatchingTitle() {
+		return originMatchingTitle;
 	}
 
 	@Override

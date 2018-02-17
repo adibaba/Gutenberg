@@ -1,7 +1,12 @@
-package de.adrianwilke.gutenberg.tools;
+package de.adrianwilke.gutenberg.utils;
 
 import java.util.Comparator;
 
+/**
+ * Comparators to sort classes.
+ * 
+ * @author Adrian Wilke
+ */
 public class Comparators<T> {
 
 	/**

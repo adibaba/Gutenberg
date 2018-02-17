@@ -11,8 +11,8 @@ import org.apache.jena.rdf.model.RDFNode;
 
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
-import de.adrianwilke.gutenberg.tools.RegEx;
-import de.adrianwilke.gutenberg.tools.Strings;
+import de.adrianwilke.gutenberg.utils.RegEx;
+import de.adrianwilke.gutenberg.utils.Strings;
 
 /**
  * Gutenberg eBook.
@@ -22,6 +22,8 @@ import de.adrianwilke.gutenberg.tools.Strings;
  * @author Adrian Wilke
  */
 public class Ebook extends RdfResource {
+
+	public static final String PREFIX = "http://www.gutenberg.org/ebooks/";
 
 	/**
 	 * @deprecated Do not work on nodes, nonsense.
@@ -113,6 +115,10 @@ public class Ebook extends RdfResource {
 	List<Language> languages;
 	List<String> titles;
 
+	public Ebook(int id) {
+		super(PREFIX + id);
+	}
+
 	public Ebook(String uri) {
 		super(uri);
 	}
@@ -189,12 +195,12 @@ public class Ebook extends RdfResource {
 		return Strings.urlToId(getUri());
 	}
 
-	public String getFilesystemId() {
+	public String getPrefixForFileSystemStorage() {
 
 		String saveCreator = "";
 		if (!getCreators().isEmpty()) {
-			saveCreator = new RegEx(getCreators().get(0).toString().split("\\s")[0]).replaceLinebreaksBySpace().getAscii()
-					.replaceSpacesByUnderscore().removeAllExeptAlphaNumberUnderscore().toString();
+			saveCreator = new RegEx(getCreators().get(0).toString().split("\\s")[0]).replaceLinebreaksBySpace()
+					.getAscii().replaceSpacesByUnderscore().removeAllExeptAlphaNumberUnderscore().toString();
 			if (saveCreator.length() > 10) {
 				saveCreator = saveCreator.substring(0, 11);
 			}
@@ -203,8 +209,8 @@ public class Ebook extends RdfResource {
 
 		String saveTitle = "";
 		if (!getAllTitles().isEmpty()) {
-			saveTitle = new RegEx(getAllTitles().get(0)).replaceLinebreaksBySpace().replaceSpacesByUnderscore().getAscii()
-					.removeAllExeptAlphaNumberUnderscore().toString();
+			saveTitle = new RegEx(getAllTitles().get(0)).replaceLinebreaksBySpace().replaceSpacesByUnderscore()
+					.getAscii().removeAllExeptAlphaNumberUnderscore().toString();
 			if (saveTitle.length() > 30) {
 				saveTitle = saveTitle.substring(0, 31);
 			}

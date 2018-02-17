@@ -1,5 +1,10 @@
 package de.adrianwilke.gutenberg.comparators;
 
+/**
+ * Shortens longer title to size of shorter title.
+ * 
+ * @author Adrian Wilke
+ */
 public class ShortenerComparator extends TitleComparator {
 
 	@Override

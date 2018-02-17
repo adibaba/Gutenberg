@@ -7,6 +7,11 @@ import java.util.Map.Entry;
 import de.adrianwilke.gutenberg.Gutenberg;
 import de.adrianwilke.gutenberg.entities.DcFormat;
 
+/**
+ * Generates code as author of software is lazy.
+ * 
+ * @author Adrian Wilke
+ */
 public class CodeGenerator {
 
 	public static String generateDcFormats() {

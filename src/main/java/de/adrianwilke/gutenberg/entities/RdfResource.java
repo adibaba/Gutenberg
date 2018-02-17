@@ -8,7 +8,7 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.RDFNode;
 
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
-import de.adrianwilke.gutenberg.tools.Comparators;
+import de.adrianwilke.gutenberg.utils.Comparators;
 
 /**
  * Base class for RDF resources.

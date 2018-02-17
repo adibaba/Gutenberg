@@ -5,7 +5,7 @@ import java.io.IOException;
 import de.adrianwilke.gutenberg.data.FileSerializer;
 
 /**
- * Container for exceptions thrown on download.
+ * Container for exceptions thrown on file serialization.
  * 
  * See: {@link FileSerializer}
  * 

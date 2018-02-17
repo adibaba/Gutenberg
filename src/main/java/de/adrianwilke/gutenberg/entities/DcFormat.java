@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
-import de.adrianwilke.gutenberg.tools.Maps;
+import de.adrianwilke.gutenberg.utils.Maps;
 
 /**
  * DCMI Metadata Terms dcterms:hasFormat.
@@ -53,7 +53,7 @@ public class DcFormat {
 	public static String TYPE_CASE_INSENSITIVE_HTML = "html"; // 2K
 	public static String TYPE_CASE_INSENSITIVE_PNG = "png"; // 2K
 	public static String TYPE_CASE_INSENSITIVE_PDF = "pdf"; // 1K
-	
+
 	public static TreeMap<String, Integer> getDcFormats(boolean caseSensitive) {
 
 		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("format").addWhere("?s",
@@ -77,6 +77,7 @@ public class DcFormat {
 		}
 		return Maps.sortMapByValue(formatsMap);
 	}
+
 	private String prefix;
 
 	private String suffix;
@@ -85,6 +86,7 @@ public class DcFormat {
 		this.prefix = prefix;
 		this.suffix = suffix;
 	}
+
 	public String getPrefix() {
 		return prefix;
 	}

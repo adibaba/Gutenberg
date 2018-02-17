@@ -1,5 +1,10 @@
 package de.adrianwilke.gutenberg.comparators;
 
+/**
+ * Removes everything, starting at last dot in title.
+ * 
+ * @author Adrian Wilke
+ */
 public class LastPointComparator extends TitleComparator {
 
 	@Override

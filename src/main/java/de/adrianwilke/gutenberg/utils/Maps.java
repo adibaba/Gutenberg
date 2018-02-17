@@ -1,10 +1,15 @@
-package de.adrianwilke.gutenberg.tools;
+package de.adrianwilke.gutenberg.utils;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Utils for maps.
+ *
+ * @author Adrian Wilke
+ */
 public class Maps {
 
 	/**

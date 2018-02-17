@@ -9,8 +9,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.RDFNode;
 
-import de.adrianwilke.gutenberg.comparators.Comparators;
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
+import de.adrianwilke.gutenberg.tools.Comparators;
 
 /**
  * Base class for RDF nodes.

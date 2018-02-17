@@ -7,9 +7,9 @@ import java.util.List;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.RDFNode;
 
-import de.adrianwilke.gutenberg.comparators.Comparators;
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
+import de.adrianwilke.gutenberg.tools.Comparators;
 
 /**
  * Gutenberg authors/agents.

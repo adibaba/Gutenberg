@@ -1,6 +1,8 @@
 package de.adrianwilke.gutenberg;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,14 +15,16 @@ import de.adrianwilke.gutenberg.comparators.ExactComparator;
 import de.adrianwilke.gutenberg.comparators.LastPointComparator;
 import de.adrianwilke.gutenberg.comparators.ShortenerComparator;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
+import de.adrianwilke.gutenberg.download.Downloader;
 import de.adrianwilke.gutenberg.entities.Author;
+import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 
 public class BilingualBooks {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws MalformedURLException {
 
 		String tdbDirectory = null;
 		String downloadDirectory = null;
@@ -110,13 +114,15 @@ public class BilingualBooks {
 		return authors;
 	}
 
-	void compareBilingualBoks() {
+	void compareBilingualBoks() throws MalformedURLException {
 		TitleComparator.addTitleComparator(new LastPointComparator());
 		TitleComparator.addTitleComparator(new ShortenerComparator());
 		TitleComparator.addTitleComparator(new ExactComparator());
 
 		String onlyUseUri = "";
 		// onlyUseUri = "http://www.gutenberg.org/ebooks/19778"; // Alice
+		// onlyUseUri = "http://www.gutenberg.org/ebooks/31963"; // Bilingual
+
 		// TODO Faust
 
 		// Get all german text-books
@@ -189,9 +195,34 @@ public class BilingualBooks {
 									+ " "
 									+ candidateEbook.getUri());
 						}
+
+						// Download
+						if (!matchingComparatorIds.isEmpty()) {
+							Downloader downloader = new Downloader(Gutenberg.getInstance().getDownloadDirectory());
+							DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES,
+									DcFormat.TYPE_CASE_INSENSITIVE_TXT);
+
+							// for (String textFileUrl : originEbook.getFormatUrls(textFileFormat)) {
+							// downloader.download(textFileUrl,
+							// originEbook.getFilesystemId() + "." + textFileFormat.getSuffix());
+							// // System.out.println(textFileUrl);
+							// }
+							//
+							// for (String textFileUrl : candidateEbook.getFormatUrls(textFileFormat)) {
+							// downloader.download(textFileUrl,
+							// candidateEbook.getFilesystemId() + "." + textFileFormat.getSuffix());
+							// // System.out.println(textFileUrl);
+							// }
+
+						}
+
 					}
 				}
+				// System.out.println(candidateEbook.getFilesystemId() + "." + new
+				// DcFormat(DcFormat.PREFIX_FILES,
+				// DcFormat.TYPE_CASE_INSENSITIVE_TXT).getSuffix());
 			}
+
 		}
 
 	}

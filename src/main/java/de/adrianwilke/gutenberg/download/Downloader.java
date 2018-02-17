@@ -17,7 +17,9 @@ import de.adrianwilke.gutenberg.exceptions.DownloadException;
  * @author Adrian Wilke
  */
 public class Downloader {
-
+	
+	public static final boolean PRINT_TIME = false;
+	
 	private File baseDownloadDirectory;
 
 	public Downloader(String baseDownloadDirectory) {
@@ -25,11 +27,20 @@ public class Downloader {
 	}
 
 	/**
+	 * Will not download, if file path already exists.
+	 * 
 	 * @throws DownloadException
 	 */
-	public void download(String downloadUrl) {
+	public File download(String downloadUrl) {
+		return download(downloadUrl, false);
+	}
+
+	/**
+	 * @throws DownloadException
+	 */
+	public File download(String downloadUrl, boolean overwrite) {
 		try {
-			download(downloadUrl, new File(new URL(downloadUrl).getPath()).getPath());
+			return download(downloadUrl, new File(new URL(downloadUrl).getPath()).getPath(), overwrite);
 		} catch (MalformedURLException e) {
 			// new URL()
 			throw new DownloadException(e);
@@ -37,10 +48,23 @@ public class Downloader {
 	}
 
 	/**
+	 * Will not download, if file path already exists.
+	 * 
 	 * @throws DownloadException
 	 */
 	public File download(String downloadUrl, String localFilePath) {
+		return download(downloadUrl, localFilePath, false);
+	}
+
+	/**
+	 * @throws DownloadException
+	 */
+	public File download(String downloadUrl, String localFilePath, boolean overwrite) {
+		long time = System.currentTimeMillis();
 		File downloadFile = new File(baseDownloadDirectory, localFilePath);
+		if (!overwrite && downloadFile.exists()) {
+			return downloadFile;
+		}
 		downloadFile.getParentFile().mkdirs();
 		FileOutputStream stream = null;
 		try {
@@ -68,6 +92,13 @@ public class Downloader {
 				throw new DownloadException(e);
 			}
 		}
+		if (PRINT_TIME) {
+			System.out.println((System.currentTimeMillis() - time) / 1000 + " seconds");
+		}
 		return downloadFile;
+	}
+
+	public File getBaseDownloadDirectory() {
+		return baseDownloadDirectory;
 	}
 }

@@ -1,7 +1,9 @@
 package de.adrianwilke.gutenberg.entities;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.jena.arq.querybuilder.Order;
 import org.apache.jena.graph.Triple;
@@ -9,6 +11,8 @@ import org.apache.jena.rdf.model.RDFNode;
 
 import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.rdf.Uris;
+import de.adrianwilke.gutenberg.tools.RegEx;
+import de.adrianwilke.gutenberg.tools.Strings;
 
 /**
  * Gutenberg eBook.
@@ -102,6 +106,7 @@ public class Ebook extends Node {
 	}
 
 	List<String> alternatives;
+
 	List<Author> creators;
 	List<String> creatorUris;
 	List<String> formats;
@@ -146,13 +151,23 @@ public class Ebook extends Node {
 		return creatorUris;
 	}
 
-	public List<String> getFormats() {
+	public List<String> getFormatUrls() {
 		if (formats == null) {
 			formats = new SelectBldr().setDistinct(true).addVar("item")
 					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_HAS_FORMAT), "?item")
 					.executeGetStrings("item");
 		}
 		return formats;
+	}
+
+	public Set<String> getFormatUrls(DcFormat dcFormat) {
+		Set<String> ebookFormats = new HashSet<String>();
+		for (String formatUrl : getFormatUrls()) {
+			if (dcFormat.isFormat(formatUrl)) {
+				ebookFormats.add(formatUrl);
+			}
+		}
+		return ebookFormats;
 	}
 
 	public List<Language> getLanguages() {
@@ -168,6 +183,42 @@ public class Ebook extends Node {
 					.addWhere(getEnclosedUri(), Uris.enclose(Uris.DCTERMS_TITLE), "?item").executeGetStrings("item");
 		}
 		return titles;
+	}
+
+	public Integer getId() {
+		return Strings.urlToId(getUri());
+	}
+
+	public String getFilesystemId() {
+
+		String saveCreator = "";
+		if (!getCreators().isEmpty()) {
+			saveCreator = new RegEx(getCreators().get(0).toString().split("\\s")[0]).replaceLinebreaksBySpace().getAscii()
+					.replaceSpacesByUnderscore().removeAllExeptAlphaNumberUnderscore().toString();
+			if (saveCreator.length() > 10) {
+				saveCreator = saveCreator.substring(0, 11);
+			}
+			saveCreator += "__";
+		}
+
+		String saveTitle = "";
+		if (!getAllTitles().isEmpty()) {
+			saveTitle = new RegEx(getAllTitles().get(0)).replaceLinebreaksBySpace().replaceSpacesByUnderscore().getAscii()
+					.removeAllExeptAlphaNumberUnderscore().toString();
+			if (saveTitle.length() > 30) {
+				saveTitle = saveTitle.substring(0, 31);
+			}
+			saveTitle += "__";
+		}
+
+		String saveLanguages = "";
+		if (!getLanguages().isEmpty()) {
+			saveLanguages = new RegEx(getLanguages().toString()).replaceSpacesByUnderscore()
+					.removeAllExeptAlphaNumberUnderscore().toString();
+			saveLanguages += "__";
+		}
+
+		return saveCreator + saveTitle + saveLanguages + getId();
 	}
 
 	@Override

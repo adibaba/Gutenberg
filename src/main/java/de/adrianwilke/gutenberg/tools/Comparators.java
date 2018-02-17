@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.comparators;
+package de.adrianwilke.gutenberg.tools;
 
 import java.util.Comparator;
 
@@ -10,8 +10,8 @@ public class Comparators<T> {
 	public Comparator<T> getToStringId() {
 		return new Comparator<T>() {
 			public int compare(T o1, T o2) {
-				Integer id1 = Integer.valueOf(o1.toString().substring(1 + o1.toString().lastIndexOf("/")));
-				Integer id2 = Integer.valueOf(o2.toString().substring(1 + o2.toString().lastIndexOf("/")));
+				Integer id1 = Strings.urlToId(o1.toString());
+				Integer id2 = Strings.urlToId(o2.toString());
 				return id1 - id2;
 			}
 		};

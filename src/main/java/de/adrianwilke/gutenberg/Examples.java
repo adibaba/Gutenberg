@@ -3,11 +3,13 @@ package de.adrianwilke.gutenberg;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 
 import de.adrianwilke.gutenberg.entities.Author;
+import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
@@ -40,6 +42,7 @@ public class Examples {
 	public static int EXEC_IMPORT_RDF_FILES = 0;
 	public static int EXEC_IMPORTER_PRINT_RDF_FILE = 0;
 	public static int EXEC_PRINT_AUTHOR_INFORMATION = 0;
+	public static int EXEC_PRINT_DC_FORMAT_INFORMATION = 0;
 	public static int EXEC_PRINT_DC_TYPE_INFORMATION = 0;
 	public static int EXEC_PRINT_EBOOK_INFORMATION = 1;
 	public static int EXEC_PRINT_EBOOKS_INFORMATION = 0;
@@ -73,6 +76,9 @@ public class Examples {
 		}
 		if (0 != EXEC_PRINT_AUTHOR_INFORMATION) {
 			new Examples().printAuthorInformation(new Ebook(ALICE_URI));
+		}
+		if (0 != EXEC_PRINT_DC_FORMAT_INFORMATION) {
+			new Examples().printDcFormatInformation();
 		}
 		if (0 != EXEC_PRINT_DC_TYPE_INFORMATION) {
 			new Examples().printDcTypeInformation();
@@ -137,6 +143,12 @@ public class Examples {
 		System.out.println();
 	}
 
+	private void printDcFormatInformation() {
+		for (Entry<String, Integer> entry : DcFormat.getDcFormats(false).entrySet()) {
+			System.out.println(entry.getValue() + " " + entry.getKey());
+		}
+	}
+
 	private void printDcTypeInformation() {
 
 		// Get all DC types
@@ -168,11 +180,32 @@ public class Examples {
 		System.out.println(ebook.getAlternatives());
 		System.out.println(ebook.getAllTitles());
 		System.out.println(ebook.getCreators());
-		System.out.println(ebook.getFormats());
+		System.out.println(ebook.getFormatUrls());
 		System.out.println(ebook.getLanguages());
-		
+		System.out.println();
+		System.out.println("eBook formats:");
+		for (String ebookUrl : ebook.getFormatUrls(new DcFormat(DcFormat.PREFIX_EBOOKS, null))) {
+			System.out.println(ebookUrl);
+		}
+		System.out.println("Files:");
+		for (String ebookUrl : ebook.getFormatUrls(new DcFormat(DcFormat.PREFIX_FILES, null))) {
+			System.out.println(ebookUrl);
+		}
+		System.out.print("Has text format (independent of type file, ebook, ...): ");
+		if ((0 != ebook.getFormatUrls(new DcFormat(null, DcFormat.TYPE_CASE_INSENSITIVE_TXT)).size())) {
+			System.out.println("Yes.");
+		} else {
+			System.out.println("No.");
+		}
+		System.out.print("Has PDF format (independent of type file, ebook, ...): ");
+		if ((0 != ebook.getFormatUrls(new DcFormat(null, DcFormat.TYPE_CASE_INSENSITIVE_PDF)).size())) {
+			System.out.println("Yes.");
+		} else {
+			System.out.println("No.");
+		}
+
 	}
-	
+
 	public void printEbooksInformation() {
 		System.out.println();
 

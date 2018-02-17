@@ -108,7 +108,6 @@ public class Ebook extends RdfResource {
 	}
 
 	List<String> alternatives;
-
 	List<Author> creators;
 	List<String> creatorUris;
 	List<String> formats;
@@ -229,8 +228,21 @@ public class Ebook extends RdfResource {
 
 	@Override
 	public String toString() {
-		// https://www.leveluplunch.com/java/examples/remove-newline-carriage-return-from-string/
-		String title = getAllTitles().get(0).replaceAll("\n", " - ").replaceAll("\r", "");
-		return title + "  " + getUri() + " (" + getCreators().get(0) + ")";
+		StringBuilder sb = new StringBuilder();
+
+		if (!getAllTitles().isEmpty()) {
+			sb.append(new RegEx(getAllTitles().get(0)).replaceLinebreaksBySpaceMinusSpace());
+			sb.append("  ");
+		}
+
+		sb.append(getUri());
+
+		if (!getCreators().isEmpty()) {
+			sb.append(" (");
+			sb.append(getCreators().get(0).toString());
+			sb.append(")");
+		}
+
+		return sb.toString();
 	}
 }

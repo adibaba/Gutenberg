@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.Gutenberg;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
@@ -19,6 +20,7 @@ import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
+import de.adrianwilke.gutenberg.utils.Comparators;
 
 /**
  * Searches for bilingual books.
@@ -35,10 +37,15 @@ public class BilingualBooks {
 		mainConfigure(args);
 		BilingualBooks bb = new BilingualBooks();
 
+		List<String> germanTextBooks = Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE));
+		Language en = new Language(Language.LANG_EN);
+		DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_CASE_INSENSITIVE_TXT);
+		DcFormat allFiles = new DcFormat(DcFormat.PREFIX_FILES, null);
+
 		// Generate matches from TDB
 		if (EXECUTE == false) {
 			long time = System.currentTimeMillis();
-			bb.getBilingual(Ebook.getEbookUris(new DcType(DcType.TEXT), new Language(Language.LANG_DE)));
+			bb.getBilingual(germanTextBooks);
 			System.out.println((System.currentTimeMillis() - time) / 1000f);
 		}
 
@@ -48,7 +55,7 @@ public class BilingualBooks {
 		}
 
 		// Read serialized matches from file
-		if (EXECUTE == false) {
+		if (EXECUTE == true) {
 			BilingualMatch.readAllSerialized(FILE_MATCHES_DE);
 		}
 
@@ -57,15 +64,23 @@ public class BilingualBooks {
 			bb.printBilingualMatches();
 		}
 
-		// Download
+		// Download matches
+		if (EXECUTE == true) {
+			bb.downloadMultimatch(textFileFormat);
+		}
+
+		// Print and download native bilingual books
 		if (EXECUTE == false) {
-			DcFormat textFileFormat = new DcFormat(DcFormat.PREFIX_FILES, DcFormat.TYPE_CASE_INSENSITIVE_TXT);
-			bb.download(textFileFormat);
+			Set<Ebook> nativeBilingualBooks = bb.getNativeBilingualBooks(germanTextBooks, en);
+			for (Ebook ebook : nativeBilingualBooks) {
+				System.out.println(ebook);
+				bb.downloadEbook(ebook, allFiles, "native-bilingual-de-en");
+			}
 		}
 
 	}
 
-	public static void mainConfigure(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+	private static void mainConfigure(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 
 		String tdbDirectory = null;
 		String downloadDirectory = null;
@@ -99,12 +114,12 @@ public class BilingualBooks {
 	@SuppressWarnings("unchecked")
 	private Cache<Author> authorCache = (Cache<Author>) Cache.getCache(Author.class);
 
-	public Downloader downloader = new Downloader(Gutenberg.getInstance().getDownloadDirectory());
+	private Downloader downloader = new Downloader(Gutenberg.getInstance().getDownloadDirectory());
 
 	@SuppressWarnings("unchecked")
 	private Cache<Ebook> ebookCache = (Cache<Ebook>) Cache.getCache(Ebook.class);
 
-	public void download(DcFormat downloadFormat) {
+	private void downloadMultimatch(DcFormat downloadFormat) {
 		if (downloadFormat.getPrefix() != null) {
 
 			// Get IDs of all e-books in matches
@@ -116,29 +131,36 @@ public class BilingualBooks {
 			System.out.println("IDs to check for download: " + ids.size());
 
 			for (int id : ids) {
-				Ebook ebook = new Ebook(id);
+				downloadEbook(new Ebook(id), downloadFormat, "");
+			}
+		} else {
+			System.err.println("Please specify prefix for download.");
+		}
+	}
 
-				// Create download path
-				for (String downloadUrl : ebook.getFormatUrls(downloadFormat)) {
+	private void downloadEbook(Ebook ebook, DcFormat downloadFormat, String downloadPathPrefix) {
+		if (downloadFormat.getPrefix() != null) {
 
-					if (downloadUrl.contains("/")) {
-						String downloadPath = ebook.getPrefixForFileSystemStorage() + "/";
-						downloadPath += downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
+			// Create download path
+			for (String downloadUrl : ebook.getFormatUrls(downloadFormat)) {
+				if (downloadUrl.contains("/")) {
+					String downloadPath = downloadPathPrefix + "/";
+					downloadPath += ebook.getPrefixForFileSystemStorage() + "/";
+					downloadPath += downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
 
-						// Download
-						downloader.download(downloadUrl, downloadPath);
+					// Download
+					downloader.download(downloadUrl, downloadPath);
 
-					} else {
-						System.err.println("URL without slash: " + downloadUrl);
-						continue;
-					}
-
+				} else {
+					System.err.println("URL without slash: " + downloadUrl);
+					continue;
 				}
 			}
 
 		} else {
 			System.err.println("Please specify prefix for download.");
 		}
+
 	}
 
 	/**
@@ -170,7 +192,7 @@ public class BilingualBooks {
 	/**
 	 * Results are added to {@link BilingualMatch}
 	 */
-	void getBilingual(List<String> ebookUris) throws FileNotFoundException, IOException {
+	public void getBilingual(List<String> ebookUris) throws FileNotFoundException, IOException {
 
 		// Check all input ebooks
 		for (String originEbookUri : ebookUris) {
@@ -225,6 +247,17 @@ public class BilingualBooks {
 				}
 			}
 		}
+	}
+
+	public Set<Ebook> getNativeBilingualBooks(List<String> ebookUris, Language secondLanguage) {
+		Set<Ebook> nativeBilingualBooks = new TreeSet<>(new Comparators<Ebook>().getToStringDefault());
+		for (String ebookUri : ebookUris) {
+			Ebook ebook = new Ebook(ebookUri);
+			if (ebook.getLanguages().contains(secondLanguage)) {
+				nativeBilingualBooks.add(ebook);
+			}
+		}
+		return nativeBilingualBooks;
 	}
 
 	private void printBilingualMatches() {

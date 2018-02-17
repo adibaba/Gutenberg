@@ -26,7 +26,7 @@ import de.adrianwilke.gutenberg.rdf.Uris;
  * 
  * @author Adrian Wilke
  */
-public class DcType extends Literal {
+public class DcType extends RdfLiteral {
 
 	private static final Model DEFAULT_MODEL = ModelFactory.createDefaultModel();
 

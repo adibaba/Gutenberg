@@ -21,7 +21,7 @@ import de.adrianwilke.gutenberg.tools.Strings;
  * 
  * @author Adrian Wilke
  */
-public class Ebook extends Node {
+public class Ebook extends RdfResource {
 
 	/**
 	 * @deprecated Do not work on nodes, nonsense.

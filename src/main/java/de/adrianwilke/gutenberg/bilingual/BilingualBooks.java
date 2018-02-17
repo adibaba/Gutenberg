@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,11 +16,26 @@ import de.adrianwilke.gutenberg.comparators.LastPointComparator;
 import de.adrianwilke.gutenberg.comparators.ShortenerComparator;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
 import de.adrianwilke.gutenberg.entities.Author;
+import de.adrianwilke.gutenberg.entities.Cache;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 
+// with cache
+
+//6.467 secs
+//0.10778333 mins
+
+// without cache
+//18.155 secs
+//0.30258334 mins
 public class BilingualBooks {
+
+	@SuppressWarnings("unchecked")
+	private Cache<Ebook> ebookCache = (Cache<Ebook>) Cache.getCache(Ebook.class);
+	
+	@SuppressWarnings("unchecked")
+	private Cache<Author> authorCache = (Cache<Author>) Cache.getCache(Author.class);
 
 	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
 
@@ -49,42 +63,32 @@ public class BilingualBooks {
 		Gutenberg.getInstance().setDownloadDirectory(downloadDirectory);
 		System.out.println("Download directory: " + Gutenberg.getInstance().getDownloadDirectory());
 
-		String bilingualMatchesDirectory = "/home/adi/Downloads/rdf-files-gutenberg/serialized";
-		String bilingualMatchesFile = "bilingual-matches.dat";
-		BilingualMatch.readAll(bilingualMatchesDirectory, bilingualMatchesFile);
-		System.out.println(BilingualMatch.toStringAll());
-		System.out.println(BilingualMatch.getAll().size());
-		System.out.println();
+		// String bilingualMatchesDirectory =
+		// "/home/adi/Downloads/rdf-files-gutenberg/serialized";
+		// String bilingualMatchesFile = "bilingual-matches.dat";
+		// BilingualMatch.readAll(bilingualMatchesDirectory, bilingualMatchesFile);
+		// System.out.println(BilingualMatch.toStringAll());
+		// System.out.println(BilingualMatch.getAll().size());
+		// System.out.println();
 
-//		new BilingualBooks().compareBilingualBooks();
+		long time = System.currentTimeMillis();
+		new BilingualBooks().compareBilingualBooks();
+		time = System.currentTimeMillis() - time;
+		System.out.println((time / 1000f) + " secs");
+		System.out.println((time / (1000f * 60)) + " mins");
 	}
 
-	private Map<String, Author> authorCache = new HashMap<String, Author>();
-	private Map<String, Ebook> textBookCache = new HashMap<String, Ebook>();
 
 	private List<Ebook> getAllTextBooksOfAuthor(String authorUri) {
 
 		// Use cache
-		Author author;
-		if (authorCache.containsKey(authorUri)) {
-			author = authorCache.get(authorUri);
-		} else {
-			author = new Author(authorUri);
-			authorCache.put(authorUri, author);
-		}
+		Author author = authorCache.get(authorUri);
 
 		List<Ebook> textBooks = new LinkedList<Ebook>();
 		for (String textBookUri : author.getTextEbookUris()) {
 
 			// Use cache
-			Ebook textBook;
-			if (textBookCache.containsKey(textBookUri)) {
-				textBook = textBookCache.get(textBookUri);
-			} else {
-				textBook = new Ebook(textBookUri);
-				textBookCache.put(textBookUri, textBook);
-			}
-
+			Ebook textBook =ebookCache.get(textBookUri);
 			textBooks.add(textBook);
 		}
 
@@ -95,24 +99,12 @@ public class BilingualBooks {
 		List<Author> authors = new LinkedList<Author>();
 
 		// Use cache
-		Ebook textBook;
-		if (textBookCache.containsKey(textBookUri)) {
-			textBook = textBookCache.get(textBookUri);
-		} else {
-			textBook = new Ebook(textBookUri);
-			textBookCache.put(textBookUri, textBook);
-		}
+		Ebook textBook = ebookCache.get(textBookUri);
 
 		for (String authorUri : textBook.getCreatorUris()) {
 
 			// Use cache
-			Author author;
-			if (authorCache.containsKey(authorUri)) {
-				author = authorCache.get(authorUri);
-			} else {
-				author = new Author(authorUri);
-				authorCache.put(authorUri, author);
-			}
+			Author author = authorCache.get(authorUri);
 
 			authors.add(author);
 		}
@@ -177,10 +169,10 @@ public class BilingualBooks {
 				}
 
 				// Use cache
-				if (textBookCache.containsKey(candidateEbook.getUri())) {
-					candidateEbook = textBookCache.get(candidateEbook.getUri());
+				if (ebookCache.containsKey(candidateEbook.getUri())) {
+					candidateEbook = ebookCache.get(candidateEbook.getUri());
 				} else {
-					textBookCache.put(candidateEbook.getUri(), candidateEbook);
+					ebookCache.put(candidateEbook);
 				}
 
 				for (String originTitle : originEbook.getAllTitles()) {
@@ -223,9 +215,11 @@ public class BilingualBooks {
 
 		}
 
-		String bilingualMatchesDirectory = "/home/adi/Downloads/rdf-files-gutenberg/serialized";
-		String bilingualMatchesFile = "bilingual-matches.dat";
-		BilingualMatch.writeAll(bilingualMatchesDirectory, bilingualMatchesFile);
+		// String bilingualMatchesDirectory =
+		// "/home/adi/Downloads/rdf-files-gutenberg/serialized";
+		// String bilingualMatchesFile = "bilingual-matches.dat";
+		// BilingualMatch.writeAll(bilingualMatchesDirectory, bilingualMatchesFile);
+
 		System.out.println(BilingualMatch.toStringAll());
 		System.out.println(BilingualMatch.getAll().size());
 	}

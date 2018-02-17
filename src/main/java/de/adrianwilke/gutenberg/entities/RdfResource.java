@@ -1,11 +1,9 @@
 package de.adrianwilke.gutenberg.entities;
 
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.RDFNode;
 
@@ -13,18 +11,28 @@ import de.adrianwilke.gutenberg.rdf.SelectBldr;
 import de.adrianwilke.gutenberg.tools.Comparators;
 
 /**
- * Base class for RDF nodes.
+ * Base class for RDF resources.
  * 
  * @author Adrian Wilke
  */
-public class Node {
+public class RdfResource extends RdfNode {
 
 	private String uri;
 
-	public Node(String uri) {
+	public RdfResource(String uri) {
 		this.uri = uri;
 	}
 
+	public SortedMap<RDFNode, RDFNode> getContextAsSubject() {
+		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
+				new Comparators<RDFNode>().getToStringDefault());
+		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("p").addVar("o").addWhere(getEnclosedUri(), "?p",
+				"?o");
+		for (QuerySolution querySolution : sb.execute()) {
+			rdfNodes.put(querySolution.get("p"), querySolution.get("s"));
+		}
+		return rdfNodes;
+	}
 	public SortedMap<RDFNode, RDFNode> getContextAsObject() {
 		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
 				new Comparators<RDFNode>().getToStringDefault());
@@ -49,45 +57,12 @@ public class Node {
 		return rdfNodes;
 	}
 
-	public SortedMap<RDFNode, RDFNode> getContextAsSubject() {
-		SortedMap<RDFNode, RDFNode> rdfNodes = new TreeMap<RDFNode, RDFNode>(
-				new Comparators<RDFNode>().getToStringDefault());
-		SelectBldr sb = new SelectBldr().setDistinct(true).addVar("p").addVar("o").addWhere(getEnclosedUri(), "?p",
-				"?o");
-		for (QuerySolution querySolution : sb.execute()) {
-			rdfNodes.put(querySolution.get("p"), querySolution.get("s"));
-		}
-		return rdfNodes;
-	}
-
 	public String getEnclosedUri() {
 		return "<" + uri + ">";
 	}
 
-	protected List<QuerySolution> getQuerySolutions(Object s, Object p, Object o, String order) {
-		SelectBldr sb = new SelectBldr();
-		Triple triple = sb.makeTriplePath(s, p, o).asTriple();
-		sb.setDistinct(true).addWhere(triple).addOrderBy(order);
-		return sb.execute();
-	}
-
 	public String getUri() {
 		return uri;
-	}
-
-	protected String getValue(Object s, Object p, Object o, String var) {
-		SelectBldr sb = new SelectBldr();
-		Triple triple = sb.makeTriplePath(s, p, o).asTriple();
-		sb.setDistinct(true).addWhere(triple).addVar(var);
-		List<QuerySolution> solutions = sb.execute();
-		if (solutions.size() > 1) {
-			System.err.println("Warning: More values available for " + triple);
-		}
-		if (solutions.isEmpty()) {
-			return null;
-		} else {
-			return solutions.get(0).get(var).toString();
-		}
 	}
 
 	public void printContext() {

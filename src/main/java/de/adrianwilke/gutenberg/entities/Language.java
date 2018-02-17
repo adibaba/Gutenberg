@@ -19,7 +19,7 @@ import de.adrianwilke.gutenberg.rdf.Uris;
  * 
  * @author Adrian Wilke
  */
-public class Language extends Literal {
+public class Language extends RdfLiteral {
 
 	private static final RDFDatatype DATATYPE_RFC4646 = TypeMapper.getInstance()
 			.getSafeTypeByName(Uris.DCTERMS_RFC4646);

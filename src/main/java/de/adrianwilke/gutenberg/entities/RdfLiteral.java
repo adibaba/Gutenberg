@@ -1,15 +1,15 @@
 package de.adrianwilke.gutenberg.entities;
 
 /**
- * Base class for literals.
+ * Base class for RDF literals.
  * 
  * @author Adrian Wilke
  */
-public class Literal {
+public class RdfLiteral extends RdfNode {
 
 	private org.apache.jena.rdf.model.Literal rdfLiteral;
 
-	public Literal(org.apache.jena.rdf.model.Literal rdfLiteral) {
+	public RdfLiteral(org.apache.jena.rdf.model.Literal rdfLiteral) {
 		this.rdfLiteral = rdfLiteral;
 	}
 

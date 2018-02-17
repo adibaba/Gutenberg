@@ -13,7 +13,7 @@ import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
-import de.adrianwilke.gutenberg.entities.Node;
+import de.adrianwilke.gutenberg.entities.RdfResource;
 
 /**
  * Execution endpoints.
@@ -44,11 +44,11 @@ public class Examples {
 	public static int EXEC_PRINT_AUTHOR_INFORMATION = 0;
 	public static int EXEC_PRINT_DC_FORMAT_INFORMATION = 0;
 	public static int EXEC_PRINT_DC_TYPE_INFORMATION = 0;
-	public static int EXEC_PRINT_EBOOK_INFORMATION = 1;
+	public static int EXEC_PRINT_EBOOK_INFORMATION = 0;
 	public static int EXEC_PRINT_EBOOKS_INFORMATION = 0;
 	public static int EXEC_PRINT_ITEMS_IN_LANGUAGE = 0;
 	public static int EXEC_PRINT_LANGUAGE_INFORMATION = 0;
-	public static int EXEC_PRINT_NODE_CONTEXT = 0;
+	public static int EXEC_PRINT_NODE_CONTEXT = 1;
 	public static int EXEC_PRINT_SIMILAR_EBOOKS = 0;
 
 	public static void main(String[] args) throws Exception {
@@ -96,7 +96,7 @@ public class Examples {
 			new Examples().printLanguageInformation();
 		}
 		if (0 != EXEC_PRINT_NODE_CONTEXT) {
-			new Examples().printNodeContext(new Node(ALICE_URI));
+			new Examples().printNodeContext(new RdfResource(ALICE_URI));
 		}
 		if (0 != EXEC_PRINT_SIMILAR_EBOOKS) {
 			new Examples().printSimilarEbooks(new Ebook(ALICE_URI));
@@ -337,7 +337,7 @@ public class Examples {
 		System.out.println();
 	}
 
-	public void printNodeContext(Node node) {
+	public void printNodeContext(RdfResource node) {
 		node.printContextExample();
 		node.printContext();
 	}

@@ -19,7 +19,7 @@ import de.adrianwilke.gutenberg.tools.Comparators;
  * 
  * @author Adrian Wilke
  */
-public class Author extends Node {
+public class Author extends RdfResource {
 
 	private String name;
 	private List<String> textEbookUris;

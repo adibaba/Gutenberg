@@ -68,10 +68,6 @@ public abstract class TitleComparator {
 		return getClass().getSimpleName();
 	}
 
-	protected String keepAsciiLettersAndNumbers(String string) {
-		return string.replaceAll("[^A-Za-z0-9]", "");
-	}
-
 	public void setMatchingString(String matchingTitle) {
 		this.matchingString = matchingTitle;
 	}

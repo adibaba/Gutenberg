@@ -32,7 +32,7 @@ public class BilingualBooks {
 	public static boolean EXECUTE = true;
 	public static final String FILE_MATCHES_DE = "bilingual-matches-de.dat";
 
-	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 
 		mainConfigure(args);
 		BilingualBooks bb = new BilingualBooks();
@@ -85,7 +85,7 @@ public class BilingualBooks {
 
 	}
 
-	private static void mainConfigure(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+	private static void mainConfigure(String[] args) {
 
 		String tdbDirectory = null;
 		String downloadDirectory = null;

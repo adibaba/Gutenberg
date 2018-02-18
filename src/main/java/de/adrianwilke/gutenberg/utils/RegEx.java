@@ -73,6 +73,15 @@ public class RegEx {
 		return this;
 	}
 
+	public RegEx removeAllExeptAlphaNumber() {
+		string = removeAllExeptAlphaNumber(string);
+		return this;
+	}
+
+	protected String removeAllExeptAlphaNumber(String string) {
+		return string.replaceAll("[^A-Za-z0-9]", "");
+	}
+
 	public RegEx removeAllExeptAlphaNumberUnderscore() {
 		string = removeAllExeptAlphaNumberUnderscore(string);
 		return this;

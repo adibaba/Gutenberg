@@ -57,12 +57,12 @@ public class BilingualBooks {
 		}
 
 		// Read serialized matches from file
-		if (EXECUTE == false) {
+		if (EXECUTE == true) {
 			BilingualMatch.readAllSerialized(FILE_MATCHES_DE);
 		}
 
 		// Print matches
-		if (EXECUTE == false) {
+		if (EXECUTE == true) {
 			bb.printBilingualMatches();
 		}
 

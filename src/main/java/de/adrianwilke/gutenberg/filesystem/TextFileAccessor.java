@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.data;
+package de.adrianwilke.gutenberg.filesystem;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,8 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.adrianwilke.gutenberg.exceptions.FileAccessRuntimeException;
-
-import de.adrianwilke.gutenberg.data.TextFileAccessor;
+import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
 
 /**
  * Reads text files.
@@ -26,7 +25,7 @@ public class TextFileAccessor {
 	/**
 	 * @throws FileAccessRuntimeException
 	 */
-	public static List<String> readFile(String filePath, String charsetName) {
+	public static List<String> readFileToString(String filePath, String charsetName) {
 		List<String> lines = new LinkedList<String>();
 
 		FileInputStream fileInputStream = null;

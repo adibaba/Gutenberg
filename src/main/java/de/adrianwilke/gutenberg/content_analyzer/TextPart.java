@@ -13,6 +13,9 @@ import java.util.Map;
  */
 public class TextPart {
 
+	/**
+	 * Gets sets of non-empty lines. Lines are trimmed for comparison.
+	 */
 	public static List<TextPart> linesToTextParts(List<String> lines) {
 		List<TextPart> textParts = new LinkedList<TextPart>();
 		boolean isTextPart = false;
@@ -107,6 +110,9 @@ public class TextPart {
 			int endIndex = textParts.get(textParts.size() - 1).getEndIndex();
 			sections.get(distance).add(new TextPart(startIndex, endIndex));
 		}
+
+		sections.put(1, textParts);
+
 		return sections;
 	}
 

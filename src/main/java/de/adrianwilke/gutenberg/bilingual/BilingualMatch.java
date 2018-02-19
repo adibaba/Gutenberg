@@ -10,9 +10,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.Gutenberg;
-import de.adrianwilke.gutenberg.data.FileSerializer;
 import de.adrianwilke.gutenberg.exceptions.FileNotFoundRuntimeException;
 import de.adrianwilke.gutenberg.exceptions.FileSerializerRuntimeException;
+import de.adrianwilke.gutenberg.filesystem.FileSerializer;
 import de.adrianwilke.gutenberg.utils.RegEx;
 
 /**

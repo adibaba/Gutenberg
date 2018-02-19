@@ -10,17 +10,15 @@ import java.util.Comparator;
 public class Comparators<T> {
 
 	/**
-	 * toString() has to return URI.
+	 * Class has to be parsed to Long. Returns reverse numeric order.
 	 */
-	public Comparator<T> getToStringId() {
+	public Comparator<T> getToLongInverse() {
 		return new Comparator<T>() {
+			@Override
 			public int compare(T o1, T o2) {
-				Integer id1 = Strings.urlToId(o1.toString());
-				Integer id2 = Strings.urlToId(o2.toString());
-				return id1 - id2;
+				return Long.valueOf(o2.toString()).compareTo(Long.valueOf(o1.toString()));
 			}
 		};
-
 	}
 
 	/**
@@ -39,5 +37,18 @@ public class Comparators<T> {
 				return o1.toString().compareTo(o2.toString());
 			}
 		});
+	}
+
+	/**
+	 * toString() has to return URI.
+	 */
+	public Comparator<T> getToStringId() {
+		return new Comparator<T>() {
+			public int compare(T o1, T o2) {
+				Integer id1 = Strings.urlToId(o1.toString());
+				Integer id2 = Strings.urlToId(o2.toString());
+				return id1 - id2;
+			}
+		};
 	}
 }

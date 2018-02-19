@@ -14,6 +14,7 @@ import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 import de.adrianwilke.gutenberg.entities.RdfResource;
+import de.adrianwilke.gutenberg.filesystem.Importer;
 
 /**
  * Execution endpoints.

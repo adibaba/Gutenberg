@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg;
+package de.adrianwilke.gutenberg.filesystem;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -55,7 +55,7 @@ public class Importer {
 		return TDBFactory.createDataset(tdbDirectory);
 	}
 
-	protected Model getModel(String file) {
+	public Model getModel(String file) {
 		Model model = ModelFactory.createDefaultModel();
 		model.read(file);
 		return model;
@@ -78,7 +78,7 @@ public class Importer {
 		return subDirectories;
 	}
 
-	protected String getRdfFile(String rootDirectory, String fileId) {
+	public String getRdfFile(String rootDirectory, String fileId) {
 		return rootDirectory + File.separator + fileId + File.separator + "pg" + fileId + ".rdf";
 	}
 
@@ -141,7 +141,7 @@ public class Importer {
 		model.write(System.out, RDFLanguages.strLangRDFXML);
 	}
 
-	protected void printTurtle(Model model) {
+	public void printTurtle(Model model) {
 		model.write(System.out, RDFLanguages.strLangTurtle);
 	}
 }

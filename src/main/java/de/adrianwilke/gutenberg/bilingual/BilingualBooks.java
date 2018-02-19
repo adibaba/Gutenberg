@@ -13,13 +13,13 @@ import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.Gutenberg;
 import de.adrianwilke.gutenberg.comparators.TitleComparator;
-import de.adrianwilke.gutenberg.data.Downloader;
 import de.adrianwilke.gutenberg.entities.Author;
 import de.adrianwilke.gutenberg.entities.Cache;
 import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
+import de.adrianwilke.gutenberg.filesystem.Downloader;
 import de.adrianwilke.gutenberg.utils.Comparators;
 
 /**

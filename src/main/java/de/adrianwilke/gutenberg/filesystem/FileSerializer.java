@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.data;
+package de.adrianwilke.gutenberg.filesystem;
 
 import java.io.File;
 import java.io.FileInputStream;

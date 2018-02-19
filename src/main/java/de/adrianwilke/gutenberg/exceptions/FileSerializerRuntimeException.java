@@ -2,7 +2,7 @@ package de.adrianwilke.gutenberg.exceptions;
 
 import java.io.IOException;
 
-import de.adrianwilke.gutenberg.data.FileSerializer;
+import de.adrianwilke.gutenberg.filesystem.FileSerializer;
 
 /**
  * Container for exceptions thrown on file serialization.

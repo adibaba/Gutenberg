@@ -2,8 +2,9 @@ package de.adrianwilke.gutenberg.content_analyzer;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
-import de.adrianwilke.gutenberg.data.TextFileAccessor;
+import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
 
 /**
  * Represents text file contents.
@@ -17,6 +18,7 @@ public class TextFile {
 	private String fileCharsetName;
 	private String filePath;
 	private List<String> lines;
+	private Map<Integer, List<TextPart>> sections;
 	private List<TextPart> textParts;
 	private List<TextPart> textPartsContent;
 
@@ -92,7 +94,7 @@ public class TextFile {
 
 	public List<String> getLines() {
 		if (lines == null) {
-			lines = TextFileAccessor.readFile(filePath, fileCharsetName);
+			lines = TextFileAccessor.readFileToString(filePath, fileCharsetName);
 		}
 		return lines;
 	}
@@ -108,37 +110,61 @@ public class TextFile {
 
 	/**
 	 * Gets sets of non-empty lines. Lines are trimmed for comparison.
+	 * 
+	 * Uses {@link TextPart#linesToTextParts(List)}.
 	 */
-	public List<TextPart> getParts() {
+	public List<TextPart> getPartsRaw() {
 		if (textParts == null) {
 			textParts = TextPart.linesToTextParts(getLines());
 		}
 		return textParts;
 	}
 
-	public List<TextPart> getPartsOfContent() {
+	/**
+	 * Tries to cut non-content at top and bottom of file.
+	 * 
+	 * On success, the trimmed parts are returned.
+	 * 
+	 * Otherwise, a warning is displayed and unchanged text parts are returned.
+	 */
+	public List<TextPart> getPartsCutted() {
 		if (textPartsContent == null) {
 
-			if (getContentStartIndex() == null || getContentEndIndex() == null) {
+			boolean startAndEndCutted = new Cutter().setBoundaries(this);
+			if (startAndEndCutted) {
+				int startIndex = 0;
+				int endIndex = getPartsRaw().size() - 1;
+				for (int i = 0; i < getPartsRaw().size(); i++) {
+					TextPart part = getPartsRaw().get(i);
+					if (getContentStartIndex() >= part.getStartIndex()) {
+						startIndex = i;
+					}
+					if (getContentEndIndex() >= part.getEndIndex()) {
+						endIndex = i;
+					}
+				}
+				textPartsContent = getPartsRaw().subList(startIndex, endIndex + 1);
+
+			} else {
 				System.err.println("Warning: Trying to creating parts of content without context information in "
 						+ TextFile.class.getName());
-				return getParts();
+				return getPartsRaw();
 			}
 
-			int startIndex = 0;
-			int endIndex = getParts().size() - 1;
-			for (int i = 0; i < getParts().size(); i++) {
-				TextPart part = getParts().get(i);
-				if (getContentStartIndex() >= part.getStartIndex()) {
-					startIndex = i;
-				}
-				if (getContentEndIndex() >= part.getEndIndex()) {
-					endIndex = i;
-				}
-			}
-			textPartsContent = getParts().subList(startIndex, endIndex + 1);
 		}
 		return textPartsContent;
+	}
+
+	/**
+	 * Get parts depending on distance (a.k.a. empty lines)
+	 * 
+	 * Uses {@link TextPart#textPartsToSections(List)}.
+	 */
+	public Map<Integer, List<TextPart>> getSections() {
+		if (sections == null) {
+			sections = TextPart.textPartsToSections(getPartsCutted());
+		}
+		return sections;
 	}
 
 	public void setContentEndIndex(Integer contentEndIndex) {
@@ -179,16 +205,16 @@ public class TextFile {
 		if (textParts != null) {
 			sb.append(", ");
 
-			for (int i = 0; i < 4 - String.valueOf(getPartsOfContent().size()).length(); i++) {
+			for (int i = 0; i < 4 - String.valueOf(getPartsCutted().size()).length(); i++) {
 				sb.append(" ");
 			}
-			sb.append(getPartsOfContent().size());
+			sb.append(getPartsCutted().size());
 
 			sb.append("/");
-			for (int i = 0; i < 4 - String.valueOf(getParts().size()).length(); i++) {
+			for (int i = 0; i < 4 - String.valueOf(getPartsRaw().size()).length(); i++) {
 				sb.append(" ");
 			}
-			sb.append(getParts().size());
+			sb.append(getPartsRaw().size());
 
 			sb.append(" parts");
 		}

@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.data;
+package de.adrianwilke.gutenberg.filesystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,11 +23,16 @@ public class Downloader {
 	
 	private File baseDownloadDirectory;
 
+	/**
+	 * All downloads will be stored in base directory.
+	 */
 	public Downloader(String baseDownloadDirectory) {
 		this.baseDownloadDirectory = new File(baseDownloadDirectory);
 	}
 
 	/**
+	 * Uses path of URL to generate directories.
+	 * 
 	 * Will not download, if file path already exists.
 	 * 
 	 * @throws DownloadRuntimeException
@@ -38,6 +43,8 @@ public class Downloader {
 	}
 
 	/**
+	 * Uses path of URL to generate directories.
+	 * 
 	 * @throws DownloadRuntimeException
 	 * @throws FileNotFoundRuntimeException
 	 */
@@ -51,6 +58,8 @@ public class Downloader {
 	}
 
 	/**
+	 * Uses local file path to create directories and file.
+	 * 
 	 * Will not download, if file path already exists.
 	 * 
 	 * @throws DownloadRuntimeException
@@ -61,6 +70,8 @@ public class Downloader {
 	}
 
 	/**
+	 * Uses local file path to create directories and file.
+	 * 
 	 * @throws DownloadRuntimeException
 	 * @throws FileNotFoundRuntimeException
 	 */

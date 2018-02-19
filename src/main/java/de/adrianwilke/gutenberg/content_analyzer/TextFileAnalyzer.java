@@ -1,10 +1,10 @@
 package de.adrianwilke.gutenberg.content_analyzer;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import de.adrianwilke.gutenberg.data.TextFileAccessor;
+import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
 
 /**
  * Analyzes content of text files.
@@ -22,32 +22,27 @@ public class TextFileAnalyzer {
 		mainConfigure(args);
 		TextFileAnalyzer analyzer = new TextFileAnalyzer();
 
+		TextFile textFile1 = new TextFile(FILE_PATH, TextFileAccessor.ISO_8859_1);
+		TextFile textFile2 = new TextFile(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
+		TextFile textFile3 = new TextFile(FILE_PATH_3, TextFileAccessor.UTF_8);
+
 		// Get boundaries
 		if (EXECUTE == false) {
-			TextFile textFile = new TextFile(FILE_PATH, TextFileAccessor.ISO_8859_1);
-			System.out.println(textFile);
+			System.out.println(textFile1);
 
 			// Note: 19778-8 [42 (30), 3729 (3735)]
-			analyzer.getBoundaries(textFile);
-			System.out.println(textFile);
+			System.out.println(textFile1);
 
-			textFile.getParts();
-			System.out.println(textFile);
+			textFile1.getPartsRaw();
+			System.out.println(textFile1);
 		}
 
 		// Check text lines and text parts
 		if (EXECUTE == false) {
-			TextFile textFile1 = new TextFile(FILE_PATH, TextFileAccessor.ISO_8859_1);
-			TextFile textFile2 = new TextFile(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
-			TextFile textFile3 = new TextFile(FILE_PATH_3, TextFileAccessor.UTF_8);
 
-			analyzer.getBoundaries(textFile1);
-			analyzer.getBoundaries(textFile2);
-			analyzer.getBoundaries(textFile3);
-
-			textFile1.getParts();
-			textFile2.getParts();
-			textFile3.getParts();
+			textFile1.getPartsRaw();
+			textFile2.getPartsRaw();
+			textFile3.getPartsRaw();
 
 			System.out.println(textFile1);
 			System.out.println(textFile2);
@@ -63,7 +58,7 @@ public class TextFileAnalyzer {
 
 			// Check content parts
 			if (EXECUTE == false) {
-				List<TextPart> currentContentParts = currentTextFile.getPartsOfContent();
+				List<TextPart> currentContentParts = currentTextFile.getPartsCutted();
 				System.out.print(currentContentParts.get(0).getStartIndex() + 1);
 				System.out.print(",");
 				System.out.println(currentContentParts.get(currentContentParts.size() - 1).getEndIndex() + 1);
@@ -71,17 +66,43 @@ public class TextFileAnalyzer {
 		}
 
 		// Get text-parts and text-sections
-		if (EXECUTE == true) {
-			TextFile textFile = new TextFile(FILE_PATH, TextFileAccessor.ISO_8859_1);
-			analyzer.getBoundaries(textFile);
-			System.out.println(textFile);
+		if (EXECUTE == false) {
+			System.out.println(textFile1);
 
-			System.out.println("1: " + textFile.getPartsOfContent());
-
-			Map<Integer, List<TextPart>> textSections = TextPart.textPartsToSections(textFile.getPartsOfContent());
-			for (Integer distance : textSections.keySet()) {
-				System.out.println(distance + ": " + textSections.get(distance));
+			for (Entry<Integer, List<TextPart>> section : textFile1.getSections().entrySet()) {
+				System.out.println(section.getKey() + ": " + section.getValue());
 			}
+		}
+
+		// Print context of sections
+		if (EXECUTE == false) {
+
+			// Get data
+			TextFile currentFile = textFile1;
+			Map<Integer, List<TextPart>> sections = currentFile.getSections();
+
+			// Overview
+			for (Entry<Integer, List<TextPart>> section : currentFile.getSections().entrySet()) {
+				System.out.println(section.getKey() + ": " + section.getValue().size());
+			}
+			System.out.println();
+
+			// Print context
+			analyzer.printContextOfTextPart(currentFile, sections.get(4), 5);
+		}
+
+		if (EXECUTE == false) {
+			analyzer.compare(textFile1, textFile2);
+		}
+
+		if (EXECUTE == true) {
+			boolean preferLongDistances = true;
+
+			new ChapterSearch().search(textFile1, preferLongDistances);
+
+			new ChapterSearch().search(textFile2, preferLongDistances);
+
+			new ChapterSearch().search(textFile3, preferLongDistances);
 		}
 	}
 
@@ -96,95 +117,33 @@ public class TextFileAnalyzer {
 		}
 	}
 
-	public void getBoundaries(TextFile textFile) {
+	private void compare(TextFile textFile1, TextFile textFile2) {
 
-		int startLineIndex = -1;
-		int endLineIndex = getBoundaryEndIndex(textFile.getLines(), 0);
+		// Remove non-content
+		System.out.println("File: " + textFile1);
 
-		if (endLineIndex != -1) {
-			startLineIndex = getBoundaryStartIndex(textFile.getLines(), endLineIndex);
-		} else {
-			startLineIndex = getBoundaryStartIndex(textFile.getLines(), textFile.getLines().size() - 1);
+		// Get parts depending on distance (a.k.a. empty lines)
+		for (Entry<Integer, List<TextPart>> entry : textFile1.getSections().entrySet()) {
+			System.out.println("Parts distance " + entry.getKey() + ": " + entry.getValue().size());
 		}
 
-		if (startLineIndex < 0) {
-			System.err.println(TextFileAnalyzer.class.getName() + "No start line found.");
-		} else {
-			textFile.setContentStartIndex(startLineIndex);
-		}
+		System.out.println();
 
-		if (endLineIndex < 0) {
-			System.err.println(TextFileAnalyzer.class.getName() + "No end line found.");
-		} else {
-			textFile.setContentEndIndex(endLineIndex);
+		// Remove non-content
+		System.out.println("File: " + textFile2);
+
+		// Get parts depending on distance (a.k.a. empty lines)
+		for (Entry<Integer, List<TextPart>> entry : textFile2.getSections().entrySet()) {
+			System.out.println("Parts distance " + entry.getKey() + ": " + entry.getValue().size());
 		}
 	}
 
-	private int getBoundaryEndIndex(List<String> lines, int startLine) {
-		int lineIndex = -1;
-
-		// Begin at first line, to match first line containing a candidate
-		lineloop: for (int i = startLine; i < lines.size(); i++) {
-			String line = lines.get(i);
-
-			for (String candidate : getBoundaryEndCandidates()) {
-				if (line.startsWith(candidate)) {
-					lineIndex = i - 1;
-					break lineloop;
-				}
-			}
+	private void printContextOfTextPart(TextFile textFile, List<TextPart> textParts, int range) {
+		for (int i = 0; i < textParts.size(); i++) {
+			TextPart textPart = textParts.get(i);
+			System.out.println("[" + i + "]");
+			System.out.println(textFile.getContext(textPart.getStartLineNumber(), range));
 		}
-
-		// Remove empty lines
-		for (int i = lineIndex - 1; i >= 0; i--) {
-			String line = lines.get(i);
-			if (!line.isEmpty()) {
-				lineIndex = i;
-				break;
-			}
-		}
-
-		return lineIndex;
-	}
-
-	private List<String> getBoundaryEndCandidates() {
-		List<String> list = new LinkedList<String>();
-		list.add("End of Project Gutenberg"); // 19778-8, line 3735 / 11-0, line 3376 (different following apostrophes)
-		list.add("*** END OF THIS PROJECT GUTENBERG EBOOK"); // 19778-8, line 3737
-		list.add("End of the Project Gutenberg EBook of"); // 19033-8, line 1341
-		return list;
-	}
-
-	private int getBoundaryStartIndex(List<String> lines, int startLine) {
-		int lineIndex = -1;
-
-		// Begin at last line, to match last line containing a candidate
-		lineloop: for (int i = startLine; i >= 0; i--) {
-			for (String candidate : getBoundaryStartCandidates()) {
-				if (lines.get(i).startsWith(candidate)) {
-					lineIndex = i + 1;
-					break lineloop;
-				}
-			}
-		}
-
-		// Remove empty lines
-		for (int i = lineIndex + 1; i < lines.size(); i++) {
-			if (!lines.get(i).isEmpty()) {
-				lineIndex = i;
-				break;
-			}
-		}
-
-		return lineIndex;
-	}
-
-	private List<String> getBoundaryStartCandidates() {
-		List<String> list = new LinkedList<String>();
-		list.add("*** START OF THIS PROJECT GUTENBERG EBOOK"); // 19778-8, line 25
-		list.add("Team at http://www.pgdp.net"); // 19778-8, line 32
-		list.add("Distributed Proofreading Team at http://www.pgdp.net"); // 19033-8, line 27
-		return list;
 	}
 
 }

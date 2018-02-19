@@ -86,7 +86,7 @@ public class Cutter {
 	 * 
 	 * Returns if top boundary and bottom boundary were found.
 	 */
-	public boolean setBoundaries(TextFile textFile) {
+	public boolean setBoundaries(Text textFile) {
 
 		// Begin with bottom of file. Approach of beginning with top of file produced
 		// wrong results at work with real Gutenberg data.

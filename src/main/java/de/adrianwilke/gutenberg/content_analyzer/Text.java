@@ -7,11 +7,11 @@ import java.util.Map;
 import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
 
 /**
- * Represents text file contents.
+ * Represents text contents.
  * 
  * @author Adrian Wilke
  */
-public class TextFile {
+public class Text {
 
 	private Integer contentEndIndex;
 	private Integer contentStartIndex;
@@ -22,7 +22,10 @@ public class TextFile {
 	private List<TextPart> textParts;
 	private List<TextPart> textPartsContent;
 
-	TextFile(String filePath, String charsetName) {
+	/**
+	 * Gets text from file.
+	 */
+	Text(String filePath, String charsetName) {
 		this.filePath = filePath;
 		this.fileCharsetName = charsetName;
 	}
@@ -147,7 +150,7 @@ public class TextFile {
 
 			} else {
 				System.err.println("Warning: Trying to creating parts of content without context information in "
-						+ TextFile.class.getName());
+						+ Text.class.getName());
 				return getPartsRaw();
 			}
 

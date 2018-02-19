@@ -22,9 +22,9 @@ public class TextFileAnalyzer {
 		mainConfigure(args);
 		TextFileAnalyzer analyzer = new TextFileAnalyzer();
 
-		TextFile textFile1 = new TextFile(FILE_PATH, TextFileAccessor.ISO_8859_1);
-		TextFile textFile2 = new TextFile(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
-		TextFile textFile3 = new TextFile(FILE_PATH_3, TextFileAccessor.UTF_8);
+		Text textFile1 = new Text(FILE_PATH, TextFileAccessor.ISO_8859_1);
+		Text textFile2 = new Text(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
+		Text textFile3 = new Text(FILE_PATH_3, TextFileAccessor.UTF_8);
 
 		// Get boundaries
 		if (EXECUTE == false) {
@@ -48,7 +48,7 @@ public class TextFileAnalyzer {
 			System.out.println(textFile2);
 			System.out.println(textFile3);
 
-			TextFile currentTextFile = textFile1;
+			Text currentTextFile = textFile1;
 
 			// Check start and end line of content
 			if (EXECUTE == false) {
@@ -78,7 +78,7 @@ public class TextFileAnalyzer {
 		if (EXECUTE == false) {
 
 			// Get data
-			TextFile currentFile = textFile1;
+			Text currentFile = textFile1;
 			Map<Integer, List<TextPart>> sections = currentFile.getSections();
 
 			// Overview
@@ -96,13 +96,39 @@ public class TextFileAnalyzer {
 		}
 
 		if (EXECUTE == true) {
+
 			boolean preferLongDistances = true;
 
-			new ChapterSearch().search(textFile1, preferLongDistances);
+			Text text = textFile1;
+			ChapterSearch chapterSearch = new ChapterSearch();
+			if (chapterSearch.search(text, preferLongDistances)) {
+				System.out.println(text);
+				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearch.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
+				System.out.println();
+			}
 
-			new ChapterSearch().search(textFile2, preferLongDistances);
+			text = textFile2;
+			chapterSearch = new ChapterSearch();
+			if (chapterSearch.search(text, preferLongDistances)) {
+				System.out.println(text);
+				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearch.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
+				System.out.println();
+			}
 
-			new ChapterSearch().search(textFile3, preferLongDistances);
+			text = textFile3;
+			chapterSearch = new ChapterSearch();
+			if (chapterSearch.search(text, preferLongDistances)) {
+				System.out.println(text);
+				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearch.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
+				System.out.println();
+			}
+
 		}
 	}
 
@@ -117,7 +143,7 @@ public class TextFileAnalyzer {
 		}
 	}
 
-	private void compare(TextFile textFile1, TextFile textFile2) {
+	private void compare(Text textFile1, Text textFile2) {
 
 		// Remove non-content
 		System.out.println("File: " + textFile1);
@@ -138,7 +164,7 @@ public class TextFileAnalyzer {
 		}
 	}
 
-	private void printContextOfTextPart(TextFile textFile, List<TextPart> textParts, int range) {
+	private void printContextOfTextPart(Text textFile, List<TextPart> textParts, int range) {
 		for (int i = 0; i < textParts.size(); i++) {
 			TextPart textPart = textParts.get(i);
 			System.out.println("[" + i + "]");

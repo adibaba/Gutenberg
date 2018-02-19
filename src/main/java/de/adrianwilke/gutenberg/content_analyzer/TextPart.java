@@ -67,7 +67,7 @@ public class TextPart {
 
 	public static Map<Integer, List<TextPart>> textPartsToSections(List<TextPart> textParts) {
 
-		// Smallest distance already available
+		// Smallest distance already available. Is re-added afterwards.
 		List<Integer> distances = getSortedDistances(textParts);
 		distances.remove(0);
 
@@ -111,6 +111,7 @@ public class TextPart {
 			sections.get(distance).add(new TextPart(startIndex, endIndex));
 		}
 
+		// Re-add smallest distance
 		sections.put(1, textParts);
 
 		return sections;

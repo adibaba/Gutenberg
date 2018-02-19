@@ -13,6 +13,28 @@ import java.util.Map;
  */
 public class TextPart {
 
+	private static List<Integer> getSortedDistances(List<TextPart> textParts) {
+		List<Integer> distances = new LinkedList<Integer>();
+		int previousEndIndex = -1;
+		for (int i = 0; i < textParts.size(); i++) {
+			TextPart textPart = textParts.get(i);
+			if (previousEndIndex != -1) {
+				int numberOfEmptyLines = textPart.getStartIndex() - previousEndIndex - 1;
+				if (!distances.contains(numberOfEmptyLines)) {
+					distances.add(new Integer(numberOfEmptyLines));
+				}
+			}
+			previousEndIndex = textPart.getEndIndex();
+		}
+		distances.sort(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		return distances;
+	}
+
 	/**
 	 * Gets sets of non-empty lines. Lines are trimmed for comparison.
 	 */
@@ -41,28 +63,6 @@ public class TextPart {
 			isTextPart = false;
 		}
 		return textParts;
-	}
-
-	private static List<Integer> getSortedDistances(List<TextPart> textParts) {
-		List<Integer> distances = new LinkedList<Integer>();
-		int previousEndIndex = -1;
-		for (int i = 0; i < textParts.size(); i++) {
-			TextPart textPart = textParts.get(i);
-			if (previousEndIndex != -1) {
-				int numberOfEmptyLines = textPart.getStartIndex() - previousEndIndex - 1;
-				if (!distances.contains(numberOfEmptyLines)) {
-					distances.add(new Integer(numberOfEmptyLines));
-				}
-			}
-			previousEndIndex = textPart.getEndIndex();
-		}
-		distances.sort(new Comparator<Integer>() {
-			@Override
-			public int compare(Integer o1, Integer o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		return distances;
 	}
 
 	public static Map<Integer, List<TextPart>> textPartsToSections(List<TextPart> textParts) {
@@ -118,8 +118,8 @@ public class TextPart {
 	}
 
 	private int endIndex;
-	private int startIndex;
 
+	private int startIndex;
 	public TextPart(int startIndex) {
 		this.startIndex = startIndex;
 	}
@@ -135,6 +135,10 @@ public class TextPart {
 
 	public int getEndLineNumber() {
 		return endIndex + 1;
+	}
+
+	public int getSize() {
+		return getEndIndex() - getStartIndex() + 1;
 	}
 
 	public int getStartIndex() {

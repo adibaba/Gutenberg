@@ -22,33 +22,33 @@ public class TextFileAnalyzer {
 		mainConfigure(args);
 		TextFileAnalyzer analyzer = new TextFileAnalyzer();
 
-		Text textFile1 = new Text(FILE_PATH, TextFileAccessor.ISO_8859_1);
-		Text textFile2 = new Text(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
-		Text textFile3 = new Text(FILE_PATH_3, TextFileAccessor.UTF_8);
+		Text text1 = new Text(FILE_PATH, TextFileAccessor.ISO_8859_1);
+		Text text2 = new Text(FILE_PATH_2, TextFileAccessor.ISO_8859_1);
+		Text text3 = new Text(FILE_PATH_3, TextFileAccessor.UTF_8);
 
 		// Get boundaries
 		if (EXECUTE == false) {
-			System.out.println(textFile1);
+			System.out.println(text1);
 
 			// Note: 19778-8 [42 (30), 3729 (3735)]
-			System.out.println(textFile1);
+			System.out.println(text1);
 
-			textFile1.getPartsRaw();
-			System.out.println(textFile1);
+			text1.getPartsRaw();
+			System.out.println(text1);
 		}
 
 		// Check text lines and text parts
 		if (EXECUTE == false) {
 
-			textFile1.getPartsRaw();
-			textFile2.getPartsRaw();
-			textFile3.getPartsRaw();
+			text1.getPartsRaw();
+			text2.getPartsRaw();
+			text3.getPartsRaw();
 
-			System.out.println(textFile1);
-			System.out.println(textFile2);
-			System.out.println(textFile3);
+			System.out.println(text1);
+			System.out.println(text2);
+			System.out.println(text3);
 
-			Text currentTextFile = textFile1;
+			Text currentTextFile = text1;
 
 			// Check start and end line of content
 			if (EXECUTE == false) {
@@ -67,9 +67,9 @@ public class TextFileAnalyzer {
 
 		// Get text-parts and text-sections
 		if (EXECUTE == false) {
-			System.out.println(textFile1);
+			System.out.println(text1);
 
-			for (Entry<Integer, List<TextPart>> section : textFile1.getSections().entrySet()) {
+			for (Entry<Integer, List<TextPart>> section : text1.getSections().entrySet()) {
 				System.out.println(section.getKey() + ": " + section.getValue());
 			}
 		}
@@ -78,7 +78,7 @@ public class TextFileAnalyzer {
 		if (EXECUTE == false) {
 
 			// Get data
-			Text currentFile = textFile1;
+			Text currentFile = text1;
 			Map<Integer, List<TextPart>> sections = currentFile.getSections();
 
 			// Overview
@@ -92,42 +92,61 @@ public class TextFileAnalyzer {
 		}
 
 		if (EXECUTE == false) {
-			analyzer.compare(textFile1, textFile2);
+			analyzer.compare(text1, text2);
 		}
 
 		if (EXECUTE == true) {
 
 			boolean preferLongDistances = true;
 
-			Text text = textFile1;
-			ChapterSearch chapterSearch = new ChapterSearch();
-			if (chapterSearch.search(text, preferLongDistances)) {
+			Text text = text1;
+			ChapterSearch chapterSearch1 = new ChapterSearch();
+			if (chapterSearch1.search(text, preferLongDistances)) {
 				System.out.println(text);
-				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
-				System.out.println("Distances: " + chapterSearch.getUsedDistances());
-				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
+				System.out.println("Found chapters using distances of " + chapterSearch1.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearch1.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearch1.getIndexOfFind());
 				System.out.println();
 			}
 
-			text = textFile2;
-			chapterSearch = new ChapterSearch();
-			if (chapterSearch.search(text, preferLongDistances)) {
+			text = text2;
+			ChapterSearch chapterSearch2 = new ChapterSearch();
+			if (chapterSearch2.search(text, preferLongDistances)) {
 				System.out.println(text);
-				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
-				System.out.println("Distances: " + chapterSearch.getUsedDistances());
-				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
+				System.out.println("Found chapters using distances of " + chapterSearch2.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearch2.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearch2.getIndexOfFind());
 				System.out.println();
 			}
 
-			text = textFile3;
-			chapterSearch = new ChapterSearch();
-			if (chapterSearch.search(text, preferLongDistances)) {
-				System.out.println(text);
-				System.out.println("Found chapters using distances of " + chapterSearch.getDistanceOfFind());
-				System.out.println("Distances: " + chapterSearch.getUsedDistances());
-				System.out.println("Chapters start with index " + chapterSearch.getIndexOfFind());
-				System.out.println();
-			}
+			List<TextPart> textParts1 = text1.getSections().get(chapterSearch1.getDistanceOfFind());
+			List<TextPart> textParts2 = text2.getSections().get(chapterSearch2.getDistanceOfFind());
+
+			int ctpIndex1 = chapterSearch1.getIndexOfFind();
+			int ctpIndex2 = chapterSearch2.getIndexOfFind();
+
+			System.out.println("First chapter sizes and diff");
+			System.out.println(textParts1.get(ctpIndex1).getSize());
+			System.out.println(textParts2.get(ctpIndex2).getSize());
+			int difA = Math.abs(textParts1.get(ctpIndex1).getSize() - textParts2.get(ctpIndex2).getSize());
+			System.out.println(difA);
+			System.out.println();
+
+			System.out.println("Second chapter sizes and diff");
+			System.out.println(textParts1.get(ctpIndex1 + 1).getSize());
+			System.out.println(textParts2.get(ctpIndex2 + 1).getSize());
+			int difB = Math.abs(textParts1.get(ctpIndex1 + 1).getSize() - textParts2.get(ctpIndex2 + 1).getSize());
+			System.out.println(difB);
+			System.out.println();
+
+			System.out.println("Diff for guesses");
+			int dif = Math.max(difA, difB) + (Math.min(difA, difB) / 2);
+			System.out.println(dif);
+			System.out.println();
+
+			// new guess
+			System.out.println(textParts1.get(ctpIndex1 + 3).getSize());
+			System.out.println(textParts2.get(ctpIndex2 + 2).getSize());
 
 		}
 	}

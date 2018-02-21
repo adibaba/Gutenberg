@@ -14,7 +14,7 @@ import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
 import de.adrianwilke.gutenberg.entities.RdfResource;
-import de.adrianwilke.gutenberg.filesystem.Importer;
+import de.adrianwilke.gutenberg.io.Importer;
 
 /**
  * Execution endpoints.
@@ -207,6 +207,7 @@ public class Examples {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public void printEbooksInformation() {
 		System.out.println();
 
@@ -248,6 +249,7 @@ public class Examples {
 		importer.printTurtle(model);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void printItemsInLanguage(Language lang) {
 
 		System.out.println("RDF nodes with language " + lang);

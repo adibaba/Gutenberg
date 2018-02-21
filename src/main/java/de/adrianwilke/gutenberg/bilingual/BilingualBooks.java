@@ -19,7 +19,7 @@ import de.adrianwilke.gutenberg.entities.DcFormat;
 import de.adrianwilke.gutenberg.entities.DcType;
 import de.adrianwilke.gutenberg.entities.Ebook;
 import de.adrianwilke.gutenberg.entities.Language;
-import de.adrianwilke.gutenberg.filesystem.Downloader;
+import de.adrianwilke.gutenberg.io.Downloader;
 import de.adrianwilke.gutenberg.utils.Comparators;
 
 /**

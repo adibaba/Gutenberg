@@ -2,7 +2,7 @@ package de.adrianwilke.gutenberg.exceptions;
 
 import java.io.IOException;
 
-import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
+import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
  * Container for exceptions thrown on file access.

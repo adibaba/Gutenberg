@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.filesystem;
+package de.adrianwilke.gutenberg.io;
 
 import java.io.File;
 import java.util.LinkedList;

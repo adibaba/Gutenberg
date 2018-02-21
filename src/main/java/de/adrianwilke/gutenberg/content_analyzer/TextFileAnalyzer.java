@@ -1,10 +1,12 @@
 package de.adrianwilke.gutenberg.content_analyzer;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
+import de.adrianwilke.gutenberg.generators.HtmlGenerator;
+import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
  * Analyzes content of text files.
@@ -18,7 +20,7 @@ public class TextFileAnalyzer {
 	public static String FILE_PATH_2;
 	public static String FILE_PATH_3;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		mainConfigure(args);
 		TextFileAnalyzer analyzer = new TextFileAnalyzer();
 
@@ -33,16 +35,16 @@ public class TextFileAnalyzer {
 			// Note: 19778-8 [42 (30), 3729 (3735)]
 			System.out.println(text1);
 
-			text1.getPartsRaw();
+			text1.getParts();
 			System.out.println(text1);
 		}
 
 		// Check text lines and text parts
 		if (EXECUTE == false) {
 
-			text1.getPartsRaw();
-			text2.getPartsRaw();
-			text3.getPartsRaw();
+			text1.getParts();
+			text2.getParts();
+			text3.getParts();
 
 			System.out.println(text1);
 			System.out.println(text2);
@@ -58,7 +60,7 @@ public class TextFileAnalyzer {
 
 			// Check content parts
 			if (EXECUTE == false) {
-				List<TextPart> currentContentParts = currentTextFile.getPartsCutted();
+				List<TextPart> currentContentParts = currentTextFile.getPartsCut();
 				System.out.print(currentContentParts.get(0).getStartIndex() + 1);
 				System.out.print(",");
 				System.out.println(currentContentParts.get(currentContentParts.size() - 1).getEndIndex() + 1);
@@ -99,43 +101,43 @@ public class TextFileAnalyzer {
 
 			boolean preferLongDistances = true;
 
-			Text text = text1;
-			ChapterSearch chapterSearch1 = new ChapterSearch();
-			if (chapterSearch1.search(text, preferLongDistances)) {
-				System.out.println(text);
-				System.out.println("Found chapters using distances of " + chapterSearch1.getDistanceOfFind());
-				System.out.println("Distances: " + chapterSearch1.getUsedDistances());
-				System.out.println("Chapters start with index " + chapterSearch1.getIndexOfFind());
+			Text textA = text1;
+			ChapterSearch chapterSearchA = new ChapterSearch();
+			if (chapterSearchA.search(textA, preferLongDistances)) {
+				System.out.println(textA);
+				System.out.println("Found chapters using distances of " + chapterSearchA.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearchA.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearchA.getIndexOfFind());
 				System.out.println();
 			}
 
-			text = text2;
-			ChapterSearch chapterSearch2 = new ChapterSearch();
-			if (chapterSearch2.search(text, preferLongDistances)) {
-				System.out.println(text);
-				System.out.println("Found chapters using distances of " + chapterSearch2.getDistanceOfFind());
-				System.out.println("Distances: " + chapterSearch2.getUsedDistances());
-				System.out.println("Chapters start with index " + chapterSearch2.getIndexOfFind());
+			Text textB = text2;
+			ChapterSearch chapterSearchB = new ChapterSearch();
+			if (chapterSearchB.search(textB, preferLongDistances)) {
+				System.out.println(textB);
+				System.out.println("Found chapters using distances of " + chapterSearchB.getDistanceOfFind());
+				System.out.println("Distances: " + chapterSearchB.getUsedDistances());
+				System.out.println("Chapters start with index " + chapterSearchB.getIndexOfFind());
 				System.out.println();
 			}
 
-			List<TextPart> textParts1 = text1.getSections().get(chapterSearch1.getDistanceOfFind());
-			List<TextPart> textParts2 = text2.getSections().get(chapterSearch2.getDistanceOfFind());
+			List<TextPart> textPartsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
+			List<TextPart> textPartsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
 
-			int ctpIndex1 = chapterSearch1.getIndexOfFind();
-			int ctpIndex2 = chapterSearch2.getIndexOfFind();
+			int ctpIndexA = chapterSearchA.getIndexOfFind();
+			int ctpIndexB = chapterSearchB.getIndexOfFind();
 
 			System.out.println("First chapter sizes and diff");
-			System.out.println(textParts1.get(ctpIndex1).getSize());
-			System.out.println(textParts2.get(ctpIndex2).getSize());
-			int difA = Math.abs(textParts1.get(ctpIndex1).getSize() - textParts2.get(ctpIndex2).getSize());
+			System.out.println(textPartsA.get(ctpIndexA).getSize());
+			System.out.println(textPartsB.get(ctpIndexB).getSize());
+			int difA = Math.abs(textPartsA.get(ctpIndexA).getSize() - textPartsB.get(ctpIndexB).getSize());
 			System.out.println(difA);
 			System.out.println();
 
 			System.out.println("Second chapter sizes and diff");
-			System.out.println(textParts1.get(ctpIndex1 + 1).getSize());
-			System.out.println(textParts2.get(ctpIndex2 + 1).getSize());
-			int difB = Math.abs(textParts1.get(ctpIndex1 + 1).getSize() - textParts2.get(ctpIndex2 + 1).getSize());
+			System.out.println(textPartsA.get(ctpIndexA + 1).getSize());
+			System.out.println(textPartsB.get(ctpIndexB + 1).getSize());
+			int difB = Math.abs(textPartsA.get(ctpIndexA + 1).getSize() - textPartsB.get(ctpIndexB + 1).getSize());
 			System.out.println(difB);
 			System.out.println();
 
@@ -145,17 +147,26 @@ public class TextFileAnalyzer {
 			System.out.println();
 
 			// new guess
-			System.out.println(textParts1.get(ctpIndex1 + 3).getSize());
-			System.out.println(textParts2.get(ctpIndex2 + 2).getSize());
+			System.out.println(textPartsA.get(ctpIndexA + 3).getSize());
+			System.out.println(textPartsB.get(ctpIndexB + 2).getSize());
 
+			// generate html
+			HtmlGenerator html = new HtmlGenerator(textA, textB);
+			html.generateHeader()
+					.generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
+							textB.getSections().get(chapterSearchB.getDistanceOfFind()),
+							chapterSearchA.getIndexOfFind(), chapterSearchB.getIndexOfFind())
+					.generateFooter();
+
+			TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
 		}
 	}
 
 	private static void mainConfigure(String[] args) {
-		if (args.length == 3) {
-			FILE_PATH = args[0];
-			FILE_PATH_2 = args[1];
-			FILE_PATH_3 = args[2];
+		if (args.length == 4) {
+			FILE_PATH = args[1];
+			FILE_PATH_2 = args[2];
+			FILE_PATH_3 = args[3];
 		} else {
 			System.err.println("Please set file path.");
 			System.exit(1);

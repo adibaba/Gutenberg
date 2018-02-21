@@ -90,14 +90,14 @@ public class Cutter {
 
 		// Begin with bottom of file. Approach of beginning with top of file produced
 		// wrong results at work with real Gutenberg data.
-		int endLineIndex = getBoundaryIndexOfEnd(textFile.getLines(), 0);
+		int endLineIndex = getBoundaryIndexOfEnd(textFile.getLinesTrimmed(), 0);
 
 		// If end line index found, cut file before searching start line.
 		int startLineIndex;
 		if (endLineIndex != -1) {
-			startLineIndex = getBoundaryIndexOfStart(textFile.getLines(), endLineIndex);
+			startLineIndex = getBoundaryIndexOfStart(textFile.getLinesTrimmed(), endLineIndex);
 		} else {
-			startLineIndex = getBoundaryIndexOfStart(textFile.getLines(), textFile.getLines().size() - 1);
+			startLineIndex = getBoundaryIndexOfStart(textFile.getLinesTrimmed(), textFile.getLinesTrimmed().size() - 1);
 		}
 
 		// Set indexes in text file

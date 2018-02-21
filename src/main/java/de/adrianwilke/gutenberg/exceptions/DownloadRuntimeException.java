@@ -3,7 +3,7 @@ package de.adrianwilke.gutenberg.exceptions;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import de.adrianwilke.gutenberg.filesystem.Downloader;
+import de.adrianwilke.gutenberg.io.Downloader;
 
 /**
  * Container for exceptions thrown on download.

@@ -1,16 +1,18 @@
-package de.adrianwilke.gutenberg.filesystem;
+package de.adrianwilke.gutenberg.io;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.adrianwilke.gutenberg.exceptions.FileAccessRuntimeException;
-import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
+import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
  * Reads text files.
@@ -19,13 +21,13 @@ import de.adrianwilke.gutenberg.filesystem.TextFileAccessor;
  */
 public class TextFileAccessor {
 
-	public static final String UTF_8 = StandardCharsets.UTF_8.name();
 	public static final String ISO_8859_1 = StandardCharsets.ISO_8859_1.name();
+	public static final String UTF_8 = StandardCharsets.UTF_8.name();
 
 	/**
 	 * @throws FileAccessRuntimeException
 	 */
-	public static List<String> readFileToString(String filePath, String charsetName) {
+	public static List<String> readFileToString(String filePath, String charsetName, boolean trim) {
 		List<String> lines = new LinkedList<String>();
 
 		FileInputStream fileInputStream = null;
@@ -39,7 +41,11 @@ public class TextFileAccessor {
 			bufferedReader = new BufferedReader(inputStreamReader);
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				lines.add(line);
+				if (trim) {
+					lines.add(line.trim());
+				} else {
+					lines.add(line);
+				}
 			}
 
 		} catch (IOException e) {
@@ -54,5 +60,18 @@ public class TextFileAccessor {
 			}
 		}
 		return lines;
+	}
+
+	/**
+	 * @throws FileAccessRuntimeException
+	 */
+	public static void writeStringToFile(String string, String filePath) {
+		try {
+			PrintWriter out = new PrintWriter(filePath);
+			out.println(string);
+			out.close();
+		} catch (FileNotFoundException e) {
+			throw new FileAccessRuntimeException(e);
+		}
 	}
 }

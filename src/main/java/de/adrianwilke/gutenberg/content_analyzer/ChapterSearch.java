@@ -163,13 +163,13 @@ public class ChapterSearch {
 			checkHeadingVariations: for (List<String> headingVariation : chapterVariations) {
 
 				// Only continue, if start line of text-part matches first heading
-				if (textFile.getLines().get(textPart.getStartIndex()).toLowerCase()
+				if (textFile.getLinesTrimmed().get(textPart.getStartIndex()).toLowerCase()
 						.startsWith(headingVariation.get(0))) {
 
 					// For additional headings, check additional parts
 					for (int j = 1; j < chapterVariations.size(); j++) {
 						TextPart nextTextPart = textParts.get(i + j);
-						if (!textFile.getLines().get(nextTextPart.getStartIndex()).toLowerCase()
+						if (!textFile.getLinesTrimmed().get(nextTextPart.getStartIndex()).toLowerCase()
 								.startsWith(headingVariation.get(j))) {
 							continue checkHeadingVariations;
 						}

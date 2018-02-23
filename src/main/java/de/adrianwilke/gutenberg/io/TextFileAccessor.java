@@ -25,8 +25,10 @@ public class TextFileAccessor {
 
 	/**
 	 * @throws FileAccessRuntimeException
+	 * 
+	 * @see java.nio.charset.StandardCharsets
 	 */
-	public static List<String> readFileToString(String filePath, String charsetName, boolean trimRightSide) {
+	public static List<String> readFileToString(String filePath, String charsetName) {
 		List<String> lines = new LinkedList<String>();
 
 		FileInputStream fileInputStream = null;
@@ -40,11 +42,7 @@ public class TextFileAccessor {
 			bufferedReader = new BufferedReader(inputStreamReader);
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				if (trimRightSide) {
-					lines.add(line.replaceAll("\\s+$",""));
-				} else {
-					lines.add(line);
-				}
+				lines.add(line);
 			}
 
 		} catch (IOException e) {

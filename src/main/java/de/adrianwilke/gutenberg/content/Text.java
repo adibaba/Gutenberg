@@ -100,7 +100,7 @@ public class Text {
 
 	public List<String> getLines() {
 		if (lines == null) {
-			lines = TextFileAccessor.readFileToString(filePath, fileCharsetName, true);
+			lines = TextFileAccessor.readFileToString(filePath, fileCharsetName);
 		}
 		return lines;
 	}

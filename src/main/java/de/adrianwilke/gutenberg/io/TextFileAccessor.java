@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.adrianwilke.gutenberg.exceptions.FileAccessRuntimeException;
-import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
  * Reads text files.
@@ -27,7 +26,7 @@ public class TextFileAccessor {
 	/**
 	 * @throws FileAccessRuntimeException
 	 */
-	public static List<String> readFileToString(String filePath, String charsetName, boolean trim) {
+	public static List<String> readFileToString(String filePath, String charsetName, boolean trimRightSide) {
 		List<String> lines = new LinkedList<String>();
 
 		FileInputStream fileInputStream = null;
@@ -41,8 +40,8 @@ public class TextFileAccessor {
 			bufferedReader = new BufferedReader(inputStreamReader);
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				if (trim) {
-					lines.add(line.trim());
+				if (trimRightSide) {
+					lines.add(line.replaceAll("\\s+$",""));
 				} else {
 					lines.add(line);
 				}

@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content_analyzer;
+package de.adrianwilke.gutenberg.content;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,15 +9,17 @@ import java.util.Map;
 /**
  * Start and end numbers of text part.
  * 
+ * Does not contain text.
+ * 
  * @author Adrian Wilke
  */
-public class TextPart {
+public class Part {
 
-	private static List<Integer> getSortedDistances(List<TextPart> textParts) {
+	private static List<Integer> getSortedDistances(List<Part> textParts) {
 		List<Integer> distances = new LinkedList<Integer>();
 		int previousEndIndex = -1;
 		for (int i = 0; i < textParts.size(); i++) {
-			TextPart textPart = textParts.get(i);
+			Part textPart = textParts.get(i);
 			if (previousEndIndex != -1) {
 				int numberOfEmptyLines = textPart.getStartIndex() - previousEndIndex - 1;
 				if (!distances.contains(numberOfEmptyLines)) {
@@ -38,10 +40,10 @@ public class TextPart {
 	/**
 	 * Gets sets of non-empty lines. Lines are trimmed for comparison.
 	 */
-	public static List<TextPart> linesToTextParts(List<String> lines) {
-		List<TextPart> textParts = new LinkedList<TextPart>();
+	public static List<Part> linesToTextParts(List<String> lines) {
+		List<Part> textParts = new LinkedList<Part>();
 		boolean isTextPart = false;
-		TextPart textPart = null;
+		Part textPart = null;
 		for (int l = 0; l < lines.size(); l++) {
 			String line = lines.get(l).trim();
 			if (line.isEmpty()) {
@@ -52,7 +54,7 @@ public class TextPart {
 				}
 			} else {
 				if (!isTextPart) {
-					textPart = new TextPart(l);
+					textPart = new Part(l);
 					isTextPart = true;
 				}
 			}
@@ -65,16 +67,16 @@ public class TextPart {
 		return textParts;
 	}
 
-	public static Map<Integer, List<TextPart>> textPartsToSections(List<TextPart> textParts) {
+	public static Map<Integer, List<Part>> textPartsToSections(List<Part> textParts) {
 
 		// Smallest distance already available. Is re-added afterwards.
 		List<Integer> distances = getSortedDistances(textParts);
 		distances.remove(0);
 
 		// Initialize return structures
-		Map<Integer, List<TextPart>> sections = new HashMap<Integer, List<TextPart>>();
+		Map<Integer, List<Part>> sections = new HashMap<Integer, List<Part>>();
 		for (Integer distance : distances) {
-			sections.put(distance, new LinkedList<TextPart>());
+			sections.put(distance, new LinkedList<Part>());
 		}
 
 		// Helper
@@ -84,7 +86,7 @@ public class TextPart {
 
 		// Go through all parts
 		for (int i = 0; i < textParts.size(); i++) {
-			TextPart textPart = textParts.get(i);
+			Part textPart = textParts.get(i);
 
 			// Skip first iteration, there is no data about previous parts
 			if (i > 0) {
@@ -97,7 +99,7 @@ public class TextPart {
 								? textParts.get(distanceToLoopIndexMap.get(distance)).getStartIndex()
 								: contentStartIndex;
 						int endIndex = previousEndIndex;
-						sections.get(distance).add(new TextPart(startIndex, endIndex));
+						sections.get(distance).add(new Part(startIndex, endIndex));
 						distanceToLoopIndexMap.put(distance, i);
 					}
 				}
@@ -108,7 +110,7 @@ public class TextPart {
 		for (Integer distance : distances) {
 			int startIndex = textParts.get(distanceToLoopIndexMap.get(distance)).getStartIndex();
 			int endIndex = textParts.get(textParts.size() - 1).getEndIndex();
-			sections.get(distance).add(new TextPart(startIndex, endIndex));
+			sections.get(distance).add(new Part(startIndex, endIndex));
 		}
 
 		// Re-add smallest distance
@@ -120,11 +122,12 @@ public class TextPart {
 	private int endIndex;
 
 	private int startIndex;
-	public TextPart(int startIndex) {
+
+	public Part(int startIndex) {
 		this.startIndex = startIndex;
 	}
 
-	public TextPart(int startIndex, int endIndex) {
+	public Part(int startIndex, int endIndex) {
 		this.startIndex = startIndex;
 		this.endIndex = endIndex;
 	}
@@ -137,7 +140,7 @@ public class TextPart {
 		return endIndex + 1;
 	}
 
-	public int getSize() {
+	public int getNumberOfLines() {
 		return getEndIndex() - getStartIndex() + 1;
 	}
 

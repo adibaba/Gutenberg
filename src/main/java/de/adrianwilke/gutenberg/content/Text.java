@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content_analyzer;
+package de.adrianwilke.gutenberg.content;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -18,11 +18,11 @@ public class Text {
 	private Integer contentStartIndex;
 	private String fileCharsetName;
 	private String filePath;
-	private List<String> linesCleaned;
-	private List<String> linesTrimmed;
-	private Map<Integer, List<TextPart>> sections;
-	private List<TextPart> textParts;
-	private List<TextPart> textPartsCut;
+	private List<String> lines;
+	private Map<Integer, List<Part>> sections;
+	private List<Part> textParts;
+	private List<Part> textPartsCut;
+	private List<Integer> wordCount;
 
 	/**
 	 * Gets text from file.
@@ -32,10 +32,6 @@ public class Text {
 		this.fileCharsetName = charsetName;
 	}
 
-	private String cleanLine(String line) {
-		line = line.replace("[Illustration]", "");
-		return new String(line);
-	}
 
 	/**
 	 * @return null, if not set
@@ -82,8 +78,8 @@ public class Text {
 			startIndex = 0;
 		}
 		int endIndex = lineIndex + range;
-		if (endIndex > getLinesTrimmed().size() - 1) {
-			endIndex = getLinesTrimmed().size() - 1;
+		if (endIndex > getLines().size() - 1) {
+			endIndex = getLines().size() - 1;
 		}
 
 		int endLineNumberLength = String.valueOf(endIndex).length();
@@ -96,47 +92,36 @@ public class Text {
 			}
 			sb.append(i + 1);
 			sb.append(" ");
-			sb.append(getLinesTrimmed().get(i));
+			sb.append(getLines().get(i));
 			sb.append(System.lineSeparator());
 		}
 		return sb.toString();
 	}
 
-	// TODO: Never used
-	public List<String> getLinesCleaned() {
-		if (linesCleaned == null) {
-			linesCleaned = new LinkedList<String>();
-			for (String line : linesTrimmed) {
-				linesCleaned.add(cleanLine(line));
-			}
+	public List<String> getLines() {
+		if (lines == null) {
+			lines = TextFileAccessor.readFileToString(filePath, fileCharsetName, true);
 		}
-		return linesCleaned;
+		return lines;
 	}
 
 	public String getLinesToString() {
 		StringBuilder sb = new StringBuilder();
-		for (String line : getLinesTrimmed()) {
+		for (String line : getLines()) {
 			sb.append(line);
 			sb.append(System.lineSeparator());
 		}
 		return sb.toString();
 	}
 
-	public List<String> getLinesTrimmed() {
-		if (linesTrimmed == null) {
-			linesTrimmed = TextFileAccessor.readFileToString(filePath, fileCharsetName, true);
-		}
-		return linesTrimmed;
-	}
-
 	/**
 	 * Gets sets of non-empty lines. Lines are trimmed for comparison.
 	 * 
-	 * Uses {@link TextPart#linesToTextParts(List)}.
+	 * Uses {@link Part#linesToTextParts(List)}.
 	 */
-	public List<TextPart> getParts() {
+	public List<Part> getParts() {
 		if (textParts == null) {
-			textParts = TextPart.linesToTextParts(getLinesTrimmed());
+			textParts = Part.linesToTextParts(getLines());
 		}
 		return textParts;
 	}
@@ -148,7 +133,7 @@ public class Text {
 	 * 
 	 * Otherwise, a warning is displayed and unchanged text parts are returned.
 	 */
-	public List<TextPart> getPartsCut() {
+	public List<Part> getPartsCut() {
 		if (textPartsCut == null) {
 
 			boolean startAndEndCutted = new Cutter().setBoundaries(this);
@@ -156,7 +141,7 @@ public class Text {
 				int startIndex = 0;
 				int endIndex = getParts().size() - 1;
 				for (int i = 0; i < getParts().size(); i++) {
-					TextPart part = getParts().get(i);
+					Part part = getParts().get(i);
 					if (getContentStartIndex() >= part.getStartIndex()) {
 						startIndex = i;
 					}
@@ -165,10 +150,6 @@ public class Text {
 					}
 				}
 
-				// TODO: Produced NPE
-				// textPartsCut =
-				// TextPart.linesToTextParts(getLinesCleaned()).subList(startIndex, endIndex +
-				// 1);
 				textPartsCut = getParts().subList(startIndex, endIndex + 1);
 
 			} else {
@@ -184,11 +165,11 @@ public class Text {
 	/**
 	 * Get parts depending on distance (a.k.a. empty lines)
 	 * 
-	 * Uses {@link TextPart#textPartsToSections(List)}.
+	 * Uses {@link Part#textPartsToSections(List)}.
 	 */
-	public Map<Integer, List<TextPart>> getSections() {
+	public Map<Integer, List<Part>> getSections() {
 		if (sections == null) {
-			sections = TextPart.textPartsToSections(getPartsCut());
+			sections = Part.textPartsToSections(getPartsCut());
 		}
 		return sections;
 	}
@@ -219,12 +200,12 @@ public class Text {
 			sb.append("]");
 		}
 
-		if (linesTrimmed != null) {
+		if (lines != null) {
 			sb.append(", ");
-			for (int i = 0; i < 5 - String.valueOf(getLinesTrimmed().size()).length(); i++) {
+			for (int i = 0; i < 5 - String.valueOf(getLines().size()).length(); i++) {
 				sb.append(" ");
 			}
-			sb.append(getLinesTrimmed().size());
+			sb.append(getLines().size());
 			sb.append(" lines");
 		}
 
@@ -257,5 +238,27 @@ public class Text {
 		}
 
 		return sb.toString();
+	}
+
+	public int wordCount(int lineNumber) {
+		if (wordCount == null) {
+			wordCount = new LinkedList<Integer>();
+			for (String line : lines) {
+				if (line.isEmpty()) {
+					wordCount.add(0);
+				} else {
+					wordCount.add(line.split("\\s+").length);
+				}
+			}
+		}
+		return wordCount.get(lineNumber);
+	}
+
+	public int wordCount(Part part) {
+		int wc = 0;
+		for (int i = part.getStartIndex(); i <= part.getEndIndex(); i++) {
+			wc += wordCount(i);
+		}
+		return wc;
 	}
 }

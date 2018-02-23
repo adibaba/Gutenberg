@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content_analyzer;
+package de.adrianwilke.gutenberg.content;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -60,7 +60,7 @@ public class TextFileAnalyzer {
 
 			// Check content parts
 			if (EXECUTE == false) {
-				List<TextPart> currentContentParts = currentTextFile.getPartsCut();
+				List<Part> currentContentParts = currentTextFile.getPartsCut();
 				System.out.print(currentContentParts.get(0).getStartIndex() + 1);
 				System.out.print(",");
 				System.out.println(currentContentParts.get(currentContentParts.size() - 1).getEndIndex() + 1);
@@ -71,7 +71,7 @@ public class TextFileAnalyzer {
 		if (EXECUTE == false) {
 			System.out.println(text1);
 
-			for (Entry<Integer, List<TextPart>> section : text1.getSections().entrySet()) {
+			for (Entry<Integer, List<Part>> section : text1.getSections().entrySet()) {
 				System.out.println(section.getKey() + ": " + section.getValue());
 			}
 		}
@@ -81,10 +81,10 @@ public class TextFileAnalyzer {
 
 			// Get data
 			Text currentFile = text1;
-			Map<Integer, List<TextPart>> sections = currentFile.getSections();
+			Map<Integer, List<Part>> sections = currentFile.getSections();
 
 			// Overview
-			for (Entry<Integer, List<TextPart>> section : currentFile.getSections().entrySet()) {
+			for (Entry<Integer, List<Part>> section : currentFile.getSections().entrySet()) {
 				System.out.println(section.getKey() + ": " + section.getValue().size());
 			}
 			System.out.println();
@@ -97,7 +97,7 @@ public class TextFileAnalyzer {
 			analyzer.compare(text1, text2);
 		}
 
-		if (EXECUTE == true) {
+		if (EXECUTE == false) {
 
 			boolean preferLongDistances = true;
 
@@ -121,23 +121,25 @@ public class TextFileAnalyzer {
 				System.out.println();
 			}
 
-			List<TextPart> textPartsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
-			List<TextPart> textPartsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
+			List<Part> textPartsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
+			List<Part> textPartsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
 
 			int ctpIndexA = chapterSearchA.getIndexOfFind();
 			int ctpIndexB = chapterSearchB.getIndexOfFind();
 
 			System.out.println("First chapter sizes and diff");
-			System.out.println(textPartsA.get(ctpIndexA).getSize());
-			System.out.println(textPartsB.get(ctpIndexB).getSize());
-			int difA = Math.abs(textPartsA.get(ctpIndexA).getSize() - textPartsB.get(ctpIndexB).getSize());
+			System.out.println(textPartsA.get(ctpIndexA).getNumberOfLines());
+			System.out.println(textPartsB.get(ctpIndexB).getNumberOfLines());
+			int difA = Math
+					.abs(textPartsA.get(ctpIndexA).getNumberOfLines() - textPartsB.get(ctpIndexB).getNumberOfLines());
 			System.out.println(difA);
 			System.out.println();
 
 			System.out.println("Second chapter sizes and diff");
-			System.out.println(textPartsA.get(ctpIndexA + 1).getSize());
-			System.out.println(textPartsB.get(ctpIndexB + 1).getSize());
-			int difB = Math.abs(textPartsA.get(ctpIndexA + 1).getSize() - textPartsB.get(ctpIndexB + 1).getSize());
+			System.out.println(textPartsA.get(ctpIndexA + 1).getNumberOfLines());
+			System.out.println(textPartsB.get(ctpIndexB + 1).getNumberOfLines());
+			int difB = Math.abs(textPartsA.get(ctpIndexA + 1).getNumberOfLines()
+					- textPartsB.get(ctpIndexB + 1).getNumberOfLines());
 			System.out.println(difB);
 			System.out.println();
 
@@ -147,8 +149,8 @@ public class TextFileAnalyzer {
 			System.out.println();
 
 			// new guess
-			System.out.println(textPartsA.get(ctpIndexA + 3).getSize());
-			System.out.println(textPartsB.get(ctpIndexB + 2).getSize());
+			System.out.println(textPartsA.get(ctpIndexA + 3).getNumberOfLines());
+			System.out.println(textPartsB.get(ctpIndexB + 2).getNumberOfLines());
 
 			// generate html
 			HtmlGenerator html = new HtmlGenerator(textA, textB);
@@ -159,6 +161,22 @@ public class TextFileAnalyzer {
 					.generateFooter();
 
 			TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
+		}
+
+		if (EXECUTE == true) {
+			List<Part> parts1 = text1.getParts();
+			for (int i = 0; i < 3; i++) {
+				if (parts1.size() < i) {
+					break;
+				}
+				Part part = parts1.get(i);
+				for (int j = part.getStartIndex(); j <= part.getEndIndex(); j++) {
+					System.out.println(text1.getLines().get(j));
+					System.out.println(text1.wordCount(j));
+				}
+				System.out.println(text1.wordCount(part));
+
+			}
 		}
 	}
 
@@ -179,7 +197,7 @@ public class TextFileAnalyzer {
 		System.out.println("File: " + textFile1);
 
 		// Get parts depending on distance (a.k.a. empty lines)
-		for (Entry<Integer, List<TextPart>> entry : textFile1.getSections().entrySet()) {
+		for (Entry<Integer, List<Part>> entry : textFile1.getSections().entrySet()) {
 			System.out.println("Parts distance " + entry.getKey() + ": " + entry.getValue().size());
 		}
 
@@ -189,14 +207,14 @@ public class TextFileAnalyzer {
 		System.out.println("File: " + textFile2);
 
 		// Get parts depending on distance (a.k.a. empty lines)
-		for (Entry<Integer, List<TextPart>> entry : textFile2.getSections().entrySet()) {
+		for (Entry<Integer, List<Part>> entry : textFile2.getSections().entrySet()) {
 			System.out.println("Parts distance " + entry.getKey() + ": " + entry.getValue().size());
 		}
 	}
 
-	private void printContextOfTextPart(Text textFile, List<TextPart> textParts, int range) {
+	private void printContextOfTextPart(Text textFile, List<Part> textParts, int range) {
 		for (int i = 0; i < textParts.size(); i++) {
-			TextPart textPart = textParts.get(i);
+			Part textPart = textParts.get(i);
 			System.out.println("[" + i + "]");
 			System.out.println(textFile.getContext(textPart.getStartLineNumber(), range));
 		}

@@ -48,6 +48,10 @@ public class RegEx {
 		return string.replaceAll("[^a-zA-Z0-9_]", "");
 	}
 
+	public static String replaceAllExeptAlphaNumberBySpace(String string) {
+		return string.replaceAll("[^a-zA-Z0-9]", " ");
+	}
+
 	public static String replaceLinebreaksBySpace(String string) {
 		// https://www.leveluplunch.com/java/examples/remove-newline-carriage-return-from-string/
 		return string.replaceAll("\n", " ").replaceAll("\r", "");

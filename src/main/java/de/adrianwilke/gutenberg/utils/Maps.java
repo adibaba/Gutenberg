@@ -23,7 +23,6 @@ public class Maps {
 				this.map.putAll(map);
 			}
 
-			@Override
 			public int compare(String s1, String s2) {
 				if (map.get(s1) >= map.get(s2)) {
 					return -1;

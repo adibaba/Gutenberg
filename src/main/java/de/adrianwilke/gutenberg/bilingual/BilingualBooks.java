@@ -261,7 +261,7 @@ public class BilingualBooks {
 	}
 
 	public Set<Ebook> getNativeBilingualBooks(List<String> ebookUris, Language secondLanguage) {
-		Set<Ebook> nativeBilingualBooks = new TreeSet<>(new Comparators<Ebook>().getToStringDefault());
+		Set<Ebook> nativeBilingualBooks = new TreeSet<Ebook>(new Comparators<Ebook>().getToStringDefault());
 		for (String ebookUri : ebookUris) {
 			Ebook ebook = new Ebook(ebookUri);
 			if (ebook.getLanguages().contains(secondLanguage)) {

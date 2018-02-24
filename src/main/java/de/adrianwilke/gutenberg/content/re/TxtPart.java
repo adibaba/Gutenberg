@@ -4,7 +4,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Represents a text part.
+ * Represents a text-part.
  * 
  * @author Adrian Wilke
  */
@@ -14,16 +14,11 @@ public class TxtPart extends Txt {
 
 	/**
 	 * Creates new text, which uses contents of its parent.
-	 * 
-	 * @param parent
-	 *            parent text
-	 * @param indexBegin
-	 *            inclusive index
-	 * @param indexEnd
-	 *            inclusive index
 	 */
-	TxtPart(Txt parent, int indexBegin, int indexEnd) {
+	TxtPart(Txt parent, String name, int indexBegin, int indexEnd) {
 		super(parent);
+
+		setName(name, true);
 
 		lineIndexes = new TreeSet<Integer>();
 		SortedSet<Integer> lineIndexesParent = parent.getLineIndexes();
@@ -32,22 +27,6 @@ public class TxtPart extends Txt {
 				lineIndexes.add(i);
 			}
 		}
-	}
-
-	/**
-	 * Gets start index of text range. The range is not necessarily continuous.
-	 */
-	@Override
-	public int getIndexRangeBegin() {
-		return lineIndexes.first();
-	}
-
-	/**
-	 * Gets end index of text range. The range is not necessarily continuous.
-	 */
-	@Override
-	public int getIndexRangeEnd() {
-		return lineIndexes.last();
 	}
 
 	@Override

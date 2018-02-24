@@ -14,7 +14,6 @@ public class Comparators<T> {
 	 */
 	public Comparator<T> getToLongInverse() {
 		return new Comparator<T>() {
-			@Override
 			public int compare(T o1, T o2) {
 				return Long.valueOf(o2.toString()).compareTo(Long.valueOf(o1.toString()));
 			}

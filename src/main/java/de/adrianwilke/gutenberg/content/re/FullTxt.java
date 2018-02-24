@@ -1,5 +1,6 @@
 package de.adrianwilke.gutenberg.content.re;
 
+import java.io.File;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,22 +30,13 @@ public class FullTxt extends Txt {
 
 		this.filePath = filePath;
 		this.charsetName = charsetName;
-	}
 
-	/**
-	 * Gets start index of text range. The range of a full text is continuous.
-	 */
-	@Override
-	public int getIndexRangeBegin() {
-		return 0;
-	}
-
-	/**
-	 * Gets end index of text range. The range of a full text is continuous.
-	 */
-	@Override
-	public int getIndexRangeEnd() {
-		return getLines().length - 1;
+		String name = new File(filePath).getName();
+		if (name.contains(".")) {
+			setName(name.substring(0, name.indexOf(".")), false);
+		} else {
+			setName(name, false);
+		}
 	}
 
 	/**

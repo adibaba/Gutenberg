@@ -24,7 +24,7 @@ import de.adrianwilke.gutenberg.utils.RegEx;
  */
 public class BilingualMatch implements Serializable {
 
-	private static Set<BilingualMatch> bilingualMatches = new HashSet<>();
+	private static Set<BilingualMatch> bilingualMatches = new HashSet<BilingualMatch>();
 
 	private static final long serialVersionUID = 1L;
 
@@ -58,7 +58,6 @@ public class BilingualMatch implements Serializable {
 
 		SortedSet<BilingualMatch> sortedBilingualMatches = new TreeSet<BilingualMatch>(
 				new Comparator<BilingualMatch>() {
-					@Override
 					public int compare(BilingualMatch m1, BilingualMatch m2) {
 						return m1.originMatchingTitle.compareTo(m2.originMatchingTitle);
 					}

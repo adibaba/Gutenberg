@@ -1,15 +1,15 @@
 package de.adrianwilke.gutenberg.content.re;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.exceptions.TextRootRuntimeException;
-import de.adrianwilke.gutenberg.io.Resources;
 
 /**
  * Represents an abstract text.
@@ -18,34 +18,15 @@ import de.adrianwilke.gutenberg.io.Resources;
  */
 public abstract class Txt implements Comparable<Txt> {
 
-	static public final int DEFAULT_LINE_NUMBER_DIGITS = 4;
+	static public final int DEFAULT_LENGTH_FILENAME = 30;
+	static public final int DEFAULT_LENGTH_LINE_NUMBER = 5;
+	static public final int DEFAULT_LENGTH_PART = 4;
 	static public boolean EXECUTE = true;
 
-	public static void main(String[] args) {
-		if (EXECUTE == true) {
-			Txt text = new FullTxt(Resources.getResource("text/lorem-ipsum.txt").getPath(), "UTF-8");
-
-			System.out.println(text);
-			System.out.println(text.getLinesString(true));
-
-			SortedMap<Integer, SortedSet<Txt>> textDistanceParts = text.getParts();
-
-			System.out.println("DISTANCES: " + textDistanceParts.keySet());
-
-			for (Entry<Integer, SortedSet<Txt>> distancesEntry : textDistanceParts.entrySet()) {
-				System.out.println("DISTANCE: " + distancesEntry.getKey());
-				SortedSet<Txt> distanceSet = distancesEntry.getValue();
-				for (Txt distPart : distanceSet) {
-					System.out.println("PART: " + distPart);
-					System.out.println(distPart.getLinesString(true));
-				}
-			}
-		}
-	}
-
-	public SortedMap<Integer, SortedSet<Txt>> distanceParts; // TODO protected
+	protected SortedSet<Integer> lineIndexes;
 	protected String name;
 	protected final Txt parent;
+	protected SortedMap<Integer, List<Txt>> sections;
 
 	/**
 	 * Creates new text.
@@ -58,28 +39,44 @@ public abstract class Txt implements Comparable<Txt> {
 	}
 
 	/**
-	 * Puts all contained lines to the string builder.
-	 */
-	public StringBuilder addLines(StringBuilder stringBuilder, boolean putLinePrefix) {
-		for (Integer lineIndex : getLineIndexes()) {
-			if (putLinePrefix) {
-				stringBuilder.append(lineIndex + 1);
-				for (int i = String.valueOf(lineIndex + 1).length(); i < DEFAULT_LINE_NUMBER_DIGITS; i++) {
-					stringBuilder.append(" ");
-				}
-				stringBuilder.append(" ");
-			}
-			stringBuilder.append(getLine(lineIndex));
-			stringBuilder.append(System.lineSeparator());
-		}
-		return stringBuilder;
-	}
-
-	/**
 	 * {@link Comparable} implemented as comparison of first line indexes.
 	 */
 	public int compareTo(Txt t) {
 		return Integer.compare(getLineIndexes().first(), t.getLineIndexes().first());
+	}
+
+	/**
+	 * Returns the given line and lines before and after. Includes line numbers.
+	 */
+	public String getContext(int lineNumber, int range) {
+		StringBuilder sb = new StringBuilder();
+		int lineIndex = lineNumber - 1;
+
+		int startIndex = lineIndex - range;
+		if (startIndex < 0) {
+			startIndex = 0;
+		}
+		int endIndex = lineIndex + range;
+		if (endIndex > getRoot().getLineIndexes().last()) {
+			endIndex = getRoot().getLineIndexes().last();
+		}
+
+		int endLineNumberLength = String.valueOf(endIndex).length();
+		for (int i = startIndex; i <= endIndex; i++) {
+			for (int j = 0; j < endLineNumberLength - String.valueOf(i + 1).length(); j++) {
+				sb.append(" ");
+			}
+			sb.append(i + 1);
+			if (i == lineIndex) {
+				sb.append(" >");
+			} else {
+				sb.append("  ");
+			}
+			sb.append(" ");
+			sb.append(getLine(i));
+			sb.append(System.lineSeparator());
+		}
+		return sb.toString();
 	};
 
 	/**
@@ -96,7 +93,7 @@ public abstract class Txt implements Comparable<Txt> {
 	 * Returns a string containing all lines with line number prefixes.
 	 */
 	public String getLinesString(boolean addLineNumberPrefix) {
-		return addLines(new StringBuilder(), addLineNumberPrefix).toString();
+		return toStringBuilder(new StringBuilder(), addLineNumberPrefix).toString();
 	}
 
 	/**
@@ -121,15 +118,22 @@ public abstract class Txt implements Comparable<Txt> {
 	}
 
 	/**
-	 * Returns text-parts divides by empty lines.
-	 * 
-	 * TODO
-	 * 
-	 * @return
+	 * Gets the text root element.
 	 */
-	public SortedMap<Integer, SortedSet<Txt>> getParts() {
-		if (distanceParts == null) {
-			distanceParts = new TreeMap<Integer, SortedSet<Txt>>();
+	protected Txt getRoot() {
+		Txt text = this;
+		while (text.hasParent()) {
+			text = text.getParent();
+		}
+		return text;
+	}
+
+	/**
+	 * Returns text-parts divides by empty lines.
+	 */
+	public SortedMap<Integer, List<Txt>> getSections() {
+		if (sections == null) {
+			sections = new TreeMap<Integer, List<Txt>>();
 
 			// First iteration: Get distances (a.k.a. sequences of empty lines), which occur
 			// in text
@@ -155,7 +159,7 @@ public abstract class Txt implements Comparable<Txt> {
 			// distances)
 			Map<Integer, Integer> distancesToStartIndex = new HashMap<Integer, Integer>();
 			for (Integer distance : distances) {
-				distanceParts.put(distance, new TreeSet<Txt>());
+				sections.put(distance, new LinkedList<Txt>());
 				distancesToStartIndex.put(distance, -1);
 			}
 			emptyLinesCounter = 0;
@@ -165,7 +169,7 @@ public abstract class Txt implements Comparable<Txt> {
 			for (int lineIndex = getLineIndexes().first(); lineIndex <= getLineIndexes().last(); lineIndex++) {
 
 				if (getLine(lineIndex).trim().isEmpty()) {
-					
+
 					// Current line is empty
 					emptyLinesCounter++;
 
@@ -176,9 +180,8 @@ public abstract class Txt implements Comparable<Txt> {
 						}
 
 						if (!distancesToStartIndex.get(distance).equals(-1)) {
-
-							String name = "distance" + distance + "-index" + distanceParts.get(distance).size();
-							distanceParts.get(distance).add(
+							String name = "distance" + distance + "-index" + sections.get(distance).size();
+							sections.get(distance).add(
 									(new TxtPart(this, name, distancesToStartIndex.get(distance), lastTextLineIndex)));
 							distancesToStartIndex.put(distance, -1);
 						}
@@ -201,23 +204,13 @@ public abstract class Txt implements Comparable<Txt> {
 			// Add end parts
 			for (Integer distance : distances) {
 				if (!distancesToStartIndex.get(distance).equals(-1)) {
-					distanceParts.get(distance)
+					String name = "distance" + distance + "-index" + sections.get(distance).size();
+					sections.get(distance)
 							.add((new TxtPart(this, name, distancesToStartIndex.get(distance), lastTextLineIndex)));
 				}
 			}
 		}
-		return distanceParts;
-	}
-
-	/**
-	 * Gets the text root element.
-	 */
-	protected Txt getRoot() {
-		Txt text = this;
-		while (text.hasParent()) {
-			text = text.getParent();
-		}
-		return text;
+		return sections;
 	}
 
 	/**
@@ -241,6 +234,67 @@ public abstract class Txt implements Comparable<Txt> {
 	 */
 	@Override
 	public String toString() {
-		return getName();
+		StringBuilder stringBuilder = new StringBuilder();
+
+		stringBuilder.append(getName());
+		for (int i = getName().length(); i < DEFAULT_LENGTH_FILENAME; i++) {
+			stringBuilder.append(" ");
+		}
+		stringBuilder.append(" ");
+
+		if (sections != null) {
+			for (int i = String.valueOf(getSections().get(1).size()).length(); i < DEFAULT_LENGTH_PART; i++) {
+				stringBuilder.append(" ");
+			}
+			stringBuilder.append(" ");
+			stringBuilder.append(getSections().get(1).size());
+			stringBuilder.append(" parts ");
+		} else {
+			for (int i = 0; i < DEFAULT_LENGTH_PART + 8; i++) {
+				stringBuilder.append(" ");
+			}
+		}
+
+		if (lineIndexes != null) {
+			for (int i = String.valueOf(lineIndexes.size()).length(); i < DEFAULT_LENGTH_LINE_NUMBER; i++) {
+				stringBuilder.append(" ");
+			}
+			stringBuilder.append(" ");
+			stringBuilder.append(lineIndexes.size());
+			stringBuilder.append(" lines ");
+		} else {
+			for (int i = 0; i < DEFAULT_LENGTH_LINE_NUMBER + 8; i++) {
+				stringBuilder.append(" ");
+			}
+		}
+
+		if (lineIndexes != null) {
+			stringBuilder.append(" [");
+			stringBuilder.append(lineIndexes.first());
+			stringBuilder.append(",");
+			stringBuilder.append(lineIndexes.last());
+			stringBuilder.append("]");
+			stringBuilder.append(" ");
+		}
+
+		return stringBuilder.toString();
+	}
+
+	/**
+	 * Puts all contained lines to the string builder.
+	 */
+	public StringBuilder toStringBuilder(StringBuilder stringBuilder, boolean putLinePrefix) {
+		for (Integer lineIndex : getLineIndexes()) {
+			if (putLinePrefix) {
+				stringBuilder.append(lineIndex + 1);
+				for (int i = String.valueOf(lineIndex + 1).length(); i < DEFAULT_LENGTH_LINE_NUMBER; i++) {
+					stringBuilder.append(" ");
+				}
+				stringBuilder.append(" ");
+			}
+			stringBuilder.append(getLine(lineIndex));
+			stringBuilder.append(System.lineSeparator());
+		}
+		return stringBuilder;
 	}
 }

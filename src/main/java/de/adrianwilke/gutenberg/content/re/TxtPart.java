@@ -10,7 +10,6 @@ import java.util.TreeSet;
  */
 public class TxtPart extends Txt {
 
-	protected SortedSet<Integer> lineIndexes;
 
 	/**
 	 * Creates new text, which uses contents of its parent.

@@ -6,6 +6,11 @@
 	<version>1.0.1-SNAPSHOT</version>
 	<name>Gutenberg</name>
 
+	<!-- https://maven.apache.org/general.html#encoding-warning -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.jena/jena-tdb -->
@@ -31,5 +36,4 @@
 		</dependency>
 
 	</dependencies>
-
 </project>

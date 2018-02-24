@@ -13,11 +13,11 @@ import de.adrianwilke.gutenberg.io.TextFileAccessor;
  * @author Adrian Wilke
  */
 public class FullTxt extends Txt {
+	static public final int DEFAULT_LENGTH_SIZE = 4;
 
 	final protected String charsetName;
 	final protected String filePath;
 
-	protected SortedSet<Integer> lineIndexes;
 	protected String[] lines;
 
 	/**
@@ -59,6 +59,33 @@ public class FullTxt extends Txt {
 			lineIndexes = indexes;
 		}
 		return lineIndexes;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(super.toString());
+		stringBuilder.append(" ");
+
+		File file = new File(filePath);
+		if (file.exists()) {
+			long fileLenth = file.length();
+			long size = fileLenth;
+			if (fileLenth >= 1024) {
+				size = fileLenth / 1024;
+			}
+			for (int i = 0; i < DEFAULT_LENGTH_SIZE - String.valueOf(size).length(); i++) {
+				stringBuilder.append(" ");
+			}
+			stringBuilder.append(size);
+			if (fileLenth >= 1024) {
+				stringBuilder.append(" KiB");
+			} else {
+				stringBuilder.append(" bytes");
+			}
+
+		}
+		return stringBuilder.append(" ").toString();
 	}
 
 	/**

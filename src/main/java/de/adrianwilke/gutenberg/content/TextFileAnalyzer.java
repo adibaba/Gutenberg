@@ -37,6 +37,7 @@ public class TextFileAnalyzer {
 
 			text1.getParts();
 			System.out.println(text1);
+			System.out.println();
 		}
 
 		// Check text lines and text parts
@@ -53,13 +54,13 @@ public class TextFileAnalyzer {
 			Text currentTextFile = text1;
 
 			// Check start and end line of content
-			if (EXECUTE == false) {
+			if (EXECUTE == true) {
 				System.out.println(currentTextFile.getContext(currentTextFile.getContentStartLineNumber(), 20));
 				System.out.println(currentTextFile.getContext(currentTextFile.getContentEndLineNumber(), 20));
 			}
 
 			// Check content parts
-			if (EXECUTE == false) {
+			if (EXECUTE == true) {
 				List<Part> currentContentParts = currentTextFile.getPartsCut();
 				System.out.print(currentContentParts.get(0).getStartIndex() + 1);
 				System.out.print(",");
@@ -163,7 +164,7 @@ public class TextFileAnalyzer {
 			TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
 		}
 
-		if (EXECUTE == true) {
+		if (EXECUTE == false) {
 			List<Part> parts1 = text1.getParts();
 			for (int i = 0; i < 3; i++) {
 				if (parts1.size() < i) {

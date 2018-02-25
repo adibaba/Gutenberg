@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.adrianwilke.gutenberg.generators.HtmlGenerator;
 import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
@@ -94,11 +93,11 @@ public class TextFileAnalyzer {
 			analyzer.printContextOfTextPart(currentFile, sections.get(4), 5);
 		}
 
-		if (EXECUTE== false ) {
+		if (EXECUTE == false) {
 			analyzer.compare(text1, text2);
 		}
 
-		if (EXECUTE ) {
+		if (EXECUTE == false) {
 
 			boolean preferLongDistances = true;
 
@@ -154,17 +153,17 @@ public class TextFileAnalyzer {
 			System.out.println(textPartsB.get(ctpIndexB + 2).getNumberOfLines());
 
 			// generate html
-			HtmlGenerator html = new HtmlGenerator(textA, textB);
-			html.generateHeader()
-					.generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
-							textB.getSections().get(chapterSearchB.getDistanceOfFind()),
-							chapterSearchA.getIndexOfFind(), chapterSearchB.getIndexOfFind())
-					.generateFooter();
-
-			TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
+			// HtmlGenerator html = new HtmlGenerator(textA, textB);
+			// html.generateHeader()
+			// .generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
+			// textB.getSections().get(chapterSearchB.getDistanceOfFind()),
+			// chapterSearchA.getIndexOfFind(), chapterSearchB.getIndexOfFind())
+			// .generateFooter();
+			//
+			// TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
 		}
 
-		if (EXECUTE == false) {
+		if (EXECUTE) {
 			List<Part> parts1 = text1.getParts();
 			for (int i = 0; i < 3; i++) {
 				if (parts1.size() < i) {

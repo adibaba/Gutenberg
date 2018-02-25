@@ -14,7 +14,7 @@ import java.util.List;
 import de.adrianwilke.gutenberg.exceptions.FileAccessRuntimeException;
 
 /**
- * Reads text files.
+ * Reads and writes files.
  * 
  * @author Adrian Wilke
  */
@@ -63,10 +63,14 @@ public class TextFileAccessor {
 	 * @throws FileAccessRuntimeException
 	 */
 	public static void writeStringToFile(String string, String filePath) {
+
+		new File(filePath).getParentFile().mkdirs();
+
 		try {
 			PrintWriter out = new PrintWriter(filePath);
 			out.println(string);
 			out.close();
+			System.out.println("Generated file" + filePath);
 		} catch (FileNotFoundException e) {
 			throw new FileAccessRuntimeException(e);
 		}

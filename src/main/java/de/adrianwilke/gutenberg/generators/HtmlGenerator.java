@@ -2,21 +2,20 @@ package de.adrianwilke.gutenberg.generators;
 
 import java.util.List;
 
-import de.adrianwilke.gutenberg.content.Text;
-import de.adrianwilke.gutenberg.content.Part;
+import de.adrianwilke.gutenberg.content.re.Txt;
 
 public class HtmlGenerator {
 
 	StringBuilder sb = new StringBuilder();
-	Text textA;
-	Text textB;
+	Txt textA;
+	Txt textB;
 
-	public HtmlGenerator(Text textA, Text textB) {
+	public HtmlGenerator(Txt textA, Txt textB) {
 		this.textA = textA;
 		this.textB = textB;
 	}
 
-	public HtmlGenerator generateCells(List<Part> partsA, List<Part> partsB, int startIndexA, int startIndexB) {
+	public HtmlGenerator generateCells(List<Txt> partsA, List<Txt> partsB, int startIndexA, int startIndexB) {
 		int j = -1;
 		while (true) {
 			j++;
@@ -34,14 +33,14 @@ public class HtmlGenerator {
 		}
 	}
 
-	public HtmlGenerator generateCells(Part partA, Part partB) {
+	public HtmlGenerator generateCells(Txt partA, Txt partB) {
 		sb.append("<tr>");
 		sb.append(System.lineSeparator());
 		sb.append("<td>");
 		sb.append(System.lineSeparator());
-		for (int i = partA.getStartIndex(); i <= partA.getEndIndex(); i++) {
-			sb.append(textA.getLines().get(i));
-			if (textA.getLines().get(i).isEmpty()) {
+		for (int i = partA.getLineIndexes().first(); i <= partA.getLineIndexes().last(); i++) {
+			sb.append(textA.getLine(i));
+			if (textA.getLine(i).isEmpty()) {
 				sb.append("<br/><br/>");
 			}
 			sb.append(System.lineSeparator());
@@ -50,9 +49,9 @@ public class HtmlGenerator {
 		sb.append(System.lineSeparator());
 		sb.append("<td>");
 		sb.append(System.lineSeparator());
-		for (int i = partB.getStartIndex(); i <= partB.getEndIndex(); i++) {
-			sb.append(textB.getLines().get(i));
-			if (textB.getLines().get(i).isEmpty()) {
+		for (int i = partB.getLineIndexes().first(); i <= partB.getLineIndexes().last(); i++) {
+			sb.append(textB.getLine(i));
+			if (textB.getLine(i).isEmpty()) {
 				sb.append("<br/><br/>");
 			}
 			sb.append(System.lineSeparator());

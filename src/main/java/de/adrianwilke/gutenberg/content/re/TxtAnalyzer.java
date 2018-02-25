@@ -1,8 +1,12 @@
 package de.adrianwilke.gutenberg.content.re;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import de.adrianwilke.gutenberg.generators.HtmlGenerator;
+import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
  * Human comparison of texts.
@@ -11,9 +15,10 @@ import java.util.Map.Entry;
  */
 public class TxtAnalyzer {
 
-	public static boolean EXECUTE = false;
-	public static List<String> FILE_CHARSETS;
-	public static List<String> FILE_PATHS;
+	protected static boolean EXECUTE = false;
+	protected static List<String> FILE_CHARSETS;
+	protected static List<String> FILE_PATHS;
+	protected static File DIRECTORY_GENERATION;
 
 	public static void main(String[] args) {
 		mainConfigure(args);
@@ -63,6 +68,7 @@ public class TxtAnalyzer {
 
 		// -------------------------------------------------------------------------------------------------------------
 		// Search for chapters
+		// Generate HTML
 		if (EXECUTE) {
 			boolean preferLongDistances = true;
 			Txt textA = textsCut.get(0);
@@ -128,16 +134,16 @@ public class TxtAnalyzer {
 			System.out.println(chapterPartsA.get(chapterPartsIndexA + 3).getLineIndexes().size());
 			System.out.println(chapterPartsB.get(chapterPartsIndexB + 2).getLineIndexes().size());
 
-			// TODO
-			// // generate html
-			// HtmlGenerator html = new HtmlGenerator(textA, textB);
-			// html.generateHeader()
-			// .generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
-			// textB.getSections().get(chapterSearchB.getDistanceOfFind()),
-			// chapterSearchA.getIndexOfFind(), chapterSearchB.getIndexOfFind())
-			// .generateFooter();
-			//
-			// TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
+			// Generate html
+			HtmlGenerator html = new HtmlGenerator(textA, textB);
+			html.generateHeader()
+					.generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
+							textB.getSections().get(chapterSearchB.getDistanceOfFind()),
+							chapterSearchA.getTextIndexOfFind(), chapterSearchB.getTextIndexOfFind())
+					.generateFooter();
+
+			String filePath = new File(DIRECTORY_GENERATION, "/test.htm").getPath();
+			TextFileAccessor.writeStringToFile(html.toString(), filePath);
 		}
 	}
 
@@ -145,14 +151,17 @@ public class TxtAnalyzer {
 		if (args.length == 0) {
 			System.err.println("Please check arguments.");
 			System.exit(1);
-		} else if (args.length % 2 != 0) {
+		} else if (args.length % 2 != 1) {
 			System.err.println("Please check arguments.");
 			System.exit(1);
 		} else {
+			DIRECTORY_GENERATION = new File(args[0]);
+			System.out.println("Generation directory:");
+			System.out.println(DIRECTORY_GENERATION);
 			FILE_PATHS = new LinkedList<String>();
 			FILE_CHARSETS = new LinkedList<String>();
 			System.out.println("Files in arguments:");
-			for (int argIndex = 0; argIndex < args.length; argIndex += 2) {
+			for (int argIndex = 1; argIndex < args.length; argIndex += 2) {
 				System.out.print(((argIndex / 2) + 1));
 				FILE_PATHS.add(args[argIndex]);
 				System.out.print(" " + args[argIndex]);

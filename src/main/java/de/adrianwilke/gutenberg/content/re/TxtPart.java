@@ -27,6 +27,9 @@ public class TxtPart extends Txt {
 		}
 	}
 
+	/**
+	 * Gets line with related index.
+	 */
 	@Override
 	public String getLine(int index) {
 		return getRoot().getLine(index);
@@ -40,9 +43,13 @@ public class TxtPart extends Txt {
 		return lineIndexes;
 	}
 
+	/**
+	 * Gets simplified line with related index. Lines are in lower case and only
+	 * consist of letters, numbers and spaces.
+	 */
 	@Override
-	public String getLineToLowerCase(int index) {
-		return getRoot().getLineToLowerCase(index);
+	public String getLineSimplified(int index) {
+		return getRoot().getLineSimplified(index);
 	}
 
 	/**

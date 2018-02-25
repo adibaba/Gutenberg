@@ -99,14 +99,15 @@ public abstract class Txt implements Comparable<Txt> {
 	public abstract String getLine(int index);
 
 	/**
-	 * Gets line with related index in lower case.
-	 */
-	public abstract String getLineToLowerCase(int index);
-
-	/**
 	 * Gets indexes of text.
 	 */
 	public abstract SortedSet<Integer> getLineIndexes();
+
+	/**
+	 * Gets simplified line with related index. Lines are in lower case and only
+	 * consist of letters, numbers and spaces.
+	 */
+	public abstract String getLineSimplified(int index);
 
 	/**
 	 * Gets name of text

@@ -23,30 +23,16 @@ public class TextTest {
 	}
 
 	/**
-	 * Tests {@link Txt#getLineToLowerCase(int)}
+	 * Tests {@link Txt#getLineSimplified(int)}
 	 */
 	@Test
-	public void testLowerCase() {
-		assert (text.getLineToLowerCase(10).equals(text.getLine(10).toLowerCase()));
-	}
-
-	/**
-	 * Tests to remove a line.
-	 */
-	@Test
-	public void testRemove() {
-		int numberOfIndexes = text.getLineIndexes().size();
-		assert (text.remove(10));
-		assert (numberOfIndexes == text.getLineIndexes().size() + 1);
-
+	public void testCleaning() {
 		if (PRINT) {
-			// Source should be existent
-			System.out.println(text.getContext(10, 1));
+			for (Integer index : text.getLineIndexes()) {
+				System.out.println(text.getLine(index));
+				System.out.println(text.getLineSimplified(index));
+			}
 		}
-
-		// Reload text for other tests
-		loadText();
-		assert (numberOfIndexes == text.getLineIndexes().size());
 	}
 
 	/**
@@ -76,6 +62,25 @@ public class TextTest {
 			System.out.println();
 		}
 
+	}
+
+	/**
+	 * Tests to remove a line.
+	 */
+	@Test
+	public void testRemove() {
+		int numberOfIndexes = text.getLineIndexes().size();
+		assert (text.remove(10));
+		assert (numberOfIndexes == text.getLineIndexes().size() + 1);
+
+		if (PRINT) {
+			// Source should be existent
+			System.out.println(text.getContext(10, 1));
+		}
+
+		// Reload text for other tests
+		loadText();
+		assert (numberOfIndexes == text.getLineIndexes().size());
 	}
 
 	/**

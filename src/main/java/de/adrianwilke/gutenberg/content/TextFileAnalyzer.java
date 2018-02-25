@@ -94,11 +94,11 @@ public class TextFileAnalyzer {
 			analyzer.printContextOfTextPart(currentFile, sections.get(4), 5);
 		}
 
-		if (EXECUTE == false) {
+		if (EXECUTE== false ) {
 			analyzer.compare(text1, text2);
 		}
 
-		if (EXECUTE == false) {
+		if (EXECUTE ) {
 
 			boolean preferLongDistances = true;
 

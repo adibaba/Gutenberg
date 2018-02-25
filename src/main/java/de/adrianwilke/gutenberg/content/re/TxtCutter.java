@@ -6,6 +6,10 @@ import java.util.List;
 /**
  * Searches for non-content strings at top and bottom of text.
  * 
+ * TODO: Use both approaches in different order
+ * 
+ * TODO: Count words in begin and end. Provide a score.
+ * 
  * @author Adrian Wilke
  */
 public class TxtCutter {

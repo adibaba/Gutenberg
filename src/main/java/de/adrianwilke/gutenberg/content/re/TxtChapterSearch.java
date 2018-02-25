@@ -13,6 +13,10 @@ import de.adrianwilke.gutenberg.utils.Comparators;
  * of several heading variants. In case of a match, the two following text-parts
  * are tested for a match of following headings.
  * 
+ * TODO: Search for common words in three headings. Search for more headings.
+ * 
+ * TODO: Eventually, search only for numbers in first run. Compare, if there are multiple founds.
+ * 
  * @author Adrian Wilke
  */
 public class TxtChapterSearch {
@@ -160,7 +164,7 @@ public class TxtChapterSearch {
 			checkHeadingVariations: for (List<String> headingVariation : headingVariations) {
 
 				// Only continue, if start line of text-part matches first heading
-				if (sectionText.getLineToLowerCase(sectionText.getLineIndexes().first())
+				if (sectionText.getLineSimplified(sectionText.getLineIndexes().first())
 						.startsWith(headingVariation.get(0))) {
 
 					// For additional headings, check additional parts
@@ -172,7 +176,7 @@ public class TxtChapterSearch {
 						}
 
 						Txt nextTextPart = sectionTexts.get(textIndex + headingIndex);
-						if (!sectionText.getLineToLowerCase(nextTextPart.getLineIndexes().first())
+						if (!sectionText.getLineSimplified(nextTextPart.getLineIndexes().first())
 								.startsWith(headingVariation.get(headingIndex))) {
 							continue checkHeadingVariations;
 						}

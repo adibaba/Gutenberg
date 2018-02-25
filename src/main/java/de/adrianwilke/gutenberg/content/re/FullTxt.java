@@ -6,6 +6,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.io.TextFileAccessor;
+import de.adrianwilke.gutenberg.utils.RegEx;
 
 /**
  * Represents a full text.
@@ -19,7 +20,7 @@ public class FullTxt extends Txt {
 	final protected String filePath;
 
 	protected String[] lines;
-	protected String[] linesToLowerCase;
+	protected String[] linesSimplified;
 
 	/**
 	 * Creates new text from file source.
@@ -76,15 +77,19 @@ public class FullTxt extends Txt {
 		return lines;
 	}
 
+	/**
+	 * Gets simplified line with related index. Lines are in lower case and only
+	 * consist of letters, numbers and spaces.
+	 */
 	@Override
-	public String getLineToLowerCase(int index) {
-		if (linesToLowerCase == null) {
-			linesToLowerCase = new String[getLineIndexes().size()];
+	public String getLineSimplified(int index) {
+		if (linesSimplified == null) {
+			linesSimplified = new String[getLineIndexes().size()];
 		}
-		if (linesToLowerCase[index] == null) {
-			linesToLowerCase[index] = getLine(index).toLowerCase();
+		if (linesSimplified[index] == null) {
+			linesSimplified[index] = RegEx.replaceAllExeptAlphaNumberBySpace(getLine(index).toLowerCase());
 		}
-		return linesToLowerCase[index];
+		return linesSimplified[index];
 	}
 
 	/**
@@ -95,6 +100,10 @@ public class FullTxt extends Txt {
 		return false;
 	}
 
+
+	/**
+	 * Returns string representation of text
+	 */
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();

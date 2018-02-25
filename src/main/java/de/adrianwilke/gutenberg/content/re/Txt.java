@@ -42,11 +42,25 @@ public abstract class Txt implements Comparable<Txt> {
 	 * {@link Comparable} implemented as comparison of first line indexes.
 	 */
 	public int compareTo(Txt t) {
-		return Integer.compare(getLineIndexes().first(), t.getLineIndexes().first());
+		int comparison;
+		comparison = Integer.compare(getLineIndexes().first(), t.getLineIndexes().first());
+		if (0 != comparison) {
+			return comparison;
+		}
+		comparison = Integer.compare(getLineIndexes().last(), t.getLineIndexes().last());
+		if (0 != comparison) {
+			return comparison;
+		}
+		return getName().compareTo(t.getName());
 	}
 
 	/**
 	 * Returns the given line and lines before and after. Includes line numbers.
+	 * 
+	 * @param lineNumber
+	 *            The line number to display (NOT the index)
+	 * @param range
+	 *            The range above and below the line of interest
 	 */
 	public String getContext(int lineNumber, int range) {
 		StringBuilder sb = new StringBuilder();
@@ -85,16 +99,14 @@ public abstract class Txt implements Comparable<Txt> {
 	public abstract String getLine(int index);
 
 	/**
+	 * Gets line with related index in lower case.
+	 */
+	public abstract String getLineToLowerCase(int index);
+
+	/**
 	 * Gets indexes of text.
 	 */
 	public abstract SortedSet<Integer> getLineIndexes();
-
-	/**
-	 * Returns a string containing all lines with line number prefixes.
-	 */
-	public String getLinesString(boolean addLineNumberPrefix) {
-		return toStringBuilder(new StringBuilder(), addLineNumberPrefix).toString();
-	}
 
 	/**
 	 * Gets name of text
@@ -219,6 +231,14 @@ public abstract class Txt implements Comparable<Txt> {
 	protected abstract boolean hasParent();
 
 	/**
+	 * Tries to remove index and returns result. The source text line will not be
+	 * removed.
+	 */
+	public boolean remove(int index) {
+		return getLineIndexes().remove(index);
+	}
+
+	/**
 	 * Sets name of text
 	 */
 	public void setName(String name, boolean parentAsPrefix) {
@@ -278,6 +298,13 @@ public abstract class Txt implements Comparable<Txt> {
 		}
 
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Returns a string containing all lines with line number prefixes.
+	 */
+	public String toStringAllLines(boolean addLineNumberPrefix) {
+		return toStringBuilder(new StringBuilder(), addLineNumberPrefix).toString();
 	}
 
 	/**

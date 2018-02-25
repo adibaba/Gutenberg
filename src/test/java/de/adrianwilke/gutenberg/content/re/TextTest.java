@@ -6,7 +6,7 @@ import org.junit.Test;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests of texts.
+ * Tests {@link Txt}, {@link FullTxt}, {@link TxtPart}.
  * 
  * @author Adrian Wilke
  */
@@ -23,7 +23,34 @@ public class TextTest {
 	}
 
 	/**
-	 * Test the print of contexts.
+	 * Tests {@link Txt#getLineToLowerCase(int)}
+	 */
+	@Test
+	public void testLowerCase() {
+		assert (text.getLineToLowerCase(10).equals(text.getLine(10).toLowerCase()));
+	}
+
+	/**
+	 * Tests to remove a line.
+	 */
+	@Test
+	public void testRemove() {
+		int numberOfIndexes = text.getLineIndexes().size();
+		assert (text.remove(10));
+		assert (numberOfIndexes == text.getLineIndexes().size() + 1);
+
+		if (PRINT) {
+			// Source should be existent
+			System.out.println(text.getContext(10, 1));
+		}
+
+		// Reload text for other tests
+		loadText();
+		assert (numberOfIndexes == text.getLineIndexes().size());
+	}
+
+	/**
+	 * Tests the print of contexts.
 	 */
 	@Test
 	public void testGetContext() {
@@ -52,7 +79,7 @@ public class TextTest {
 	}
 
 	/**
-	 * Test the print texts
+	 * Tests the print texts
 	 */
 	@Test
 	public void testToString() {

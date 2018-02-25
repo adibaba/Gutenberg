@@ -19,7 +19,7 @@ import org.junit.runners.MethodSorters;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests the generation of sections.
+ * Tests the generation of sections {@link Txt#getSections()}.
  * 
  * @author Adrian Wilke
  */
@@ -27,44 +27,77 @@ import de.adrianwilke.gutenberg.io.Resources;
 public class SectionsTest {
 
 	private static String CHARSET = "UTF-8";
-	private static Integer[] DISTANCE_SIZES = new Integer[] { 5, 4, 3 };
-	private static Integer[] DISTANCES = new Integer[] { 1, 2, 4 };
+	private static Integer[] DISTANCE_SIZES_HEADINGS_EXCLUDED = new Integer[] { 5, 4, 3 };
+	private static Integer[] DISTANCE_SIZES_HEADINGS_INCLUDED = new Integer[] { 9, 5, 4 };
+	private static Integer[] DISTANCES_HEADINGS_EXCLUDED = new Integer[] { 1, 2, 4 };
+	private static Integer[] DISTANCES_HEADINGS_INCLUDED = new Integer[] { 1, 2, 3 };
 	private static int LINES = 14;
 	private static boolean PRINT = false;
-	private static String RESOURCE = "text/lorem-ipsum.txt";
-	private static SortedMap<Integer, List<Txt>> sections;
-	private static Txt text;
+	private static String RESOURCE_HEADINGS_EXCLUDED = "text/lorem-ipsum.txt";
+	private static String RESOURCE_HEADINGS_INCLUDED = "text/headings.txt";
+	private static SortedMap<Integer, List<Txt>> sectionsHeadingsExcluded;
+	private static SortedMap<Integer, List<Txt>> sectionsHeadingsIncluded;
+	private static Txt textHeadingsExcluded;
+	private static Txt textHeadingsIncluded;
 
 	@BeforeClass
 	public static void loadText() {
-		text = new FullTxt(Resources.getResource(RESOURCE).getPath(), CHARSET);
-		sections = text.getSections();
+		textHeadingsIncluded = new FullTxt(Resources.getResource(RESOURCE_HEADINGS_INCLUDED).getPath(), CHARSET);
+		textHeadingsExcluded = new FullTxt(Resources.getResource(RESOURCE_HEADINGS_EXCLUDED).getPath(), CHARSET);
+		sectionsHeadingsIncluded = textHeadingsIncluded.getSections();
+		sectionsHeadingsExcluded = textHeadingsExcluded.getSections();
 	}
 
 	/**
-	 * Test, if correct distances found.
+	 * Tests, if correct distances found.
 	 */
 	@Test
 	public void test1Distances() {
-		Integer[] actualDistances = sections.keySet().toArray(new Integer[0]);
+		Integer[] actualDistances = sectionsHeadingsExcluded.keySet().toArray(new Integer[0]);
 
 		if (PRINT) {
-			System.out.println("Distances expected: " + Arrays.toString(DISTANCES));
+			System.out.println("Distances expected: " + Arrays.toString(DISTANCES_HEADINGS_EXCLUDED));
 			System.out.println("Distances actual:   " + Arrays.toString(actualDistances));
 		}
 
-		assertArrayEquals(DISTANCES, actualDistances);
+		assertArrayEquals(DISTANCES_HEADINGS_EXCLUDED, actualDistances);
+
+		// Repeat with headings variation
+
+		actualDistances = sectionsHeadingsIncluded.keySet().toArray(new Integer[0]);
+
+		if (PRINT) {
+			System.out.println("Distances expected: " + Arrays.toString(DISTANCES_HEADINGS_INCLUDED));
+			System.out.println("Distances actual:   " + Arrays.toString(actualDistances));
+		}
+
+		assertArrayEquals(DISTANCES_HEADINGS_INCLUDED, actualDistances);
 	}
 
 	/**
-	 * Test, if distances have correct number of parts.
+	 * Tests, if distances have correct number of parts.
 	 */
 	@Test
 	public void test2DistanceSizes() {
-		for (int i = 0; i < DISTANCES.length; i++) {
-			int distance = DISTANCES[i];
-			int expectedSize = DISTANCE_SIZES[i];
-			int actualSize = sections.get(distance).size();
+		for (int i = 0; i < DISTANCES_HEADINGS_EXCLUDED.length; i++) {
+			int distance = DISTANCES_HEADINGS_EXCLUDED[i];
+			int expectedSize = DISTANCE_SIZES_HEADINGS_EXCLUDED[i];
+			int actualSize = sectionsHeadingsExcluded.get(distance).size();
+
+			if (PRINT) {
+				System.out.println("Size expected (" + distance + "): " + expectedSize);
+				System.out.println("Size actual   (" + distance + "): " + actualSize);
+			}
+
+			assertEquals(expectedSize, actualSize);
+		}
+
+		// Repeat with headings variation
+
+		for (int i = 0; i < DISTANCES_HEADINGS_INCLUDED.length; i++) {
+			int distance = DISTANCES_HEADINGS_INCLUDED[i];
+			int expectedSize = DISTANCE_SIZES_HEADINGS_INCLUDED[i];
+			int actualSize = sectionsHeadingsIncluded.get(distance).size();
 
 			if (PRINT) {
 				System.out.println("Size expected (" + distance + "): " + expectedSize);
@@ -76,15 +109,15 @@ public class SectionsTest {
 	}
 
 	/**
-	 * Test, if all sections contain correct number of empty lines.
+	 * Tests, if all sections contain correct number of empty lines.
 	 */
 	@Test
 	public void test3EmptyLines() {
 
 		// Get indexes of non-empty lines of original text
 		SortedSet<Integer> nonEmptyOriginalLines = new TreeSet<Integer>();
-		for (Integer index : text.getLineIndexes()) {
-			if (!text.getLine(index).trim().isEmpty()) {
+		for (Integer index : textHeadingsExcluded.getLineIndexes()) {
+			if (!textHeadingsExcluded.getLine(index).trim().isEmpty()) {
 				nonEmptyOriginalLines.add(index);
 			}
 		}
@@ -98,9 +131,9 @@ public class SectionsTest {
 
 		// Test
 		SortedSet<Integer> nonEmptyLines = new TreeSet<Integer>();
-		for (Integer distance : DISTANCES) {
+		for (Integer distance : DISTANCES_HEADINGS_EXCLUDED) {
 			nonEmptyLines.clear();
-			List<Txt> parts = sections.get(distance);
+			List<Txt> parts = sectionsHeadingsExcluded.get(distance);
 			for (Txt part : parts) {
 				for (Integer index : part.getLineIndexes()) {
 					if (!part.getLine(index).trim().isEmpty()) {
@@ -119,26 +152,26 @@ public class SectionsTest {
 	}
 
 	/**
-	 * Test sections of section.
+	 * Tests sections of section.
 	 */
 	@Test
 	public void test4SubSections() {
 
 		// A distance of 4 should exist
-		assertTrue(sections.containsKey(4));
+		assertTrue(sectionsHeadingsExcluded.containsKey(4));
 
 		// There should be 3 parts divided by a distance of 4
-		assertTrue(sections.get(4).size() == 3);
+		assertTrue(sectionsHeadingsExcluded.get(4).size() == 3);
 
 		// Last-part of distance of 4
-		List<Txt> section = sections.get(4);
+		List<Txt> section = sectionsHeadingsExcluded.get(4);
 		Txt lastPart = section.get(section.size() - 1);
 
 		if (PRINT) {
 			System.out.println();
 			System.out.println("Section 4, last part:");
 			System.out.println(lastPart);
-			System.out.println(lastPart.getLinesString(true));
+			System.out.println(lastPart.toStringAllLines(true));
 		}
 
 		// Get sub-sections of last-part
@@ -157,7 +190,7 @@ public class SectionsTest {
 			System.out.println("Section 4, last part, sub-sections:");
 			for (Txt subSectionText : subSections.get(2)) {
 				System.out.println(subSectionText);
-				System.out.println(subSectionText.getLinesString(true));
+				System.out.println(subSectionText.toStringAllLines(true));
 			}
 		}
 

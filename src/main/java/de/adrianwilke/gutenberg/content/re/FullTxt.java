@@ -19,6 +19,7 @@ public class FullTxt extends Txt {
 	final protected String filePath;
 
 	protected String[] lines;
+	protected String[] linesToLowerCase;
 
 	/**
 	 * Creates new text from file source.
@@ -61,6 +62,39 @@ public class FullTxt extends Txt {
 		return lineIndexes;
 	}
 
+	/**
+	 * Gets raw lines.
+	 */
+	protected String[] getLines() {
+		if (lines == null) {
+			List<String> linesList = TextFileAccessor.readFileToString(filePath, charsetName);
+			lines = new String[linesList.size()];
+			for (int i = 0; i < linesList.size(); i++) {
+				lines[i] = linesList.get(i);
+			}
+		}
+		return lines;
+	}
+
+	@Override
+	public String getLineToLowerCase(int index) {
+		if (linesToLowerCase == null) {
+			linesToLowerCase = new String[getLineIndexes().size()];
+		}
+		if (linesToLowerCase[index] == null) {
+			linesToLowerCase[index] = getLine(index).toLowerCase();
+		}
+		return linesToLowerCase[index];
+	}
+
+	/**
+	 * Returns false
+	 */
+	@Override
+	protected boolean hasParent() {
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
@@ -86,27 +120,5 @@ public class FullTxt extends Txt {
 
 		}
 		return stringBuilder.append(" ").toString();
-	}
-
-	/**
-	 * Gets raw lines.
-	 */
-	protected String[] getLines() {
-		if (lines == null) {
-			List<String> linesList = TextFileAccessor.readFileToString(filePath, charsetName);
-			lines = new String[linesList.size()];
-			for (int i = 0; i < linesList.size(); i++) {
-				lines[i] = linesList.get(i);
-			}
-		}
-		return lines;
-	}
-
-	/**
-	 * Returns false
-	 */
-	@Override
-	protected boolean hasParent() {
-		return false;
 	}
 }

@@ -10,7 +10,6 @@ import java.util.TreeSet;
  */
 public class TxtPart extends Txt {
 
-
 	/**
 	 * Creates new text, which uses contents of its parent.
 	 */
@@ -39,6 +38,11 @@ public class TxtPart extends Txt {
 	@Override
 	public SortedSet<Integer> getLineIndexes() {
 		return lineIndexes;
+	}
+
+	@Override
+	public String getLineToLowerCase(int index) {
+		return getRoot().getLineToLowerCase(index);
 	}
 
 	/**

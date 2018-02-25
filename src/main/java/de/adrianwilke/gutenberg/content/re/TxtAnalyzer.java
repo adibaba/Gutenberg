@@ -29,6 +29,7 @@ public class TxtAnalyzer {
 			textsCut.add(cutter.cut(texts.get(i)));
 		}
 
+		// -------------------------------------------------------------------------------------------------------------
 		// Context of sections
 		if (EXECUTE) {
 			Txt txt = textsCut.get(0);
@@ -52,6 +53,7 @@ public class TxtAnalyzer {
 			System.out.println();
 		}
 
+		// -------------------------------------------------------------------------------------------------------------
 		// Parts in sections
 		if (EXECUTE) {
 			Txt textA = textsCut.get(0);
@@ -59,6 +61,84 @@ public class TxtAnalyzer {
 			new TxtAnalyzer().printComparison(textA, textB);
 		}
 
+		// -------------------------------------------------------------------------------------------------------------
+		// Search for chapters
+		if (EXECUTE) {
+			boolean preferLongDistances = true;
+			Txt textA = textsCut.get(0);
+			Txt textB = textsCut.get(1);
+
+			// Search for chapters in text A
+			TxtChapterSearch chapterSearchA = new TxtChapterSearch();
+			if (!chapterSearchA.search(textA, preferLongDistances)) {
+				System.err.println("No chapters found in text A:");
+				System.err.println(textA);
+				System.exit(1);
+			}
+			System.out.println(textA);
+			System.out.println("Found chapters using distances of " + chapterSearchA.getDistanceOfFind());
+			System.out.println("Distances: " + chapterSearchA.getUsedDistances());
+			System.out.println("Chapters start with index " + chapterSearchA.getTextIndexOfFind());
+			System.out.println();
+
+			// Search for chapters in text B
+			TxtChapterSearch chapterSearchB = new TxtChapterSearch();
+			if (!chapterSearchB.search(textB, preferLongDistances)) {
+				System.err.println("No chapters found in text B:");
+				System.err.println(textB);
+			}
+			System.out.println(textB);
+			System.out.println("Found chapters using distances of " + chapterSearchB.getDistanceOfFind());
+			System.out.println("Distances: " + chapterSearchB.getUsedDistances());
+			System.out.println("Chapters start with index " + chapterSearchB.getTextIndexOfFind());
+			System.out.println();
+
+			// Try to find good number of lines to search for next chapters
+			System.out.println("Searching for good diffs");
+			System.out.println();
+
+			List<Txt> chapterPartsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
+			List<Txt> chapterPartsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
+
+			int chapterPartsIndexA = chapterSearchA.getTextIndexOfFind();
+			int chapterPartsIndexB = chapterSearchB.getTextIndexOfFind();
+
+			System.out.println("First chapter sizes and diff");
+			System.out.println(chapterPartsA.get(chapterPartsIndexA).getLineIndexes().size());
+			System.out.println(chapterPartsB.get(chapterPartsIndexB).getLineIndexes().size());
+			int diffA = Math.abs(chapterPartsA.get(chapterPartsIndexA).getLineIndexes().size()
+					- chapterPartsB.get(chapterPartsIndexB).getLineIndexes().size());
+			System.out.println("Diff: " + diffA);
+			System.out.println();
+
+			System.out.println("Second chapter sizes and diff");
+			System.out.println(chapterPartsA.get(chapterPartsIndexA + 1).getLineIndexes().size());
+			System.out.println(chapterPartsB.get(chapterPartsIndexB + 1).getLineIndexes().size());
+			int diffB = Math.abs(chapterPartsA.get(chapterPartsIndexA + 1).getLineIndexes().size()
+					- chapterPartsB.get(chapterPartsIndexB + 1).getLineIndexes().size());
+			System.out.println("Diff: " + diffB);
+			System.out.println();
+
+			System.out.println("Diff for guesses");
+			int dif = Math.max(diffA, diffB) + (Math.min(diffA, diffB) / 2);
+			System.out.println(dif);
+			System.out.println();
+
+			// New guess
+			System.out.println(chapterPartsA.get(chapterPartsIndexA + 3).getLineIndexes().size());
+			System.out.println(chapterPartsB.get(chapterPartsIndexB + 2).getLineIndexes().size());
+
+			// TODO
+			// // generate html
+			// HtmlGenerator html = new HtmlGenerator(textA, textB);
+			// html.generateHeader()
+			// .generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
+			// textB.getSections().get(chapterSearchB.getDistanceOfFind()),
+			// chapterSearchA.getIndexOfFind(), chapterSearchB.getIndexOfFind())
+			// .generateFooter();
+			//
+			// TextFileAccessor.writeStringToFile(html.toString(), args[0] + "/test.htm");
+		}
 	}
 
 	private static void mainConfigure(String[] args) {

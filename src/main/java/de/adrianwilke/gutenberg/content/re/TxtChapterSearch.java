@@ -15,7 +15,8 @@ import de.adrianwilke.gutenberg.utils.Comparators;
  * 
  * TODO: Search for common words in three headings. Search for more headings.
  * 
- * TODO: Eventually, search only for numbers in first run. Compare, if there are multiple founds.
+ * TODO: Eventually, search only for numbers in first run. Compare, if there are
+ * multiple founds.
  * 
  * @author Adrian Wilke
  */
@@ -153,6 +154,7 @@ public class TxtChapterSearch {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	protected int searchTextParts(List<Txt> sectionTexts) {
 		List<List<String>> headingVariations = getChapterHeadingVariations();
 
@@ -167,21 +169,25 @@ public class TxtChapterSearch {
 				if (sectionText.getLineSimplified(sectionText.getLineIndexes().first())
 						.startsWith(headingVariation.get(0))) {
 
-					// For additional headings, check additional parts
+					// For additional headings, check following parts
 					for (int headingIndex = 1; headingIndex < headingVariation.size(); headingIndex++) {
 
-						// Stay in scope of available text-parts
+						// If text-part does not exist, skip and check next variation
+						// TODO: Continue with outer loop?
 						if (sectionTexts.size() < textIndex + headingIndex + 1) {
 							continue checkHeadingVariations;
 						}
 
+						// If heading not found in text-part, skip and check next variation
 						Txt nextTextPart = sectionTexts.get(textIndex + headingIndex);
 						if (!sectionText.getLineSimplified(nextTextPart.getLineIndexes().first())
 								.startsWith(headingVariation.get(headingIndex))) {
 							continue checkHeadingVariations;
 						}
+
+						// TODO: Wrong place?
+						return textIndex;
 					}
-					return textIndex;
 				}
 			}
 		}

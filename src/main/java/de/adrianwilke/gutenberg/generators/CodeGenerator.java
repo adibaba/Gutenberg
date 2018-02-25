@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.code_generation;
+package de.adrianwilke.gutenberg.generators;
 
 import java.io.File;
 import java.util.Arrays;

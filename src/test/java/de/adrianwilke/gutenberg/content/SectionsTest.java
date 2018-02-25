@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -16,10 +16,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.Text;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests the generation of sections {@link Txt#getSections()}.
+ * Tests the generation of sections {@link Text#getSections()}.
  * 
  * @author Adrian Wilke
  */
@@ -35,10 +37,10 @@ public class SectionsTest {
 	private static boolean PRINT = false;
 	private static String RESOURCE_HEADINGS_EXCLUDED = "text/lorem-ipsum.txt";
 	private static String RESOURCE_HEADINGS_INCLUDED = "text/headings.txt";
-	private static SortedMap<Integer, List<Txt>> sectionsHeadingsExcluded;
-	private static SortedMap<Integer, List<Txt>> sectionsHeadingsIncluded;
-	private static Txt textHeadingsExcluded;
-	private static Txt textHeadingsIncluded;
+	private static SortedMap<Integer, List<Text>> sectionsHeadingsExcluded;
+	private static SortedMap<Integer, List<Text>> sectionsHeadingsIncluded;
+	private static Text textHeadingsExcluded;
+	private static Text textHeadingsIncluded;
 
 	@BeforeClass
 	public static void loadText() {
@@ -133,8 +135,8 @@ public class SectionsTest {
 		SortedSet<Integer> nonEmptyLines = new TreeSet<Integer>();
 		for (Integer distance : DISTANCES_HEADINGS_EXCLUDED) {
 			nonEmptyLines.clear();
-			List<Txt> parts = sectionsHeadingsExcluded.get(distance);
-			for (Txt part : parts) {
+			List<Text> parts = sectionsHeadingsExcluded.get(distance);
+			for (Text part : parts) {
 				for (Integer index : part.getLineIndexes()) {
 					if (!part.getLine(index).trim().isEmpty()) {
 						nonEmptyLines.add(index);
@@ -164,8 +166,8 @@ public class SectionsTest {
 		assertTrue(sectionsHeadingsExcluded.get(4).size() == 3);
 
 		// Last-part of distance of 4
-		List<Txt> section = sectionsHeadingsExcluded.get(4);
-		Txt lastPart = section.get(section.size() - 1);
+		List<Text> section = sectionsHeadingsExcluded.get(4);
+		Text lastPart = section.get(section.size() - 1);
 
 		if (PRINT) {
 			System.out.println();
@@ -175,7 +177,7 @@ public class SectionsTest {
 		}
 
 		// Get sub-sections of last-part
-		SortedMap<Integer, List<Txt>> subSections = lastPart.getSections();
+		SortedMap<Integer, List<Text>> subSections = lastPart.getSections();
 
 		// Last-part has only one break
 		assertTrue(subSections.size() == 1);
@@ -188,7 +190,7 @@ public class SectionsTest {
 
 		if (PRINT) {
 			System.out.println("Section 4, last part, sub-sections:");
-			for (Txt subSectionText : subSections.get(2)) {
+			for (Text subSectionText : subSections.get(2)) {
 				System.out.println(subSectionText);
 				System.out.println(subSectionText.toStringAllLines(true));
 			}

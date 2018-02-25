@@ -1,14 +1,17 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.Text;
+import de.adrianwilke.gutenberg.content.ChapterSearch;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests {@link TxtChapterSearch}.
+ * Tests {@link ChapterSearch}.
  * 
  * @author Adrian Wilke
  */
@@ -18,8 +21,8 @@ public class ChapterSearchTest {
 	private static boolean PRINT = false;
 	private static String RESOURCE_WITH_HEADINGS = "text/headings.txt";
 	private static String RESOURCE_WITHOUT_HEADINGS = "text/lorem-ipsum.txt";
-	private static Txt textWithHeadings;
-	private static Txt textWithoutHeadings;
+	private static Text textWithHeadings;
+	private static Text textWithoutHeadings;
 
 	@BeforeClass
 	public static void loadText() {
@@ -32,12 +35,12 @@ public class ChapterSearchTest {
 	 */
 	@Test
 	public void testChapterSearch() {
-		TxtChapterSearch chapterSearch;
+		ChapterSearch chapterSearch;
 		boolean found;
 
 		// No headings in text
 
-		chapterSearch = new TxtChapterSearch();
+		chapterSearch = new ChapterSearch();
 		found = chapterSearch.search(textWithoutHeadings, true);
 		if (PRINT) {
 			System.out.println("Distances in haystack: " + textWithoutHeadings.getSections().keySet());
@@ -51,7 +54,7 @@ public class ChapterSearchTest {
 
 		// Headings in text
 
-		chapterSearch = new TxtChapterSearch();
+		chapterSearch = new ChapterSearch();
 		found = chapterSearch.search(textWithHeadings, true);
 		if (PRINT) {
 			System.out.println("Distances in haystack: " + textWithHeadings.getSections().keySet());
@@ -59,8 +62,8 @@ public class ChapterSearchTest {
 			System.out.println("Find distance:         " + chapterSearch.getDistanceOfFind());
 			System.out.println("Find index:            " + chapterSearch.getTextIndexOfFind());
 			System.out.println("Context:");
-			List<Txt> sectionOfFind = textWithHeadings.getSections().get(chapterSearch.getDistanceOfFind());
-			Txt textOfFind = sectionOfFind.get(chapterSearch.getTextIndexOfFind());
+			List<Text> sectionOfFind = textWithHeadings.getSections().get(chapterSearch.getDistanceOfFind());
+			Text textOfFind = sectionOfFind.get(chapterSearch.getTextIndexOfFind());
 			Integer firstLineIndex = textOfFind.getLineIndexes().first();
 			System.out.println(textWithHeadings.getContext(firstLineIndex + 1, 2));
 			System.out.println();

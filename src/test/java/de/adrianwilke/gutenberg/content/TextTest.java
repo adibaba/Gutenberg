@@ -1,12 +1,15 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.Text;
+import de.adrianwilke.gutenberg.content.TextPart;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests {@link Txt}, {@link FullTxt}, {@link TxtPart}.
+ * Tests {@link Text}, {@link FullTxt}, {@link TextPart}.
  * 
  * @author Adrian Wilke
  */
@@ -15,7 +18,7 @@ public class TextTest {
 	private static String CHARSET = "UTF-8";
 	private static boolean PRINT = false;
 	private static String RESOURCE = "text/lorem-ipsum.txt";
-	private static Txt text;
+	private static Text text;
 
 	@BeforeClass
 	public static void loadText() {
@@ -23,7 +26,7 @@ public class TextTest {
 	}
 
 	/**
-	 * Tests {@link Txt#getLineSimplified(int)}
+	 * Tests {@link Text#getLineSimplified(int)}
 	 */
 	@Test
 	public void testCleaning() {

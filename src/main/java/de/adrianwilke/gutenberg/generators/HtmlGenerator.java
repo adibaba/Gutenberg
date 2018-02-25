@@ -2,20 +2,20 @@ package de.adrianwilke.gutenberg.generators;
 
 import java.util.List;
 
-import de.adrianwilke.gutenberg.content.re.Txt;
+import de.adrianwilke.gutenberg.content.Text;
 
 public class HtmlGenerator {
 
 	StringBuilder sb = new StringBuilder();
-	Txt textA;
-	Txt textB;
+	Text textA;
+	Text textB;
 
-	public HtmlGenerator(Txt textA, Txt textB) {
+	public HtmlGenerator(Text textA, Text textB) {
 		this.textA = textA;
 		this.textB = textB;
 	}
 
-	public HtmlGenerator generateCells(List<Txt> partsA, List<Txt> partsB, int startIndexA, int startIndexB) {
+	public HtmlGenerator generateCells(List<Text> partsA, List<Text> partsB, int startIndexA, int startIndexB) {
 		int j = -1;
 		while (true) {
 			j++;
@@ -33,7 +33,7 @@ public class HtmlGenerator {
 		}
 	}
 
-	public HtmlGenerator generateCells(Txt partA, Txt partB) {
+	public HtmlGenerator generateCells(Text partA, Text partB) {
 		sb.append("<tr>");
 		sb.append(System.lineSeparator());
 		sb.append("<td>");

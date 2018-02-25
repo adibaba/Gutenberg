@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -8,12 +8,12 @@ import java.util.TreeSet;
  * 
  * @author Adrian Wilke
  */
-public class TxtPart extends Txt {
+public class TextPart extends Text {
 
 	/**
 	 * Creates new text, which uses contents of its parent.
 	 */
-	TxtPart(Txt parent, String name, int indexBegin, int indexEnd) {
+	TextPart(Text parent, String name, int indexBegin, int indexEnd) {
 		super(parent);
 
 		setName(name, true);

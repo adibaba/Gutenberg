@@ -4,33 +4,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Searches for non-content strings at top and bottom of text. If found, the
- * boundaries are written to the respective text-part.
+ * Searches for non-content strings at top and bottom of text.
+ * 
+ * TODO: Use both approaches in different order
+ * 
+ * TODO: Count words in begin and end. Provide a score.
  * 
  * @author Adrian Wilke
  */
 public class Cutter {
 
-	private int getBoundaryIndexOfEnd(List<String> lines, int startLineIndex) {
+	private boolean indexBeginFound = false;
+	private boolean indexEndFound = false;
+
+	private int getBoundaryIndexBegin(Text text, int endLineIndex) {
 		int returnLineIndex = -1;
 
-		// Begin at first line, to match first line containing a candidate
-		lineloop: for (int i = startLineIndex; i < lines.size(); i++) {
-			String line = lines.get(i);
-
-			for (String candidate : getBoundaryLineCandidatesForEnd()) {
-				if (line.startsWith(candidate)) {
+		// Begin at last line, to match last line containing a candidate
+		lineloop: for (int i = endLineIndex; i >= 0; i--) {
+			for (String candidate : getBoundaryLineCandidatesForStart()) {
+				if (text.getLine(i).startsWith(candidate)) {
 					// Do not include search string
-					returnLineIndex = i - 1;
+					returnLineIndex = i;
+					indexBeginFound = true;
 					break lineloop;
 				}
 			}
 		}
 
 		// Do not include empty lines
-		for (int i = returnLineIndex - 1; i >= 0; i--) {
-			String line = lines.get(i);
-			if (!line.isEmpty()) {
+		for (int i = returnLineIndex + 1; i < text.getLineIndexes().last(); i++) {
+			if (!text.getLine(i).isEmpty()) {
 				returnLineIndex = i;
 				break;
 			}
@@ -39,23 +43,27 @@ public class Cutter {
 		return returnLineIndex;
 	}
 
-	private int getBoundaryIndexOfStart(List<String> lines, int endLineIndex) {
+	private int getBoundaryIndexEnd(Text text, int startLineIndex) {
 		int returnLineIndex = -1;
 
-		// Begin at last line, to match last line containing a candidate
-		lineloop: for (int i = endLineIndex; i >= 0; i--) {
-			for (String candidate : getBoundaryLineCandidatesForStart()) {
-				if (lines.get(i).startsWith(candidate)) {
+		// Begin at first line, to match first line containing a candidate
+		lineloop: for (int i = startLineIndex; i < text.getLineIndexes().last(); i++) {
+			String line = text.getLine(i);
+
+			for (String candidate : getBoundaryLineCandidatesForEnd()) {
+				if (line.startsWith(candidate)) {
 					// Do not include search string
-					returnLineIndex = i + 1;
+					returnLineIndex = i;
+					indexEndFound = true;
 					break lineloop;
 				}
 			}
 		}
 
 		// Do not include empty lines
-		for (int i = returnLineIndex + 1; i < lines.size(); i++) {
-			if (!lines.get(i).isEmpty()) {
+		for (int i = returnLineIndex - 1; i >= 0; i--) {
+			String line = text.getLine(i);
+			if (!line.isEmpty()) {
 				returnLineIndex = i;
 				break;
 			}
@@ -81,38 +89,47 @@ public class Cutter {
 	}
 
 	/**
-	 * If top and/or bottom boundaries are found, the respective fields in the text
-	 * file are set.
-	 * 
-	 * Returns if top boundary and bottom boundary were found.
+	 * Returns if top boundary was found.
 	 */
-	public boolean setBoundaries(Text textFile) {
+	public boolean isIndexBeginFound() {
+		return indexBeginFound;
+	}
+
+	/**
+	 * Returns if bottom boundary was found.
+	 */
+	public boolean isIndexEndFound() {
+		return indexEndFound;
+	}
+
+	/**
+	 * Returns new text with respective top and bottom indexes.
+	 */
+	public TextPart cut(Text text) {
 
 		// Begin with bottom of file. Approach of beginning with top of file produced
-		// wrong results at work with real Gutenberg data.
-		int endLineIndex = getBoundaryIndexOfEnd(textFile.getLines(), 0);
+		// wrong results at work with real data.
+		int endLineIndex = getBoundaryIndexEnd(text, 0);
 
 		// If end line index found, cut file before searching start line.
 		int startLineIndex;
 		if (endLineIndex != -1) {
-			startLineIndex = getBoundaryIndexOfStart(textFile.getLines(), endLineIndex);
+			startLineIndex = getBoundaryIndexBegin(text, endLineIndex);
 		} else {
-			startLineIndex = getBoundaryIndexOfStart(textFile.getLines(), textFile.getLines().size() - 1);
+			startLineIndex = getBoundaryIndexBegin(text, text.getLineIndexes().last());
 		}
 
-		// Set indexes in text file
-		boolean bothFound = true;
-		if (startLineIndex < 0) {
-			bothFound = false;
+		String name;
+		if (isIndexBeginFound() && isIndexEndFound()) {
+			name = "cut";
+		} else if (!isIndexBeginFound() && !isIndexEndFound()) {
+			name = "uncut";
+		} else if (!isIndexBeginFound()) {
+			name = "begin-cut";
 		} else {
-			textFile.setContentStartIndex(startLineIndex);
-		}
-		if (endLineIndex < 0) {
-			bothFound = false;
-		} else {
-			textFile.setContentEndIndex(endLineIndex);
+			name = "end-cut";
 		}
 
-		return bothFound;
+		return new TextPart(text, name, startLineIndex, endLineIndex);
 	}
 }

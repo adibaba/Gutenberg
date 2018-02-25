@@ -1,12 +1,16 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.Text;
+import de.adrianwilke.gutenberg.content.Cutter;
+import de.adrianwilke.gutenberg.content.TextPart;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests {@link TxtCutter}.
+ * Tests {@link Cutter}.
  * 
  * @author Adrian Wilke
  */
@@ -17,8 +21,8 @@ public class CutterTest {
 	private static String RESOURCE_WITH_BOUNDARIES = "text/boundaries.txt";
 	private static String RESOURCE_WITHOUT_BOUNDARIES = "text/lorem-ipsum.txt";
 
-	private static Txt textWithBoundaries;
-	private static Txt textWithoutBoundaries;
+	private static Text textWithBoundaries;
+	private static Text textWithoutBoundaries;
 
 	@BeforeClass
 	public static void loadText() {
@@ -32,8 +36,8 @@ public class CutterTest {
 	@Test
 	public void testCutter() {
 
-		TxtCutter cutter = new TxtCutter();
-		TxtPart generatedText = cutter.cut(textWithoutBoundaries);
+		Cutter cutter = new Cutter();
+		TextPart generatedText = cutter.cut(textWithoutBoundaries);
 		assert (!cutter.isIndexBeginFound());
 		assert (!cutter.isIndexEndFound());
 		assert (generatedText.getParent().equals(textWithoutBoundaries));
@@ -41,7 +45,7 @@ public class CutterTest {
 		assert (!generatedText.getName().equals(textWithoutBoundaries.getName()));
 		assert (generatedText.getName().endsWith("/uncut"));
 
-		cutter = new TxtCutter();
+		cutter = new Cutter();
 		generatedText = cutter.cut(textWithBoundaries);
 		assert (cutter.isIndexBeginFound());
 		assert (cutter.isIndexEndFound());

@@ -6,27 +6,31 @@ import java.util.List;
 import de.adrianwilke.gutenberg.utils.Comparators;
 
 /**
- * Searches in sections (a.k.a. text parts with different distances (a.k.a
+ * Searches in sections (a.k.a. text-parts with different distances (a.k.a
  * numbers of empty lines)) for chapter headings.
+ * 
+ * For each section, it is tested, if the first line of text-parts matches one
+ * of several heading variants. In case of a match, the two following text-parts
+ * are tested for a match of following headings.
+ * 
+ * TODO: Search for common words in three headings. Search for more headings.
+ * 
+ * TODO: Eventually, search only for numbers in first run. Compare, if there are
+ * multiple founds.
  * 
  * @author Adrian Wilke
  */
 public class ChapterSearch {
 
-	public static boolean EXECUTE = true;
-
-	public static void main(String[] args) {
-		if (EXECUTE == false) {
-			new ChapterSearch().printChapterHeadings();
-		}
-	}
-
-	private int distanceOfFind = -1;
-	private int indexOfFind = -1;
-	private Text textFile;
+	private int distanceOfFind;
+	private int indexOfFind;
 	private LinkedList<Integer> usedDistances;
 
-	private List<List<String>> getChapterHeadingVariations() {
+	public ChapterSearch() {
+		reset();
+	}
+
+	protected List<List<String>> getChapterHeadingVariations() {
 		List<List<String>> chapterHeadingsList = new LinkedList<List<String>>();
 
 		List<String> languagePrefixes;
@@ -73,15 +77,6 @@ public class ChapterSearch {
 		return chapterHeadingsList;
 	}
 
-	private void printChapterHeadings() {
-		for (List<String> chapterHeadingVariation : getChapterHeadingVariations()) {
-			for (String chapterHeading : chapterHeadingVariation) {
-				System.out.println(chapterHeading);
-			}
-			System.out.println();
-		}
-	}
-
 	/**
 	 * Gets used distance of find.
 	 * 
@@ -96,7 +91,7 @@ public class ChapterSearch {
 	 * 
 	 * @return -1, if no chapters were found
 	 */
-	public int getIndexOfFind() {
+	public int getTextIndexOfFind() {
 		return indexOfFind;
 	}
 
@@ -107,73 +102,91 @@ public class ChapterSearch {
 		return usedDistances;
 	}
 
+	protected void reset() {
+		distanceOfFind = -1;
+		indexOfFind = -1;
+		usedDistances = null;
+	}
+
 	/**
 	 * Searches for chapters. Preferring long distances can result in smaller
 	 * runtime.
 	 * 
+	 * @param text
+	 *            A text to search for chapters
+	 * @param preferLongDistances
+	 *            Default: true
+	 * 
 	 * @return if chapters were found
 	 */
-	public boolean search(Text textFile, boolean preferLongDistances) {
+	public boolean search(Text text, boolean preferLongDistances) {
 
 		// (Re-)set variables
-		distanceOfFind = -1;
-		indexOfFind = -1;
-		usedDistances = null;
-		this.textFile = textFile;
+		reset();
 
 		// Get available distances
-		LinkedList<Integer> distances = new LinkedList<Integer>(textFile.getSections().keySet());
+		LinkedList<Integer> distances = new LinkedList<Integer>(text.getSections().keySet());
 
 		// Smallest distance is often one empty line. Not interesting for chapters.
-		distances.remove(0);
+		if (distances.size() > 1 && distances.get(0).equals(1)) {
+			distances.remove(0);
+		}
 
 		// Set preferred distances
 		if (preferLongDistances) {
 			distances.sort(new Comparators<Integer>().getToLongInverse());
 		}
+		usedDistances = distances;
 
 		// Use all remaining distances for search
-		for (int i = 0; i < distances.size(); i++) {
+		for (int distanceIndex = 0; distanceIndex < distances.size(); distanceIndex++) {
 
 			// Search for chapters
-			int index = searchTextParts(textFile.getSections().get(distances.get(i)));
+			int index = searchTextParts(text.getSections().get(distances.get(distanceIndex)));
 
 			// Found chapters! :)
 			if (index > 0) {
-
-				distanceOfFind = distances.get(i);
+				distanceOfFind = distances.get(distanceIndex);
 				indexOfFind = index;
-				usedDistances = distances;
 				return true;
 			}
 		}
-
 		return false;
 	}
 
 	@SuppressWarnings("unused")
-	private int searchTextParts(List<Part> textParts) {
-		List<List<String>> chapterVariations = getChapterHeadingVariations();
+	protected int searchTextParts(List<Text> sectionTexts) {
+		List<List<String>> headingVariations = getChapterHeadingVariations();
 
-		// For each text-part
-		for (int i = 0; i < textParts.size(); i++) {
-			Part textPart = textParts.get(i);
+		// For each text-part of given section
+		for (int textIndex = 0; textIndex < sectionTexts.size(); textIndex++) {
+			Text sectionText = sectionTexts.get(textIndex);
 
-			// For each heading variant
-			checkHeadingVariations: for (List<String> headingVariation : chapterVariations) {
+			// For each heading variation
+			checkHeadingVariations: for (List<String> headingVariation : headingVariations) {
 
 				// Only continue, if start line of text-part matches first heading
-				if (textFile.getLines().get(textPart.getStartIndex()).toLowerCase()
+				if (sectionText.getLineSimplified(sectionText.getLineIndexes().first())
 						.startsWith(headingVariation.get(0))) {
 
-					// For additional headings, check additional parts
-					for (int j = 1; j < chapterVariations.size(); j++) {
-						Part nextTextPart = textParts.get(i + j);
-						if (!textFile.getLines().get(nextTextPart.getStartIndex()).toLowerCase()
-								.startsWith(headingVariation.get(j))) {
+					// For additional headings, check following parts
+					for (int headingIndex = 1; headingIndex < headingVariation.size(); headingIndex++) {
+
+						// If text-part does not exist, skip and check next variation
+						// TODO: Continue with outer loop?
+						if (sectionTexts.size() < textIndex + headingIndex + 1) {
 							continue checkHeadingVariations;
 						}
-						return i;
+
+						// If heading not found in text-part, skip and check next variation
+						Text nextTextPart = sectionTexts.get(textIndex + headingIndex);
+						if (!sectionText.getLineSimplified(nextTextPart.getLineIndexes().first())
+								.startsWith(headingVariation.get(headingIndex))) {
+							continue checkHeadingVariations;
+						}
+
+						// TODO: Wrong place?
+						return textIndex;
 					}
 				}
 			}

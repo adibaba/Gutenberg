@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import java.io.File;
 import java.util.List;
@@ -13,7 +13,7 @@ import de.adrianwilke.gutenberg.utils.RegEx;
  * 
  * @author Adrian Wilke
  */
-public class FullTxt extends Txt {
+public class FullTxt extends Text {
 	static public final int DEFAULT_LENGTH_SIZE = 4;
 
 	final protected String charsetName;

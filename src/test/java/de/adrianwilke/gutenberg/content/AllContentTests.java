@@ -1,4 +1,4 @@
-package de.adrianwilke.gutenberg.content.re;
+package de.adrianwilke.gutenberg.content;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

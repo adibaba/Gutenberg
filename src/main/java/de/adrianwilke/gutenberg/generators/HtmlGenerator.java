@@ -5,6 +5,11 @@ import java.util.List;
 
 import de.adrianwilke.gutenberg.content.Text;
 
+/**
+ * Generates a HTML page.
+ * 
+ * @author Adrian Wilke
+ */
 public class HtmlGenerator {
 
 	protected int indexA = 0;
@@ -59,10 +64,12 @@ public class HtmlGenerator {
 	public HtmlGenerator generateHeader() {
 		stringBuilder.append("<!doctype html><html><head><meta charset=\"utf-8\"/>");
 		stringBuilder.append("<title></title>");
+		stringBuilder.append("<link href=\"https://fonts.googleapis.com/css?family=Merriweather\" rel=\"stylesheet\">");
 		stringBuilder.append("<style type=\"text/css\">");
 		stringBuilder.append("table { margin:0 auto }");
 		stringBuilder.append("td { border-bottom-style: solid; width:50% ; vertical-align:top}");
-		stringBuilder.append("html { font-size:10pt; }");
+		stringBuilder.append("span { color:#444 }");
+		stringBuilder.append("html { font-size:9pt; font-family: 'Merriweather', serif; }");
 		stringBuilder.append("</style>");
 		stringBuilder.append("</head><body>");
 		stringBuilder.append(System.lineSeparator());
@@ -81,13 +88,10 @@ public class HtmlGenerator {
 		stringBuilder.append("<td>");
 		stringBuilder.append(System.lineSeparator());
 		for (int i = indexA; i <= endIndexA && indexA != -1; i++) {
-			if (!textA.getLineIndexes().contains(i)) {
-				stringBuilder.append("<p style=\"color:#666\">");
-			}
+			stringBuilder.append(textA.getLineIndexes().contains(i) ? "" : "<span>");
 			stringBuilder.append(textA.getLine(i));
-			if (textA.getLine(i).isEmpty()) {
-				stringBuilder.append("<br/><br/>");
-			}
+			stringBuilder.append(textA.getLine(i).isEmpty() ? "<br/><br/>" : "");
+			stringBuilder.append(textA.getLineIndexes().contains(i) ? "" : "</span>");
 			stringBuilder.append(System.lineSeparator());
 		}
 		stringBuilder.append("</td>");
@@ -97,13 +101,10 @@ public class HtmlGenerator {
 		stringBuilder.append("<td>");
 		stringBuilder.append(System.lineSeparator());
 		for (int i = indexB; i <= endIndexB && indexB != -1; i++) {
-			if (!textB.getLineIndexes().contains(i)) {
-				stringBuilder.append("<p style=\"color:#666\">");
-			}
+			stringBuilder.append(textB.getLineIndexes().contains(i) ? "" : "<span>");
 			stringBuilder.append(textB.getLine(i));
-			if (textB.getLine(i).isEmpty()) {
-				stringBuilder.append("<br/><br/>");
-			}
+			stringBuilder.append(textB.getLine(i).isEmpty() ? "<br/><br/>" : "");
+			stringBuilder.append(textB.getLineIndexes().contains(i) ? "" : "</span>");
 			stringBuilder.append(System.lineSeparator());
 		}
 		stringBuilder.append("</td>");

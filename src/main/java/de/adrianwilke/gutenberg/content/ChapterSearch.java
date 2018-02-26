@@ -154,40 +154,45 @@ public class ChapterSearch {
 		return false;
 	}
 
+	/**
+	 * Searches in one section for possible variations for first heading.
+	 * 
+	 * In case of a match, the two following text-parts are tested for a match of
+	 * following headings.
+	 */
 	@SuppressWarnings("unused")
-	protected int searchTextParts(List<Text> sectionTexts) {
+	protected int searchTextParts(List<Text> texts) {
 		List<List<String>> headingVariations = getChapterHeadingVariations();
 
-		// For each text-part of given section
-		for (int textIndex = 0; textIndex < sectionTexts.size(); textIndex++) {
-			Text sectionText = sectionTexts.get(textIndex);
+		// For each text-part of given section ...
+		for (int textIndex = 0; textIndex < texts.size(); textIndex++) {
+			Text text = texts.get(textIndex);
 
-			// For each heading variation
-			checkHeadingVariations: for (List<String> headingVariation : headingVariations) {
+			// ... and for each heading variation
+			checkHeadingVariations: for (List<String> heading : headingVariations) {
 
 				// Only continue, if start line of text-part matches first heading
-				if (sectionText.getLineSimplified(sectionText.getLineIndexes().first())
-						.startsWith(headingVariation.get(0))) {
+				if (text.getLineSimplified(text.getIndexFirst()).startsWith(heading.get(0))) {
 
-					// For additional headings, check following parts
-					for (int headingIndex = 1; headingIndex < headingVariation.size(); headingIndex++) {
+					// For additional headings (start with index 1), check following text-parts
+					for (int headingIndex = 1; headingIndex < heading.size(); headingIndex++) {
 
-						// If text-part does not exist, skip and check next variation
-						// TODO: Continue with outer loop?
-						if (sectionTexts.size() < textIndex + headingIndex + 1) {
+						// Text-index of first find plus 1 or 2
+						int nextTextIndex = textIndex + headingIndex;
+
+						// Prevent NPE
+						if (nextTextIndex > texts.size() - 1) {
 							continue checkHeadingVariations;
 						}
 
 						// If heading not found in text-part, skip and check next variation
-						Text nextTextPart = sectionTexts.get(textIndex + headingIndex);
-						if (!sectionText.getLineSimplified(nextTextPart.getLineIndexes().first())
-								.startsWith(headingVariation.get(headingIndex))) {
+						Text nextText = texts.get(nextTextIndex);
+
+						if (!text.getLineSimplified(nextText.getIndexFirst()).startsWith(heading.get(headingIndex))) {
 							continue checkHeadingVariations;
 						}
-
-						// TODO: Wrong place?
-						return textIndex;
 					}
+					return textIndex;
 				}
 			}
 		}

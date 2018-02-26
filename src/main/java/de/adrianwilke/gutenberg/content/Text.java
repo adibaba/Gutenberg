@@ -94,6 +94,20 @@ public abstract class Text implements Comparable<Text> {
 	};
 
 	/**
+	 * Gets first index of text range.
+	 */
+	public int getIndexFirst() {
+		return getLineIndexes().first();
+	}
+
+	/**
+	 * Gets last index of text range.
+	 */
+	public int getIndexLast() {
+		return getLineIndexes().last();
+	}
+
+	/**
 	 * Gets line with related index.
 	 */
 	public abstract String getLine(int index);
@@ -181,7 +195,10 @@ public abstract class Text implements Comparable<Text> {
 			// Iterate over all relevant lines/indexes
 			for (int lineIndex = getLineIndexes().first(); lineIndex <= getLineIndexes().last(); lineIndex++) {
 
-				if (getLine(lineIndex).trim().isEmpty()) {
+				// TODO: This is the original and probably the better solution
+				// if (getLine(lineIndex).trim().isEmpty()) {
+
+				if (!getLineIndexes().contains(lineIndex) || getLine(lineIndex).trim().isEmpty()) {
 
 					// Current line is empty
 					emptyLinesCounter++;

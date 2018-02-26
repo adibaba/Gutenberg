@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import de.adrianwilke.gutenberg.generators.HtmlGenerator;
+import de.adrianwilke.gutenberg.generators.HtmlGeneratorSingle;
 import de.adrianwilke.gutenberg.io.TextFileAccessor;
 
 /**
@@ -32,6 +33,12 @@ public class HumanAnalyzer {
 		Cutter cutter = new Cutter();
 		for (int i = 0; i < FILE_PATHS.size(); i++) {
 			textsCut.add(cutter.cut(texts.get(i)));
+		}
+
+		List<Text> textsCleaned = new LinkedList<Text>();
+		Cleaner cleaner = new Cleaner();
+		for (int i = 0; i < FILE_PATHS.size(); i++) {
+			textsCleaned.add(cleaner.clean(textsCut.get(i)));
 		}
 
 		// -------------------------------------------------------------------------------------------------------------
@@ -69,10 +76,21 @@ public class HumanAnalyzer {
 		// -------------------------------------------------------------------------------------------------------------
 		// Search for chapters
 		// Generate HTML
-		if (!EXECUTE) {
+		if (EXECUTE) {
 			boolean preferLongDistances = true;
-			Text textA = textsCut.get(0);
-			Text textB = textsCut.get(1);
+
+			Text textA = textsCleaned.get(0);
+			Text textB = textsCleaned.get(1);
+
+			if (EXECUTE) {
+				HtmlGeneratorSingle generatorSingle = new HtmlGeneratorSingle(textA);
+				generatorSingle.generate();
+				String filePathSingle = new File(DIRECTORY_GENERATION, "/testSingle.htm").getPath();
+				TextFileAccessor.writeStringToFile(generatorSingle.toString(), filePathSingle);
+			}
+
+			// TODO: Line used for investigations
+			// new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(4), 4);
 
 			// Search for chapters in text A
 			ChapterSearch chapterSearchA = new ChapterSearch();
@@ -176,9 +194,9 @@ public class HumanAnalyzer {
 			System.out.println(DIRECTORY_GENERATION);
 			FILE_PATHS = new LinkedList<String>();
 			FILE_CHARSETS = new LinkedList<String>();
-			System.out.println("Files in arguments:");
+			System.out.println("Files (with resulting indexes)  in arguments:");
 			for (int argIndex = 1; argIndex < args.length; argIndex += 2) {
-				System.out.print(((argIndex / 2) + 1));
+				System.out.print(((argIndex / 2)));
 				FILE_PATHS.add(args[argIndex]);
 				System.out.print(" " + args[argIndex]);
 				FILE_CHARSETS.add(args[(argIndex + 1)]);

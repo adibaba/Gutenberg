@@ -133,7 +133,7 @@ public abstract class Text implements Comparable<Text> {
 	/**
 	 * Gets the text root element.
 	 */
-	protected Text getRoot() {
+	public Text getRoot() {
 		Text text = this;
 		while (text.hasParent()) {
 			text = text.getParent();

@@ -69,7 +69,7 @@ public class HumanAnalyzer {
 		// -------------------------------------------------------------------------------------------------------------
 		// Search for chapters
 		// Generate HTML
-		if (EXECUTE) {
+		if (!EXECUTE) {
 			boolean preferLongDistances = true;
 			Text textA = textsCut.get(0);
 			Text textB = textsCut.get(1);
@@ -82,8 +82,8 @@ public class HumanAnalyzer {
 				System.exit(1);
 			}
 			System.out.println(textA);
-			System.out.println("Found chapters using distances of " + chapterSearchA.getDistanceOfFind());
 			System.out.println("Distances: " + chapterSearchA.getUsedDistances());
+			System.out.println("Found chapters using distances of " + chapterSearchA.getDistanceOfFind());
 			System.out.println("Chapters start with index " + chapterSearchA.getTextIndexOfFind());
 			System.out.println();
 
@@ -94,8 +94,8 @@ public class HumanAnalyzer {
 				System.err.println(textB);
 			}
 			System.out.println(textB);
-			System.out.println("Found chapters using distances of " + chapterSearchB.getDistanceOfFind());
 			System.out.println("Distances: " + chapterSearchB.getUsedDistances());
+			System.out.println("Found chapters using distances of " + chapterSearchB.getDistanceOfFind());
 			System.out.println("Chapters start with index " + chapterSearchB.getTextIndexOfFind());
 			System.out.println();
 
@@ -134,16 +134,32 @@ public class HumanAnalyzer {
 			System.out.println(chapterPartsA.get(chapterPartsIndexA + 3).getLineIndexes().size());
 			System.out.println(chapterPartsB.get(chapterPartsIndexB + 2).getLineIndexes().size());
 
+			Integer startIndexA = textA.getSections().get(chapterSearchA.getDistanceOfFind())
+					.get(chapterSearchA.getTextIndexOfFind()).getLineIndexes().first();
+			TextPart printA = new TextPart(textA, "chapterSearch", startIndexA, textA.getLineIndexes().last());
+			Integer startIndexB = textB.getSections().get(chapterSearchB.getDistanceOfFind())
+					.get(chapterSearchB.getTextIndexOfFind()).getLineIndexes().first();
+			TextPart printB = new TextPart(textB, "chapterSearch", startIndexB, textB.getLineIndexes().last());
+
 			// Generate html
-			HtmlGenerator html = new HtmlGenerator(textA, textB);
-			html.generateHeader()
-					.generateCells(textA.getSections().get(chapterSearchA.getDistanceOfFind()),
-							textB.getSections().get(chapterSearchB.getDistanceOfFind()),
-							chapterSearchA.getTextIndexOfFind(), chapterSearchB.getTextIndexOfFind())
-					.generateFooter();
+
+			List<Text> printSectionsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
+			List<Integer> splitListA = new LinkedList<Integer>();
+			for (int i = chapterSearchA.getTextIndexOfFind(); i < printSectionsA.size(); i++) {
+				splitListA.add(printSectionsA.get(i).getLineIndexes().first() - 1);
+			}
+
+			List<Text> printSectionsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
+			List<Integer> splitListB = new LinkedList<Integer>();
+			for (int i = chapterSearchB.getTextIndexOfFind(); i < printSectionsB.size(); i++) {
+				splitListB.add(printSectionsB.get(i).getLineIndexes().first() - 1);
+			}
+
+			HtmlGenerator generator = new HtmlGenerator(printA, printB);
+			generator.generate(splitListA, splitListB);
 
 			String filePath = new File(DIRECTORY_GENERATION, "/test.htm").getPath();
-			TextFileAccessor.writeStringToFile(html.toString(), filePath);
+			TextFileAccessor.writeStringToFile(generator.toString(), filePath);
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedSet;
 
 import de.adrianwilke.gutenberg.generators.HtmlGenerator;
 import de.adrianwilke.gutenberg.generators.HtmlGeneratorSingle;
@@ -61,6 +62,7 @@ public class HumanAnalyzer {
 
 			System.out.println("Context of section " + section + ":");
 			System.out.println();
+
 			new HumanAnalyzer().printContextOfTextPart(txt.getSections().get(section), range);
 			System.out.println();
 		}
@@ -76,7 +78,7 @@ public class HumanAnalyzer {
 		// -------------------------------------------------------------------------------------------------------------
 		// Search for chapters
 		// Generate HTML
-		if (EXECUTE) {
+		if (!EXECUTE) {
 			boolean preferLongDistances = true;
 
 			Text textA = textsCleaned.get(0);
@@ -89,68 +91,27 @@ public class HumanAnalyzer {
 				TextFileAccessor.writeStringToFile(generatorSingle.toString(), filePathSingle);
 			}
 
-			// TODO: Line used for investigations
-			// new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(4), 4);
-
 			// Search for chapters in text A
-			ChapterSearch chapterSearchA = new ChapterSearch();
-			if (!chapterSearchA.search(textA, preferLongDistances)) {
+			ChapterSearch chapterSearchA = new ChapterSearch(textA);
+			if (!chapterSearchA.search(preferLongDistances)) {
 				System.err.println("No chapters found in text A:");
 				System.err.println(textA);
 				System.exit(1);
 			}
-			System.out.println(textA);
-			System.out.println("Distances: " + chapterSearchA.getUsedDistances());
-			System.out.println("Found chapters using distances of " + chapterSearchA.getDistanceOfFind());
-			System.out.println("Chapters start with index " + chapterSearchA.getTextIndexOfFind());
-			System.out.println();
+			SortedSet<Text> chapters = chapterSearchA.searchAdditionalHeadings();
+			
+			// TODO: Error in chapter 2, problem with sections
+			for (Text text : chapters) {
+				System.out.println("> " + text);
+			}
+			new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(chapterSearchA.getDistanceOfFind()), 5);
 
 			// Search for chapters in text B
-			ChapterSearch chapterSearchB = new ChapterSearch();
-			if (!chapterSearchB.search(textB, preferLongDistances)) {
+			ChapterSearch chapterSearchB = new ChapterSearch(textB);
+			if (!chapterSearchB.search(preferLongDistances)) {
 				System.err.println("No chapters found in text B:");
 				System.err.println(textB);
 			}
-			System.out.println(textB);
-			System.out.println("Distances: " + chapterSearchB.getUsedDistances());
-			System.out.println("Found chapters using distances of " + chapterSearchB.getDistanceOfFind());
-			System.out.println("Chapters start with index " + chapterSearchB.getTextIndexOfFind());
-			System.out.println();
-
-			// Try to find good number of lines to search for next chapters
-			System.out.println("Searching for good diffs");
-			System.out.println();
-
-			List<Text> chapterPartsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
-			List<Text> chapterPartsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
-
-			int chapterPartsIndexA = chapterSearchA.getTextIndexOfFind();
-			int chapterPartsIndexB = chapterSearchB.getTextIndexOfFind();
-
-			System.out.println("First chapter sizes and diff");
-			System.out.println(chapterPartsA.get(chapterPartsIndexA).getLineIndexes().size());
-			System.out.println(chapterPartsB.get(chapterPartsIndexB).getLineIndexes().size());
-			int diffA = Math.abs(chapterPartsA.get(chapterPartsIndexA).getLineIndexes().size()
-					- chapterPartsB.get(chapterPartsIndexB).getLineIndexes().size());
-			System.out.println("Diff: " + diffA);
-			System.out.println();
-
-			System.out.println("Second chapter sizes and diff");
-			System.out.println(chapterPartsA.get(chapterPartsIndexA + 1).getLineIndexes().size());
-			System.out.println(chapterPartsB.get(chapterPartsIndexB + 1).getLineIndexes().size());
-			int diffB = Math.abs(chapterPartsA.get(chapterPartsIndexA + 1).getLineIndexes().size()
-					- chapterPartsB.get(chapterPartsIndexB + 1).getLineIndexes().size());
-			System.out.println("Diff: " + diffB);
-			System.out.println();
-
-			System.out.println("Diff for guesses");
-			int dif = Math.max(diffA, diffB) + (Math.min(diffA, diffB) / 2);
-			System.out.println(dif);
-			System.out.println();
-
-			// New guess
-			System.out.println(chapterPartsA.get(chapterPartsIndexA + 3).getLineIndexes().size());
-			System.out.println(chapterPartsB.get(chapterPartsIndexB + 2).getLineIndexes().size());
 
 			Integer startIndexA = textA.getSections().get(chapterSearchA.getDistanceOfFind())
 					.get(chapterSearchA.getTextIndexOfFind()).getLineIndexes().first();

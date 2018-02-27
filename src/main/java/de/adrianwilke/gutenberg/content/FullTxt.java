@@ -87,7 +87,8 @@ public class FullTxt extends Text {
 			linesSimplified = new String[getLineIndexes().size()];
 		}
 		if (linesSimplified[index] == null) {
-			linesSimplified[index] = RegEx.replaceAllExeptAlphaNumberBySpace(getLine(index).toLowerCase());
+			linesSimplified[index] = new RegEx(getLine(index).toLowerCase()).replaceUmlauts().getAscii()
+					.replaceAllExeptAlphaNumberBySpace().toString();
 		}
 		return linesSimplified[index];
 	}
@@ -99,7 +100,6 @@ public class FullTxt extends Text {
 	protected boolean hasParent() {
 		return false;
 	}
-
 
 	/**
 	 * Returns string representation of text

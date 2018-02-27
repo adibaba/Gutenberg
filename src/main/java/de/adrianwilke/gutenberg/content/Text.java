@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.exceptions.TextRootRuntimeException;
+import de.adrianwilke.gutenberg.exceptions.TextRuntimeException;
 
 /**
  * Represents an abstract text.
@@ -23,6 +24,7 @@ public abstract class Text implements Comparable<Text> {
 	static public final int DEFAULT_LENGTH_PART = 4;
 	static public boolean EXECUTE = true;
 
+	protected SortedSet<Text> children = new TreeSet<Text>();
 	protected SortedSet<Integer> lineIndexes;
 	protected String name;
 	protected final Text parent;
@@ -39,19 +41,39 @@ public abstract class Text implements Comparable<Text> {
 	}
 
 	/**
+	 * Adds child.
+	 */
+	public void addChild(Text text) {
+		if (text.getParent().equals(this)) {
+			children.add(text);
+		} else {
+			throw new TextRuntimeException("Parent of " + text.getName() + " is not " + getName());
+		}
+	}
+
+	/**
 	 * {@link Comparable} implemented as comparison of first line indexes.
 	 */
 	public int compareTo(Text t) {
 		int comparison;
-		comparison = Integer.compare(getLineIndexes().first(), t.getLineIndexes().first());
-		if (0 != comparison) {
-			return comparison;
-		}
-		comparison = Integer.compare(getLineIndexes().last(), t.getLineIndexes().last());
-		if (0 != comparison) {
-			return comparison;
+		if (!getLineIndexes().isEmpty() && !t.getLineIndexes().isEmpty()) {
+			comparison = Integer.compare(getLineIndexes().first(), t.getLineIndexes().first());
+			if (0 != comparison) {
+				return comparison;
+			}
+			comparison = Integer.compare(getLineIndexes().last(), t.getLineIndexes().last());
+			if (0 != comparison) {
+				return comparison;
+			}
 		}
 		return getName().compareTo(t.getName());
+	}
+
+	/**
+	 * Gets all children.
+	 */
+	public SortedSet<Text> getChildren() {
+		return children;
 	}
 
 	/**
@@ -91,19 +113,19 @@ public abstract class Text implements Comparable<Text> {
 			sb.append(System.lineSeparator());
 		}
 		return sb.toString();
-	};
+	}
 
 	/**
 	 * Gets first index of text range.
 	 */
-	public int getIndexFirst() {
+	public int getFirstIndex() {
 		return getLineIndexes().first();
-	}
+	};
 
 	/**
 	 * Gets last index of text range.
 	 */
-	public int getIndexLast() {
+	public int getLastIndex() {
 		return getLineIndexes().last();
 	}
 
@@ -195,13 +217,14 @@ public abstract class Text implements Comparable<Text> {
 			// Iterate over all relevant lines/indexes
 			for (int lineIndex = getLineIndexes().first(); lineIndex <= getLineIndexes().last(); lineIndex++) {
 
-				// TODO: This is the original and probably the better solution
-				// if (getLine(lineIndex).trim().isEmpty()) {
-
+				// Empty line or line-index not known for this text
 				if (!getLineIndexes().contains(lineIndex) || getLine(lineIndex).trim().isEmpty()) {
 
+					// TODO
+					// if (getLineIndexes().contains(lineIndex)) {
 					// Current line is empty
 					emptyLinesCounter++;
+					// }
 
 					// For all real distances
 					for (int distance = 1; distance <= emptyLinesCounter; distance++) {
@@ -257,6 +280,13 @@ public abstract class Text implements Comparable<Text> {
 	}
 
 	/**
+	 * Removes child.
+	 */
+	public void removeChild(Text text) {
+		children.remove(text);
+	}
+
+	/**
 	 * Sets name of text
 	 */
 	public void setName(String name, boolean parentAsPrefix) {
@@ -306,7 +336,7 @@ public abstract class Text implements Comparable<Text> {
 			}
 		}
 
-		if (lineIndexes != null) {
+		if (lineIndexes != null && !lineIndexes.isEmpty()) {
 			stringBuilder.append(" [");
 			stringBuilder.append(lineIndexes.first());
 			stringBuilder.append(",");

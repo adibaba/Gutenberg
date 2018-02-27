@@ -38,10 +38,16 @@ public class RegEx {
 			+ "\\u3000" // IDEOGRAPHIC SPACE
 	;
 
+	/**
+	 * @see Normalizer https://stackoverflow.com/a/3322174/1543389
+	 */
 	public static String getAscii(String string) {
-		// https://stackoverflow.com/a/3322174/1543389
 		string = Normalizer.normalize(string, Normalizer.Form.NFD);
 		return string.replaceAll("[^\\p{ASCII}]", "");
+	}
+
+	public static String removeAllExeptAlphaNumber(String string) {
+		return string.replaceAll("[^A-Za-z0-9]", "");
 	}
 
 	public static String removeAllExeptAlphaNumberUnderscore(String string) {
@@ -66,6 +72,33 @@ public class RegEx {
 		return string.replaceAll("[" + whitespaceChars + "]", "_");
 	}
 
+	/**
+	 * Replaces all german umlauts in the input string with the usual replacement
+	 * scheme, also taking into account capitilization. A test String such as "Käse
+	 * Köln Füße Öl Übel Äü Üß ÄÖÜ Ä Ö Ü ÜBUNG" will yield the result "Kaese Koeln
+	 * Fuesse Oel Uebel Aeue Uess AEOEUe Ae Oe Ue UEBUNG"
+	 * 
+	 * @see http://gordon.koefner.at/blog/coding/replacing-german-umlauts/
+	 * 
+	 * @param input
+	 * @return the input string with replaces umlaute
+	 */
+	public static String replaceUmlauts(String input) {
+
+		// replace all lower Umlauts
+		String o_strResult = input.replaceAll("ü", "ue").replaceAll("ö", "oe").replaceAll("ä", "ae").replaceAll("ß",
+				"ss");
+
+		// first replace all capital umlaute in a non-capitalized context (e.g. Übung)
+		o_strResult = o_strResult.replaceAll("Ü(?=[a-zäöüß ])", "Ue").replaceAll("Ö(?=[a-zäöüß ])", "Oe")
+				.replaceAll("Ä(?=[a-zäöüß ])", "Ae");
+
+		// now replace all the other capital umlaute
+		o_strResult = o_strResult.replaceAll("Ü", "UE").replaceAll("Ö", "OE").replaceAll("Ä", "AE");
+
+		return o_strResult;
+	}
+
 	private String string;
 
 	public RegEx(String string) {
@@ -82,12 +115,13 @@ public class RegEx {
 		return this;
 	}
 
-	protected String removeAllExeptAlphaNumber(String string) {
-		return string.replaceAll("[^A-Za-z0-9]", "");
-	}
-
 	public RegEx removeAllExeptAlphaNumberUnderscore() {
 		string = removeAllExeptAlphaNumberUnderscore(string);
+		return this;
+	}
+
+	public RegEx replaceAllExeptAlphaNumberBySpace() {
+		string = replaceAllExeptAlphaNumberBySpace(string);
 		return this;
 	}
 
@@ -103,6 +137,11 @@ public class RegEx {
 
 	public RegEx replaceSpacesByUnderscore() {
 		string = replaceSpacesByUnderscore(string);
+		return this;
+	}
+
+	public RegEx replaceUmlauts() {
+		string = replaceUmlauts(string);
 		return this;
 	}
 

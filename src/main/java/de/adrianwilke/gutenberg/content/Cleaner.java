@@ -19,10 +19,12 @@ public class Cleaner {
 	 */
 	public TextPart clean(Text text) {
 
+		// Strings to remove
 		List<String> badLines = new LinkedList<String>();
 		badLines.add("[Illustration]");
 		badLines.add("       *       *       *       *       *");
 
+		// Search for lines to remove
 		List<Integer> removeList = new LinkedList<Integer>();
 		Iterator<Integer> it = text.getLineIndexes().iterator();
 		while (it.hasNext()) {
@@ -32,12 +34,13 @@ public class Cleaner {
 			}
 		}
 
+		// Add empty lines and remove
 		TextPart cleanText = new TextPart(text, "clean", text.getLineIndexes().first(), text.getLineIndexes().last());
 		for (int i = removeList.size() - 1; i >= 0; i--) {
 			int indexToRemove = removeList.get(i);
 
 			int emptyLinesAbove = 0;
-			for (int j = indexToRemove - 1; j >= cleanText.getIndexFirst(); j--) {
+			for (int j = indexToRemove - 1; j >= cleanText.getFirstIndex(); j--) {
 				if (cleanText.getLine(j).isEmpty()) {
 					emptyLinesAbove++;
 				} else {
@@ -46,7 +49,7 @@ public class Cleaner {
 			}
 
 			int emptyLinesBelow = 0;
-			for (int j = indexToRemove + 1; j <= cleanText.getIndexLast(); j++) {
+			for (int j = indexToRemove + 1; j <= cleanText.getLastIndex(); j++) {
 				if (cleanText.getLine(j).isEmpty()) {
 					emptyLinesBelow++;
 				} else {

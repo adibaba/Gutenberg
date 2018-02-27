@@ -65,7 +65,7 @@ public class HtmlGeneratorSingle {
 		stringBuilder.append("<td>");
 		stringBuilder.append(System.lineSeparator());
 
-		for (int i = text.getRoot().getIndexFirst(); i <= text.getRoot().getIndexLast(); i++) {
+		for (int i = text.getRoot().getFirstIndex(); i <= text.getRoot().getLastIndex(); i++) {
 			stringBuilder.append(text.getLineIndexes().contains(i) ? "" : "<span>&#9679;");
 			stringBuilder.append(text.getLine(i));
 			stringBuilder.append(text.getLine(i).isEmpty() ? "<br/><br/>" : "");

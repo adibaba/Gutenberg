@@ -2,6 +2,8 @@ package de.adrianwilke.gutenberg.content;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import de.adrianwilke.gutenberg.utils.Comparators;
 
@@ -22,12 +24,19 @@ import de.adrianwilke.gutenberg.utils.Comparators;
  */
 public class ChapterSearch {
 
+	private SortedSet<Text> chapters;
 	private int distanceOfFind;
+	private int headingIndexOfFind;
 	private int indexOfFind;
+	private Text text;
 	private LinkedList<Integer> usedDistances;
 
-	public ChapterSearch() {
-		reset();
+	public ChapterSearch(Text text) {
+		this.text = text;
+
+		distanceOfFind = -1;
+		indexOfFind = -1;
+		usedDistances = null;
 	}
 
 	protected List<List<String>> getChapterHeadingVariations() {
@@ -39,11 +48,27 @@ public class ChapterSearch {
 		languagePrefixes.add("kapitel");
 
 		List<String> chapterHeadings;
-
 		chapterHeadings = new LinkedList<String>();
 		chapterHeadings.add("1");
 		chapterHeadings.add("2");
 		chapterHeadings.add("3");
+		chapterHeadings.add("4");
+		chapterHeadings.add("5");
+		chapterHeadings.add("6");
+		chapterHeadings.add("7");
+		chapterHeadings.add("8");
+		chapterHeadings.add("9");
+		chapterHeadings.add("10");
+		chapterHeadings.add("11");
+		chapterHeadings.add("12");
+		chapterHeadings.add("13");
+		chapterHeadings.add("14");
+		chapterHeadings.add("15");
+		chapterHeadings.add("16");
+		chapterHeadings.add("17");
+		chapterHeadings.add("18");
+		chapterHeadings.add("19");
+		chapterHeadings.add("20");
 		chapterHeadingsList.add(chapterHeadings);
 
 		for (String language : languagePrefixes) {
@@ -58,6 +83,23 @@ public class ChapterSearch {
 		chapterHeadings.add("i");
 		chapterHeadings.add("ii");
 		chapterHeadings.add("iii");
+		chapterHeadings.add("iv");
+		chapterHeadings.add("v");
+		chapterHeadings.add("vi");
+		chapterHeadings.add("vii");
+		chapterHeadings.add("viii");
+		chapterHeadings.add("ix");
+		chapterHeadings.add("x");
+		chapterHeadings.add("xi");
+		chapterHeadings.add("xii");
+		chapterHeadings.add("xiii");
+		chapterHeadings.add("xiv");
+		chapterHeadings.add("xv");
+		chapterHeadings.add("xvi");
+		chapterHeadings.add("xvii");
+		chapterHeadings.add("xviii");
+		chapterHeadings.add("xix");
+		chapterHeadings.add("xx");
 		chapterHeadingsList.add(chapterHeadings);
 
 		for (String language : languagePrefixes) {
@@ -68,10 +110,20 @@ public class ChapterSearch {
 			chapterHeadingsList.add(generated);
 		}
 
+		// 19778
 		chapterHeadings = new LinkedList<String>();
 		chapterHeadings.add("erstes");
 		chapterHeadings.add("zweites");
 		chapterHeadings.add("drittes");
+		chapterHeadings.add("viertes");
+		chapterHeadings.add("fuenftes");
+		chapterHeadings.add("sechstes");
+		chapterHeadings.add("siebentes"); // jawohl
+		chapterHeadings.add("achtes");
+		chapterHeadings.add("neuntes");
+		chapterHeadings.add("zehntes");
+		chapterHeadings.add("elftes");
+		chapterHeadings.add("zwoelftes");
 		chapterHeadingsList.add(chapterHeadings);
 
 		return chapterHeadingsList;
@@ -102,27 +154,20 @@ public class ChapterSearch {
 		return usedDistances;
 	}
 
-	protected void reset() {
-		distanceOfFind = -1;
-		indexOfFind = -1;
-		usedDistances = null;
-	}
-
 	/**
 	 * Searches for chapters. Preferring long distances can result in smaller
 	 * runtime.
+	 * 
+	 * Returns a map: Key: heading number, Value: Value: text.
+	 * 
+	 * Returns null, if nothing found.
 	 * 
 	 * @param text
 	 *            A text to search for chapters
 	 * @param preferLongDistances
 	 *            Default: true
-	 * 
-	 * @return if chapters were found
 	 */
-	public boolean search(Text text, boolean preferLongDistances) {
-
-		// (Re-)set variables
-		reset();
+	public boolean search(boolean preferLongDistances) {
 
 		// Get available distances
 		LinkedList<Integer> distances = new LinkedList<Integer>(text.getSections().keySet());
@@ -142,12 +187,12 @@ public class ChapterSearch {
 		for (int distanceIndex = 0; distanceIndex < distances.size(); distanceIndex++) {
 
 			// Search for chapters
-			int index = searchTextParts(text.getSections().get(distances.get(distanceIndex)));
+			SortedSet<Text> chapters = searchInSection(text.getSections().get(distances.get(distanceIndex)));
 
 			// Found chapters! :)
-			if (index > 0) {
+			if (chapters != null) {
 				distanceOfFind = distances.get(distanceIndex);
-				indexOfFind = index;
+				this.chapters = chapters;
 				return true;
 			}
 		}
@@ -155,47 +200,124 @@ public class ChapterSearch {
 	}
 
 	/**
+	 * Uses found section to search for heading after heading 2.
+	 */
+	public SortedSet<Text> searchAdditionalHeadings() {
+		List<Text> sectionOfFind = text.getSections().get(distanceOfFind);
+		List<String> headings = getChapterHeadingVariations().get(headingIndexOfFind);
+		int startIndex = indexOfFind + 1;
+		for (int headingIndex = 2; headingIndex < headings.size(); headingIndex++) {
+			for (int i = startIndex; i < sectionOfFind.size(); i++) {
+				Text textPart = sectionOfFind.get(i);
+				if (textPart.getLineSimplified(textPart.getFirstIndex()).startsWith(headings.get(headingIndex))) {
+					chapters.add(new TextPart(text, "chapter" + (headingIndex + 1), textPart.getFirstIndex(),
+							textPart.getLastIndex()));
+				}
+			}
+		}
+
+		return chapters;
+	}
+
+	/**
 	 * Searches in one section for possible variations for first heading.
 	 * 
 	 * In case of a match, the two following text-parts are tested for a match of
 	 * following headings.
+	 * 
+	 * Returns a map: Key: heading number, Value: Value: text.
+	 * 
+	 * Returns null, if nothing found.
 	 */
 	@SuppressWarnings("unused")
-	protected int searchTextParts(List<Text> texts) {
+	SortedSet<Text> searchInSection(List<Text> textsOfSection) {
 		List<List<String>> headingVariations = getChapterHeadingVariations();
 
 		// For each text-part of given section ...
-		for (int textIndex = 0; textIndex < texts.size(); textIndex++) {
-			Text text = texts.get(textIndex);
+		for (int textPartIndex = 0; textPartIndex < textsOfSection.size(); textPartIndex++) {
+			Text text = textsOfSection.get(textPartIndex);
 
 			// ... and for each heading variation
-			checkHeadingVariations: for (List<String> heading : headingVariations) {
+			checkHeadingVariations: for (int h = 0; h < headingVariations.size(); h++) {
+				List<String> headings = headingVariations.get(h);
 
-				// Only continue, if start line of text-part matches first heading
-				if (text.getLineSimplified(text.getIndexFirst()).startsWith(heading.get(0))) {
+				// Search for first heading
+				if (text.getLineSimplified(text.getFirstIndex()).startsWith(headings.get(0))) {
 
-					// For additional headings (start with index 1), check following text-parts
-					for (int headingIndex = 1; headingIndex < heading.size(); headingIndex++) {
-
-						// Text-index of first find plus 1 or 2
-						int nextTextIndex = textIndex + headingIndex;
-
-						// Prevent NPE
-						if (nextTextIndex > texts.size() - 1) {
-							continue checkHeadingVariations;
-						}
-
-						// If heading not found in text-part, skip and check next variation
-						Text nextText = texts.get(nextTextIndex);
-
-						if (!text.getLineSimplified(nextText.getIndexFirst()).startsWith(heading.get(headingIndex))) {
-							continue checkHeadingVariations;
-						}
+					// Search for headings 2 and 3
+					SortedSet<Text> chapters = searchTextPartsNext(textsOfSection, textPartIndex, headings);
+					if (chapters == null) {
+						// Additional heading not found
+						continue checkHeadingVariations;
+					} else {
+						// Additional heading found
+						chapters.add(new TextPart(this.text, "chapter1", text.getFirstIndex(), text.getLastIndex()));
 					}
-					return textIndex;
+
+					headingIndexOfFind = h;
+					indexOfFind = textPartIndex;
+					return chapters;
 				}
 			}
 		}
-		return -1;
+
+		// Headings not found
+		return null;
+	}
+
+	/**
+	 * Searches for headings 2 and 3
+	 * 
+	 * Returns a map: Key: heading number, Value: text.
+	 * 
+	 * Returns null, if nothing found.
+	 */
+	protected SortedSet<Text> searchTextPartsNext(List<Text> texts, int textPartIndex, List<String> headings) {
+		SortedSet<Text> chapters = new TreeSet<Text>();
+		Text text = texts.get(textPartIndex);
+
+		// For additional heading 2 and heading 3, check following text-parts
+		for (int headingIndex = 1; headingIndex <= 2; headingIndex++) {
+
+			// Text-index of first find (stays) plus 1 or 2
+			int nextTextPartIndex = textPartIndex + headingIndex;
+
+			// Prevent NPE
+			if (nextTextPartIndex + 1 > texts.size()) {
+				return null;
+			}
+
+			// If heading not found in text-part, skip and check next variation
+			Text nextText = texts.get(nextTextPartIndex);
+
+			if (text.getLineSimplified(nextText.getFirstIndex()).startsWith(headings.get(headingIndex))) {
+				TextPart newTextPart = new TextPart(this.text, "chapter" + (headingIndex + 1), nextText.getFirstIndex(),
+						nextText.getLastIndex());
+				chapters.add(newTextPart);
+
+			} else {
+
+				// TODO: Prevent NPE
+				// if (nextTextPartIndex + 1 > texts.size()) {
+				// return null;
+				// }
+				
+				// Hack to also check the next text-part
+				nextText = texts.get(nextTextPartIndex + 1);
+				if (text.getLineSimplified(nextText.getFirstIndex()).startsWith(headings.get(headingIndex))) {
+					TextPart newTextPart = new TextPart(this.text, "chapter" + (headingIndex + 1),
+							nextText.getFirstIndex(), nextText.getLastIndex());
+					chapters.add(newTextPart);
+					System.out.println("Chapter search hack used for " + newTextPart.toString());
+				} else {
+
+					// Additional heading not found
+					return null;
+				}
+			}
+		}
+
+		// All additional headings found
+		return chapters;
 	}
 }

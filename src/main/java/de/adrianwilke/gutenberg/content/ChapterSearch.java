@@ -297,11 +297,11 @@ public class ChapterSearch {
 
 			} else {
 
-				// TODO: Prevent NPE
-				// if (nextTextPartIndex + 1 > texts.size()) {
-				// return null;
-				// }
-				
+				// Prevent NPE
+				if (nextTextPartIndex + 2 > texts.size()) {
+					return null;
+				}
+
 				// Hack to also check the next text-part
 				nextText = texts.get(nextTextPartIndex + 1);
 				if (text.getLineSimplified(nextText.getFirstIndex()).startsWith(headings.get(headingIndex))) {

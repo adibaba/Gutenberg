@@ -40,8 +40,8 @@ public class ChapterSearchTest {
 
 		// No headings in text
 
-		chapterSearch = new ChapterSearch();
-		found = chapterSearch.search(textWithoutHeadings, true);
+		chapterSearch = new ChapterSearch(textWithoutHeadings);
+		found = chapterSearch.search(true);
 		if (PRINT) {
 			System.out.println("Distances in haystack: " + textWithoutHeadings.getSections().keySet());
 			System.out.println("Used distances:        " + chapterSearch.getUsedDistances());
@@ -54,8 +54,8 @@ public class ChapterSearchTest {
 
 		// Headings in text
 
-		chapterSearch = new ChapterSearch();
-		found = chapterSearch.search(textWithHeadings, true);
+		chapterSearch = new ChapterSearch(textWithHeadings);
+		found = chapterSearch.search(true);
 		if (PRINT) {
 			System.out.println("Distances in haystack: " + textWithHeadings.getSections().keySet());
 			System.out.println("Used distances:        " + chapterSearch.getUsedDistances());

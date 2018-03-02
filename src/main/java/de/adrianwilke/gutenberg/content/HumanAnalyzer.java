@@ -78,7 +78,7 @@ public class HumanAnalyzer {
 		// -------------------------------------------------------------------------------------------------------------
 		// Search for chapters
 		// Generate HTML
-		if (!EXECUTE) {
+		if (EXECUTE) {
 			boolean preferLongDistances = true;
 
 			Text textA = textsCleaned.get(0);

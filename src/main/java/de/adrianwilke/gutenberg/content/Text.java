@@ -103,6 +103,11 @@ public abstract class Text implements Comparable<Text> {
 				sb.append(" ");
 			}
 			sb.append(i + 1);
+			if(getLineIndexes().contains(i)) {
+				sb.append(" ");
+			}else {
+				sb.append("x");
+			}
 			if (i == lineIndex) {
 				sb.append(" >");
 			} else {
@@ -179,6 +184,8 @@ public abstract class Text implements Comparable<Text> {
 
 	/**
 	 * Returns text-parts divides by empty lines.
+	 * 
+	 * TODO: Handle removed lines. (not as empty, not as normal)
 	 */
 	public SortedMap<Integer, List<Text>> getSections() {
 		if (sections == null) {
@@ -220,11 +227,8 @@ public abstract class Text implements Comparable<Text> {
 				// Empty line or line-index not known for this text
 				if (!getLineIndexes().contains(lineIndex) || getLine(lineIndex).trim().isEmpty()) {
 
-					// TODO
-					// if (getLineIndexes().contains(lineIndex)) {
 					// Current line is empty
 					emptyLinesCounter++;
-					// }
 
 					// For all real distances
 					for (int distance = 1; distance <= emptyLinesCounter; distance++) {

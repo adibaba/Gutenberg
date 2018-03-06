@@ -57,9 +57,9 @@ public class Cleaner {
 				}
 			}
 
-			// Smaller distances comprise larger distances.
-			// To be conservative, remove larger distances.
-			if (emptyLinesAbove > emptyLinesBelow) {
+			// Larger distances involve smaller distances.
+			// To be conservative, remove smaller distances.
+			if (emptyLinesAbove < emptyLinesBelow) {
 				for (int j = indexToRemove; j >= indexToRemove - emptyLinesAbove; j--) {
 					cleanText.remove(j);
 				}

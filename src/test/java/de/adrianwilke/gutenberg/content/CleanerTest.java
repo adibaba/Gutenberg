@@ -31,11 +31,12 @@ public class CleanerTest {
 
 		Cleaner cleaner = new Cleaner();
 		TextPart generatedText = cleaner.clean(textWithIllustrations);
-		assert (textWithIllustrations.getLineIndexes().size() > generatedText.getLineIndexes().size());
-		assert (textWithIllustrations.getLineIndexes().size() == 4 + generatedText.getLineIndexes().size());
-
+		
 		if (PRINT) {
 			System.out.println(generatedText.getContext(15, 5));
 		}
+		
+		assert (textWithIllustrations.getLineIndexes().size() > generatedText.getLineIndexes().size());
+		assert (textWithIllustrations.getLineIndexes().size() == 3 + generatedText.getLineIndexes().size());
 	}
 }

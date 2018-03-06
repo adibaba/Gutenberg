@@ -103,10 +103,10 @@ public abstract class Text implements Comparable<Text> {
 				sb.append(" ");
 			}
 			sb.append(i + 1);
-			if(getLineIndexes().contains(i)) {
-				sb.append(" ");
-			}else {
-				sb.append("x");
+			if (getLineIndexes().contains(i)) {
+				sb.append(" >");
+			} else {
+				sb.append("  ");
 			}
 			if (i == lineIndex) {
 				sb.append(" >");
@@ -184,8 +184,6 @@ public abstract class Text implements Comparable<Text> {
 
 	/**
 	 * Returns text-parts divides by empty lines.
-	 * 
-	 * TODO: Handle removed lines. (not as empty, not as normal)
 	 */
 	public SortedMap<Integer, List<Text>> getSections() {
 		if (sections == null) {
@@ -197,8 +195,8 @@ public abstract class Text implements Comparable<Text> {
 			int emptyLinesCounter = 0;
 
 			// Iterate over all relevant lines/indexes
-			for (int i = getLineIndexes().first(); i <= getLineIndexes().last(); i++) {
-				if (getLine(i).trim().isEmpty()) {
+			for (int lineIndex = getLineIndexes().first(); lineIndex <= getLineIndexes().last(); lineIndex++) {
+				if (getLine(lineIndex).trim().isEmpty() || !getLineIndexes().contains(lineIndex)) {
 					// Current line is empty -> Check if there are more
 					emptyLinesCounter++;
 
@@ -225,10 +223,12 @@ public abstract class Text implements Comparable<Text> {
 			for (int lineIndex = getLineIndexes().first(); lineIndex <= getLineIndexes().last(); lineIndex++) {
 
 				// Empty line or line-index not known for this text
-				if (!getLineIndexes().contains(lineIndex) || getLine(lineIndex).trim().isEmpty()) {
+				if (getLine(lineIndex).trim().isEmpty() || !getLineIndexes().contains(lineIndex)) {
 
 					// Current line is empty
-					emptyLinesCounter++;
+					if (getLineIndexes().contains(lineIndex)) {
+						emptyLinesCounter++;
+					}
 
 					// For all real distances
 					for (int distance = 1; distance <= emptyLinesCounter; distance++) {
@@ -238,8 +238,9 @@ public abstract class Text implements Comparable<Text> {
 
 						if (!distancesToStartIndex.get(distance).equals(-1)) {
 							String name = "distance" + distance + "-index" + sections.get(distance).size();
-							sections.get(distance).add(
-									(new TextPart(this, name, distancesToStartIndex.get(distance), lastTextLineIndex)));
+							TextPart newTextPart = new TextPart(this, name, distancesToStartIndex.get(distance),
+									lastTextLineIndex);
+							sections.get(distance).add(newTextPart);
 							distancesToStartIndex.put(distance, -1);
 						}
 					}

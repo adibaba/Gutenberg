@@ -101,16 +101,19 @@ public class HumanAnalyzer {
 			SortedSet<Text> chapters = chapterSearchA.searchAdditionalHeadings();
 			
 			// TODO: Error in chapter 2, problem with sections
-			for (Text text : chapters) {
-				System.out.println("> " + text);
-			}
-			new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(chapterSearchA.getDistanceOfFind()), 5);
-
+//			for (Text text : chapters) {
+//				System.out.println("> " + text);
+//			}
+//			new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(chapterSearchA.getDistanceOfFind()), 5);
+//			new HumanAnalyzer().printContextOfTextPart(textB.getSections().get(4), 5);
+			System.out.println(textB.getContext(74, 5));
+			
 			// Search for chapters in text B
 			ChapterSearch chapterSearchB = new ChapterSearch(textB);
 			if (!chapterSearchB.search(preferLongDistances)) {
 				System.err.println("No chapters found in text B:");
 				System.err.println(textB);
+				System.exit(1);
 			}
 
 			Integer startIndexA = textA.getSections().get(chapterSearchA.getDistanceOfFind())

@@ -229,7 +229,6 @@ public class ChapterSearch {
 	 * 
 	 * Returns null, if nothing found.
 	 */
-	@SuppressWarnings("unused")
 	SortedSet<Text> searchInSection(List<Text> textsOfSection) {
 		List<List<String>> headingVariations = getChapterHeadingVariations();
 

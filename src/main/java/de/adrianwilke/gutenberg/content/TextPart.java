@@ -53,6 +53,14 @@ public class TextPart extends Text {
 	}
 
 	/**
+	 * Gets number of punctuation marks in line.
+	 */
+	@Override
+	public int getNumberOfPunctuationMarks(int lineIndex) {
+		return getRoot().getNumberOfPunctuationMarks(lineIndex);
+	}
+
+	/**
 	 * Returns true
 	 */
 	@Override

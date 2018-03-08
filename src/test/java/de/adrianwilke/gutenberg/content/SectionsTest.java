@@ -16,7 +16,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.FullText;
 import de.adrianwilke.gutenberg.content.Text;
 import de.adrianwilke.gutenberg.io.Resources;
 
@@ -49,13 +49,13 @@ public class SectionsTest {
 
 	@BeforeClass
 	public static void loadText() {
-		textHeadingsIncluded = new FullTxt(Resources.getResource(RESOURCE_HEADINGS_INCLUDED).getPath(), CHARSET);
-		textHeadingsExcluded = new FullTxt(Resources.getResource(RESOURCE_HEADINGS_EXCLUDED).getPath(), CHARSET);
+		textHeadingsIncluded = new FullText(Resources.getResource(RESOURCE_HEADINGS_INCLUDED).getPath(), CHARSET);
+		textHeadingsExcluded = new FullText(Resources.getResource(RESOURCE_HEADINGS_EXCLUDED).getPath(), CHARSET);
 		sectionsHeadingsIncluded = textHeadingsIncluded.getSections();
 		sectionsHeadingsExcluded = textHeadingsExcluded.getSections();
 
 		// Additional case with illustration behind heading
-		textHeadingsAndIllustration = new FullTxt(Resources.getResource(RESOURCE_HEADINGS_AND_ILLUSTRATION).getPath(),
+		textHeadingsAndIllustration = new FullText(Resources.getResource(RESOURCE_HEADINGS_AND_ILLUSTRATION).getPath(),
 				CHARSET);
 		Cleaner cleaner = new Cleaner();
 		textHeadingsAndIllustration = cleaner.clean(textHeadingsAndIllustration);

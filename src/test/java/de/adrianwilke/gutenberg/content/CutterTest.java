@@ -3,7 +3,7 @@ package de.adrianwilke.gutenberg.content;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.FullText;
 import de.adrianwilke.gutenberg.content.Text;
 import de.adrianwilke.gutenberg.content.Cutter;
 import de.adrianwilke.gutenberg.content.TextPart;
@@ -26,8 +26,8 @@ public class CutterTest {
 
 	@BeforeClass
 	public static void loadText() {
-		textWithBoundaries = new FullTxt(Resources.getResource(RESOURCE_WITH_BOUNDARIES).getPath(), CHARSET);
-		textWithoutBoundaries = new FullTxt(Resources.getResource(RESOURCE_WITHOUT_BOUNDARIES).getPath(), CHARSET);
+		textWithBoundaries = new FullText(Resources.getResource(RESOURCE_WITH_BOUNDARIES).getPath(), CHARSET);
+		textWithoutBoundaries = new FullText(Resources.getResource(RESOURCE_WITHOUT_BOUNDARIES).getPath(), CHARSET);
 	}
 
 	/**

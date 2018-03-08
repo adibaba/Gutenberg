@@ -13,7 +13,7 @@ import de.adrianwilke.gutenberg.utils.RegEx;
  * 
  * @author Adrian Wilke
  */
-public class FullTxt extends Text {
+public class FullText extends Text {
 	static public final int DEFAULT_LENGTH_SIZE = 4;
 
 	final protected String charsetName;
@@ -21,13 +21,14 @@ public class FullTxt extends Text {
 
 	protected String[] lines;
 	protected String[] linesSimplified;
+	protected Integer[] numberOfPunctuationMarks;
 
 	/**
 	 * Creates new text from file source.
 	 * 
 	 * @see java.nio.charset.StandardCharsets
 	 */
-	public FullTxt(String filePath, String charsetName) {
+	public FullText(String filePath, String charsetName) {
 		super(null);
 
 		this.filePath = filePath;
@@ -91,6 +92,20 @@ public class FullTxt extends Text {
 					.replaceAllExeptAlphaNumberBySpace().toString();
 		}
 		return linesSimplified[index];
+	}
+
+	/**
+	 * Gets number of punctuation marks in line.
+	 */
+	@Override
+	public int getNumberOfPunctuationMarks(int lineIndex) {
+		if (numberOfPunctuationMarks == null) {
+			numberOfPunctuationMarks = new Integer[getLineIndexes().size()];
+		}
+		if (numberOfPunctuationMarks[lineIndex] == null) {
+			numberOfPunctuationMarks[lineIndex] = getLine(lineIndex).replaceAll("[^,.!?]", "").length();
+		}
+		return numberOfPunctuationMarks[lineIndex];
 	}
 
 	/**

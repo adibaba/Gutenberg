@@ -27,7 +27,7 @@ public class HumanAnalyzer {
 
 		List<Text> texts = new LinkedList<Text>();
 		for (int i = 0; i < FILE_PATHS.size(); i++) {
-			texts.add(new FullTxt(FILE_PATHS.get(i), FILE_CHARSETS.get(i)));
+			texts.add(new FullText(FILE_PATHS.get(i), FILE_CHARSETS.get(i)));
 		}
 
 		List<Text> textsCut = new LinkedList<Text>();
@@ -63,7 +63,7 @@ public class HumanAnalyzer {
 			System.out.println("Context of section " + section + ":");
 			System.out.println();
 
-			new HumanAnalyzer().printContextOfTextPart(txt.getSections().get(section), range);
+			printContextOfTexts(txt.getSections().get(section), range);
 			System.out.println();
 		}
 
@@ -72,7 +72,7 @@ public class HumanAnalyzer {
 		if (EXECUTE) {
 			Text textA = textsCut.get(0);
 			Text textB = textsCut.get(1);
-			new HumanAnalyzer().printComparison(textA, textB);
+			printComparison(textA, textB);
 		}
 
 		// -------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ public class HumanAnalyzer {
 			boolean preferLongDistances = true;
 
 			Text textA = textsCleaned.get(0);
-			Text textB = textsCleaned.get(1);
+			Text textB = textsCleaned.get(2);
 
 			if (EXECUTE) {
 				HtmlGeneratorSingle generatorSingle = new HtmlGeneratorSingle(textA);
@@ -98,16 +98,9 @@ public class HumanAnalyzer {
 				System.err.println(textA);
 				System.exit(1);
 			}
-			SortedSet<Text> chapters = chapterSearchA.searchAdditionalHeadings();
-			
-			// TODO: Error in chapter 2, problem with sections
-//			for (Text text : chapters) {
-//				System.out.println("> " + text);
-//			}
-//			new HumanAnalyzer().printContextOfTextPart(textA.getSections().get(chapterSearchA.getDistanceOfFind()), 5);
-//			new HumanAnalyzer().printContextOfTextPart(textB.getSections().get(4), 5);
-			System.out.println(textB.getContext(74, 5));
-			
+			SortedSet<Text> chaptersA = chapterSearchA.searchAdditionalHeadings();
+			// printContextOfTexts(new LinkedList<Text>(chaptersA) , 5);
+
 			// Search for chapters in text B
 			ChapterSearch chapterSearchB = new ChapterSearch(textB);
 			if (!chapterSearchB.search(preferLongDistances)) {
@@ -115,30 +108,23 @@ public class HumanAnalyzer {
 				System.err.println(textB);
 				System.exit(1);
 			}
-
-			Integer startIndexA = textA.getSections().get(chapterSearchA.getDistanceOfFind())
-					.get(chapterSearchA.getTextIndexOfFind()).getLineIndexes().first();
-			TextPart printA = new TextPart(textA, "chapterSearch", startIndexA, textA.getLineIndexes().last());
-			Integer startIndexB = textB.getSections().get(chapterSearchB.getDistanceOfFind())
-					.get(chapterSearchB.getTextIndexOfFind()).getLineIndexes().first();
-			TextPart printB = new TextPart(textB, "chapterSearch", startIndexB, textB.getLineIndexes().last());
+			SortedSet<Text> chaptersB = chapterSearchB.searchAdditionalHeadings();
 
 			// Generate html
 
-			List<Text> printSectionsA = textA.getSections().get(chapterSearchA.getDistanceOfFind());
-			List<Integer> splitListA = new LinkedList<Integer>();
-			for (int i = chapterSearchA.getTextIndexOfFind(); i < printSectionsA.size(); i++) {
-				splitListA.add(printSectionsA.get(i).getLineIndexes().first() - 1);
+			List<Integer> splitAendIndexes = new LinkedList<Integer>();
+			splitAendIndexes.add(chaptersA.first().getFirstIndex() - 1);
+			for (Text text : chaptersA) {
+				splitAendIndexes.add(text.getLastIndex());
+			}
+			List<Integer> splitBendIndexes = new LinkedList<Integer>();
+			splitBendIndexes.add(chaptersB.first().getFirstIndex() - 1);
+			for (Text text : chaptersB) {
+				splitBendIndexes.add(text.getLastIndex());
 			}
 
-			List<Text> printSectionsB = textB.getSections().get(chapterSearchB.getDistanceOfFind());
-			List<Integer> splitListB = new LinkedList<Integer>();
-			for (int i = chapterSearchB.getTextIndexOfFind(); i < printSectionsB.size(); i++) {
-				splitListB.add(printSectionsB.get(i).getLineIndexes().first() - 1);
-			}
-
-			HtmlGenerator generator = new HtmlGenerator(printA, printB);
-			generator.generate(splitListA, splitListB);
+			HtmlGenerator generator = new HtmlGenerator(textA, textB);
+			generator.generate(splitAendIndexes, splitBendIndexes);
 
 			String filePath = new File(DIRECTORY_GENERATION, "/test.htm").getPath();
 			TextFileAccessor.writeStringToFile(generator.toString(), filePath);
@@ -173,7 +159,7 @@ public class HumanAnalyzer {
 	/**
 	 * Prints comparison of parts in sections
 	 */
-	protected void printComparison(Text textA, Text textB) {
+	protected static void printComparison(Text textA, Text textB) {
 
 		System.out.println("File: " + textA);
 
@@ -195,7 +181,7 @@ public class HumanAnalyzer {
 	/**
 	 * Prints context of first line in text-parts
 	 */
-	protected void printContextOfTextPart(List<Text> list, int range) {
+	protected static void printContextOfTexts(List<Text> list, int range) {
 		for (int i = 0; i < list.size(); i++) {
 			Text textPart = list.get(i);
 			System.out.println("[" + i + "]");

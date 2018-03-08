@@ -22,14 +22,20 @@ public class Cleaner {
 		// Strings to remove
 		List<String> badLines = new LinkedList<String>();
 		badLines.add("[Illustration]");
-		badLines.add("       *       *       *       *       *");
 
 		// Search for lines to remove
 		List<Integer> removeList = new LinkedList<Integer>();
 		Iterator<Integer> it = text.getLineIndexes().iterator();
 		while (it.hasNext()) {
 			Integer lineIndex = it.next();
-			if (badLines.contains(text.getLine(lineIndex))) {
+			String line = text.getLine(lineIndex);
+			if (line.isEmpty()) {
+				continue;
+			}
+			if (badLines.contains(line)) {
+				removeList.add(lineIndex);
+			}
+			if (line.replace("*", "").trim().isEmpty()) {
 				removeList.add(lineIndex);
 			}
 		}

@@ -20,7 +20,7 @@ public class CleanerTest {
 
 	@BeforeClass
 	public static void loadText() {
-		textWithIllustrations = new FullTxt(Resources.getResource(RESOURCE_WITH_ILLUSTRATIONS).getPath(), CHARSET);
+		textWithIllustrations = new FullText(Resources.getResource(RESOURCE_WITH_ILLUSTRATIONS).getPath(), CHARSET);
 	}
 
 	/**

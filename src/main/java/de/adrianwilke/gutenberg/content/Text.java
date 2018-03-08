@@ -1,9 +1,11 @@
 package de.adrianwilke.gutenberg.content;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -29,6 +31,7 @@ public abstract class Text implements Comparable<Text> {
 	protected String name;
 	protected final Text parent;
 	protected SortedMap<Integer, List<Text>> sections;
+	protected Set<String> words;
 
 	/**
 	 * Creates new text.
@@ -121,11 +124,28 @@ public abstract class Text implements Comparable<Text> {
 	}
 
 	/**
+	 * Gets set of lower case words contained in text.
+	 */
+	public Set<String> getCorpus() {
+		if (words == null) {
+			words = new HashSet<String>();
+			for (Integer lineIndex : getLineIndexes()) {
+				for (String word : getRoot().getLineSimplified(lineIndex).split(" ")) {
+					if (!word.isEmpty()) {
+						words.add(word);
+					}
+				}
+			}
+		}
+		return words;
+	}
+
+	/**
 	 * Gets first index of text range.
 	 */
 	public int getFirstIndex() {
 		return getLineIndexes().first();
-	};
+	}
 
 	/**
 	 * Gets last index of text range.
@@ -137,7 +157,7 @@ public abstract class Text implements Comparable<Text> {
 	/**
 	 * Gets line with related index.
 	 */
-	public abstract String getLine(int index);
+	public abstract String getLine(int index);;
 
 	/**
 	 * Gets indexes of text.
@@ -156,6 +176,22 @@ public abstract class Text implements Comparable<Text> {
 	public String getName() {
 		return name;
 	}
+
+	/**
+	 * Gets number of punctuation marks in text.
+	 */
+	public int getNumberOfPunctuationMarks() {
+		int counter = 0;
+		for (Integer lineIndex : getLineIndexes()) {
+			counter += getNumberOfPunctuationMarks(lineIndex);
+		}
+		return counter;
+	}
+
+	/**
+	 * Gets number of punctuation marks in line.
+	 */
+	public abstract int getNumberOfPunctuationMarks(int lineIndex);
 
 	/**
 	 * Gets parent element.

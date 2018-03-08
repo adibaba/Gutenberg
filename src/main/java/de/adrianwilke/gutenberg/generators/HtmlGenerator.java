@@ -24,11 +24,19 @@ public class HtmlGenerator {
 		this.textB = textB;
 	}
 
-	public HtmlGenerator generate(List<Integer> splitA, List<Integer> splitB) {
+	/**
+	 * Generates HTML content.
+	 * 
+	 * @param splitAendIndexes
+	 *            End indexes for splitting text A
+	 * @param splitBendIndexes
+	 *            End indexes for splitting text B
+	 */
+	public HtmlGenerator generate(List<Integer> splitAendIndexes, List<Integer> splitBendIndexes) {
 		generateHeader();
 
-		Iterator<Integer> itA = splitA.iterator();
-		Iterator<Integer> itB = splitB.iterator();
+		Iterator<Integer> itA = splitAendIndexes.iterator();
+		Iterator<Integer> itB = splitBendIndexes.iterator();
 		while (itA.hasNext() && itB.hasNext()) {
 			generateRow(itA.next(), itB.next());
 		}
@@ -80,6 +88,13 @@ public class HtmlGenerator {
 
 	/**
 	 * Generates one row holding two cells.
+	 *
+	 * Start indexes for next call are stored in object.
+	 * 
+	 * @param endIndexA
+	 *            End index of text A to include. If -1, an empty cell is generated
+	 * @param endIndexB
+	 *            End index of text B to include. If -1, an empty cell is generated
 	 */
 	public HtmlGenerator generateRow(int endIndexA, int endIndexB) {
 		stringBuilder.append("<tr>");
@@ -113,8 +128,12 @@ public class HtmlGenerator {
 		stringBuilder.append("</tr>");
 		stringBuilder.append(System.lineSeparator());
 
-		indexA = endIndexA + 1;
-		indexB = endIndexB + 1;
+		if (endIndexA != -1) {
+			indexA = endIndexA + 1;
+		}
+		if (endIndexB != -1) {
+			indexB = endIndexB + 1;
+		}
 
 		return this;
 	}

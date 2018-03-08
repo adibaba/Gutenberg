@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.FullText;
 import de.adrianwilke.gutenberg.content.Text;
 import de.adrianwilke.gutenberg.content.ChapterSearch;
 import de.adrianwilke.gutenberg.io.Resources;
@@ -26,8 +26,8 @@ public class ChapterSearchTest {
 
 	@BeforeClass
 	public static void loadText() {
-		textWithHeadings = new FullTxt(Resources.getResource(RESOURCE_WITH_HEADINGS).getPath(), CHARSET);
-		textWithoutHeadings = new FullTxt(Resources.getResource(RESOURCE_WITHOUT_HEADINGS).getPath(), CHARSET);
+		textWithHeadings = new FullText(Resources.getResource(RESOURCE_WITH_HEADINGS).getPath(), CHARSET);
+		textWithoutHeadings = new FullText(Resources.getResource(RESOURCE_WITHOUT_HEADINGS).getPath(), CHARSET);
 	}
 
 	/**

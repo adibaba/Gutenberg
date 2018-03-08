@@ -206,12 +206,13 @@ public class ChapterSearch {
 		List<Text> sectionOfFind = text.getSections().get(distanceOfFind);
 		List<String> headings = getChapterHeadingVariations().get(headingIndexOfFind);
 		int startIndex = indexOfFind + 1;
-		for (int headingIndex = 2; headingIndex < headings.size(); headingIndex++) {
+		headingLoop: for (int headingIndex = 2; headingIndex < headings.size(); headingIndex++) {
 			for (int i = startIndex; i < sectionOfFind.size(); i++) {
 				Text textPart = sectionOfFind.get(i);
 				if (textPart.getLineSimplified(textPart.getFirstIndex()).startsWith(headings.get(headingIndex))) {
 					chapters.add(new TextPart(text, "chapter" + (headingIndex + 1), textPart.getFirstIndex(),
 							textPart.getLastIndex()));
+					continue headingLoop;
 				}
 			}
 		}

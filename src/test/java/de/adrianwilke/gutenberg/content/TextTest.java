@@ -3,13 +3,13 @@ package de.adrianwilke.gutenberg.content;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.adrianwilke.gutenberg.content.FullTxt;
+import de.adrianwilke.gutenberg.content.FullText;
 import de.adrianwilke.gutenberg.content.Text;
 import de.adrianwilke.gutenberg.content.TextPart;
 import de.adrianwilke.gutenberg.io.Resources;
 
 /**
- * Tests {@link Text}, {@link FullTxt}, {@link TextPart}.
+ * Tests {@link Text}, {@link FullText}, {@link TextPart}.
  * 
  * @author Adrian Wilke
  */
@@ -22,7 +22,7 @@ public class TextTest {
 
 	@BeforeClass
 	public static void loadText() {
-		text = new FullTxt(Resources.getResource(RESOURCE).getPath(), CHARSET);
+		text = new FullText(Resources.getResource(RESOURCE).getPath(), CHARSET);
 	}
 
 	/**
@@ -36,6 +36,17 @@ public class TextTest {
 				System.out.println(text.getLineSimplified(index));
 			}
 		}
+	}
+
+	/**
+	 * Tests {@link Text#getCorpus()}
+	 */
+	@Test
+	public void testCorpus() {
+		if (PRINT) {
+			System.out.println(text.getCorpus());
+		}
+		assert (text.getCorpus().size() == 63);
 	}
 
 	/**
@@ -65,6 +76,17 @@ public class TextTest {
 			System.out.println();
 		}
 
+	}
+
+	/**
+	 * Tests {@link Text#getNumberOfPunctuationMarks()}
+	 */
+	@Test
+	public void testPunctuationMarks() {
+		if (PRINT) {
+			System.out.println(text.getNumberOfPunctuationMarks());
+		}
+		assert (text.getNumberOfPunctuationMarks() == 8);
 	}
 
 	/**

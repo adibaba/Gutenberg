@@ -199,7 +199,7 @@ public abstract class Text implements Comparable<Text> {
 	 * @throws TextRootRuntimeException
 	 *             if is root and has no parent element
 	 */
-	protected Text getParent() {
+	public Text getParent() {
 		if (parent == null) {
 			throw new TextRootRuntimeException();
 		} else {

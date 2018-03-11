@@ -7,6 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.adrianwilke.gutenberg.content.comparator.CorpusComparator;
+import de.adrianwilke.gutenberg.content.comparator.LengthComparatot;
 import de.adrianwilke.gutenberg.content.comparator.PunctuationComparator;
 import de.adrianwilke.gutenberg.content.comparator.TextComparator;
 import de.adrianwilke.gutenberg.io.Resources;
@@ -36,27 +37,35 @@ public class TextComparatorTest {
 	public void test() {
 		TextComparator corpusComparator = new CorpusComparator();
 		TextComparator punctuationComparator = new PunctuationComparator();
+		TextComparator lengthComparatot = new LengthComparatot();
 
 		if (PRINT) {
 			System.out.println(corpusComparator.compare(text, text2));
 			System.out.println(corpusComparator.compare(text2, text));
 			System.out.println(punctuationComparator.compare(text, text2));
 			System.out.println(punctuationComparator.compare(text2, text));
+			System.out.println(lengthComparatot.compare(text, text2));
+			System.out.println(lengthComparatot.compare(text2, text));
 		}
 
 		assertEquals(corpusComparator.compare(text, text2), corpusComparator.compare(text2, text), 0);
 		assertEquals(punctuationComparator.compare(text, text2), punctuationComparator.compare(text2, text), 0);
+		assertEquals(lengthComparatot.compare(text, text2), lengthComparatot.compare(text2, text), 0);
 
 		assertTrue(corpusComparator.compare(text, text2) < 1);
-		assertTrue(corpusComparator.compare(text, text) == 1);
-
 		assertTrue(punctuationComparator.compare(text, text2) < 1);
+		assertTrue(lengthComparatot.compare(text, text2) < 1);
+
+		assertTrue(corpusComparator.compare(text, text) == 1);
 		assertTrue(punctuationComparator.compare(text, text) == 1);
+		assertTrue(lengthComparatot.compare(text, text) == 1);
 
 		assertTrue(corpusComparator.compare(text, text, text) == 1);
 		assertTrue(punctuationComparator.compare(text, text, text) < 1);
+		assertTrue(lengthComparatot.compare(text, text, text) < 1);
 
-		assertTrue(corpusComparator.compare(text, text2, text, text2) == 1);
-		assertTrue(punctuationComparator.compare(text, text2, text, text2) == 1);
+		assertTrue(corpusComparator.compare(text, text2, text2, text) == 1);
+		assertTrue(punctuationComparator.compare(text, text2, text2, text) == 1);
+		assertTrue(lengthComparatot.compare(text, text2, text2, text) == 1);
 	}
 }

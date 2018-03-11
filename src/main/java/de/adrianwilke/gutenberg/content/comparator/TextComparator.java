@@ -8,6 +8,10 @@ import de.adrianwilke.gutenberg.content.Text;
 /**
  * Sub-classes compare texts.
  * 
+ * Returns value between 0 (not equal) and 1 (equal).
+ * 
+ * Order of texts is irrelevant.
+ * 
  * @author Adrian Wilke
  */
 public abstract class TextComparator {

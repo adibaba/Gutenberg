@@ -14,7 +14,10 @@ public class CorpusComparator extends TextComparator {
 
 	protected double compare(Set<String> a, Set<String> b) {
 
-		if (a.isEmpty() || b.isEmpty()) {
+		if (a.isEmpty() && b.isEmpty()) {
+			return 1;
+
+		} else if (a.isEmpty() || b.isEmpty()) {
 			return 0;
 
 		} else {

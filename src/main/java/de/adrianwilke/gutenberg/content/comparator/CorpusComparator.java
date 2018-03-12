@@ -12,6 +12,8 @@ import de.adrianwilke.gutenberg.content.Text;
  */
 public class CorpusComparator extends TextComparator {
 
+	final public static double PAIR_BONUS = .2;
+
 	protected double compare(Set<String> a, Set<String> b) {
 
 		if (a.isEmpty() && b.isEmpty()) {
@@ -36,7 +38,7 @@ public class CorpusComparator extends TextComparator {
 
 	@Override
 	public double compare(Text textA, Text textB) {
-		return compare(textA.getCorpus(), textB.getCorpus());
+		return pairBonus(compare(textA.getCorpus(), textB.getCorpus()));
 	}
 
 	@Override
@@ -56,5 +58,16 @@ public class CorpusComparator extends TextComparator {
 		b.addAll(textB2.getCorpus());
 
 		return compare(a, b);
+	}
+
+	/**
+	 * The probability of finding words in larger corpora is higher.
+	 */
+	protected double pairBonus(double score) {
+		if (score + PAIR_BONUS > 1) {
+			return 1;
+		} else {
+			return score + PAIR_BONUS;
+		}
 	}
 }

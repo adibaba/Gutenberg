@@ -18,6 +18,7 @@ import de.adrianwilke.gutenberg.io.TextFileAccessor;
 public class HumanAnalyzer {
 
 	protected static boolean EXECUTE = false;
+	protected static boolean GENERATE = false;
 	protected static List<String> FILE_CHARSETS;
 	protected static List<String> FILE_PATHS;
 	protected static File DIRECTORY_GENERATION;
@@ -110,24 +111,29 @@ public class HumanAnalyzer {
 			}
 			SortedSet<Text> chaptersB = chapterSearchB.searchAdditionalHeadings();
 
+			// TODO
+			new EqualPartsSearch(chaptersA.first().getSections().get(1), chaptersB.first().getSections().get(1))
+					.search();
+
 			// Generate html
+			if (GENERATE) {
+				List<Integer> splitAendIndexes = new LinkedList<Integer>();
+				splitAendIndexes.add(chaptersA.first().getFirstIndex() - 1);
+				for (Text text : chaptersA) {
+					splitAendIndexes.add(text.getLastIndex());
+				}
+				List<Integer> splitBendIndexes = new LinkedList<Integer>();
+				splitBendIndexes.add(chaptersB.first().getFirstIndex() - 1);
+				for (Text text : chaptersB) {
+					splitBendIndexes.add(text.getLastIndex());
+				}
 
-			List<Integer> splitAendIndexes = new LinkedList<Integer>();
-			splitAendIndexes.add(chaptersA.first().getFirstIndex() - 1);
-			for (Text text : chaptersA) {
-				splitAendIndexes.add(text.getLastIndex());
+				HtmlGenerator generator = new HtmlGenerator(textA, textB);
+				generator.generate(splitAendIndexes, splitBendIndexes);
+
+				String filePath = new File(DIRECTORY_GENERATION, "/test.htm").getPath();
+				TextFileAccessor.writeStringToFile(generator.toString(), filePath);
 			}
-			List<Integer> splitBendIndexes = new LinkedList<Integer>();
-			splitBendIndexes.add(chaptersB.first().getFirstIndex() - 1);
-			for (Text text : chaptersB) {
-				splitBendIndexes.add(text.getLastIndex());
-			}
-
-			HtmlGenerator generator = new HtmlGenerator(textA, textB);
-			generator.generate(splitAendIndexes, splitBendIndexes);
-
-			String filePath = new File(DIRECTORY_GENERATION, "/test.htm").getPath();
-			TextFileAccessor.writeStringToFile(generator.toString(), filePath);
 		}
 	}
 

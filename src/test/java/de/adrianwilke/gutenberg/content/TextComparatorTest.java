@@ -55,7 +55,7 @@ public class TextComparatorTest {
 		assertEquals(punctuationComparator.compare(text, text2), punctuationComparator.compare(text2, text), 0);
 		assertEquals(lengthComparator.compare(text, text2), lengthComparator.compare(text2, text), 0);
 
-		assertTrue(corpusComparator.compare(text, text2) < 1 + CorpusComparator.PAIR_BONUS);
+		assertTrue(corpusComparator.compare(text, text2) < 1 + CorpusComparator.pairBonus);
 		assertTrue(punctuationComparator.compare(text, text2) < 1);
 		assertTrue(lengthComparator.compare(text, text2) < 1);
 

@@ -12,7 +12,7 @@ import de.adrianwilke.gutenberg.content.Text;
  */
 public class CorpusComparator extends TextComparator {
 
-	final public static double PAIR_BONUS = .2;
+	protected double pairBonus = .2;
 
 	protected double compare(Set<String> a, Set<String> b) {
 
@@ -64,10 +64,14 @@ public class CorpusComparator extends TextComparator {
 	 * The probability of finding words in larger corpora is higher.
 	 */
 	protected double pairBonus(double score) {
-		if (score + PAIR_BONUS > 1) {
+		if (score + pairBonus > 1) {
 			return 1;
 		} else {
-			return score + PAIR_BONUS;
+			return score + pairBonus;
 		}
+	}
+
+	public void setPairBonus(double pairBonus) {
+		this.pairBonus = pairBonus;
 	}
 }

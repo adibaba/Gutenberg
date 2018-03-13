@@ -15,8 +15,10 @@ public class TextComparators {
 
 	protected Map<TextComparator, Integer> textComparators = new HashMap<TextComparator, Integer>();
 
-	public TextComparators addCorpusComparator(int weight) {
-		textComparators.put(new CorpusComparator(), weight);
+	public TextComparators addCorpusComparator(int weight, double pairBonus) {
+		CorpusComparator corpusComparator = new CorpusComparator();
+		corpusComparator.setPairBonus(pairBonus);
+		textComparators.put(corpusComparator, weight);
 		return this;
 	}
 

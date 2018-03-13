@@ -112,8 +112,16 @@ public class HumanAnalyzer {
 			SortedSet<Text> chaptersB = chapterSearchB.searchAdditionalHeadings();
 
 			// TODO
-			new EqualPartsSearch(chaptersA.first().getSections().get(1), chaptersB.first().getSections().get(1))
-					.search();
+			// new EqualPartsSearch(chaptersA.first().getSections().get(1),
+			// chaptersB.first().getSections().get(1))
+			// .search();
+			Text[] chpterAarray = chaptersA.toArray(new Text[0]);
+			Text[] chpterBarray = chaptersB.toArray(new Text[0]);
+			for (int i = 0; i < chpterAarray.length; i++) {
+				// if (i == 9)
+				new EqualPartsSearch(chpterAarray.clone()[i].getSections().get(1),
+						chpterBarray.clone()[i].getSections().get(1)).search();
+			}
 
 			// Generate html
 			if (GENERATE) {
